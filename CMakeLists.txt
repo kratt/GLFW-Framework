@@ -33,8 +33,9 @@ list(APPEND HEADERS ${MY_HEADERS})
 
 # add sources to the project
 file(GLOB MY_SOURCES "src/*.cpp")
-list(APPEND SOURCES ${MY_SOURCES})
-
+list(APPEND SOURCES ${MY_SOURCES})                 
+				  
+				  
 # OpenGL
 find_package(OpenGL REQUIRED)	
 if (NOT OPENGL_FOUND)
@@ -44,6 +45,11 @@ endif ()
 include_directories(${OPENGL_INCLUDE_DIRS})
 list(APPEND used_libaries  ${OPENGL_LIBRARIES})
 
+if(OPENGL_FOUND)
+	MESSAGE(STATUS "OPENGL_INCLUDE_DIRS = ${OPENGL_INCLUDE_DIRS}")
+	MESSAGE(STATUS "OPENGL_LIBRARIES = ${OPENGL_LIBRARIES}")
+endif()
+
 # GLFW
 find_package(GLFW REQUIRED)
 if (NOT GLFW_FOUND)
@@ -52,6 +58,12 @@ if (NOT GLFW_FOUND)
 endif ()
 include_directories(${GLFW_INCLUDE_DIRS})
 list(APPEND used_libaries  ${GLFW_LIBRARIES})
+
+if(GLFW_FOUND)
+	MESSAGE(STATUS "GLFW_INCLUDE_DIRS = ${GLFW_INCLUDE_DIRS}")
+	MESSAGE(STATUS "GLFW_LIBRARIES = ${GLFW_LIBRARIES}")
+endif()
+
 
 # GLEW not needed for Apple
 find_package(GLEW)
@@ -63,13 +75,17 @@ elseif(GLEW_FOUND)
 	list(APPEND used_libaries  ${GLEW_LIBRARIES})
 endif ()
 
+if(GLEW_FOUND)
+	MESSAGE(STATUS "GLEW_INCLUDE_DIRS = ${GLEW_INCLUDE_DIRS}")
+	MESSAGE(STATUS "GLEW_LIBRARIES = ${GLEW_LIBRARIES}")
+endif()
+
 find_package(GLM)
 if(NOT GLM_FOUND)
 	message(FATAL_ERROR "GLM not found")
 endif ()
 
 
-                  
 # executable
 add_executable(${project_name} ${SOURCES} ${HEADERS} ${SHADERS})
 

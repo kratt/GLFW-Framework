@@ -1,3 +1,4 @@
 mkdir build
 cd build
-cmake -G "Visual Studio 14" ..
+cmake -G "Visual Studio 12" ..
+pause

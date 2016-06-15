@@ -2,20 +2,20 @@
 //Date: 22.01.2013
 
 #include "Renderer.h"
-#include "GUI.h"
-#include "CameraManager.h"
-#include "FrameBufferObjectMultisample.h"
-#include "FrameBufferObject.h"
+//#include "GUI.h"
+//#include "CameraManager.h"
+//#include "FrameBufferObjectMultisample.h"
+//#include "FrameBufferObject.h"
 #include "Shader.h"
 #include "VertexBufferObjectAttribs.h"
 #include "Scene.h"
-#include "Mesh.h"
+//#include "Mesh.h"
 #include "Light.h"
 #include "Texture.h"
+#include "RenderContext.h"
 
-Renderer::Renderer(Scene *scene, CameraManager *camManager, GUI *gui)
+Renderer::Renderer(Scene *scene, CameraManager *camManager)
 : m_scene(scene),
-  m_gui(gui),
   m_cameraManager(camManager),
   m_bgColor(0.1f, 0.1f, 0.1f, 1.0f),
   m_width(0),
@@ -44,9 +44,9 @@ void Renderer::render()
         m_scene->m_light->renderLightView(); 
     }    
 
-    renderScene();
+   // renderScene();
 
-	m_gui->render();
+	//m_gui->render();
 
     //renderTexture(m_scene->m_light->m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0), 10, 10, 400, 300);
 }
@@ -80,26 +80,26 @@ void Renderer::resize(int width, int height)
 
 void Renderer::toggleBGColor()
 {
-    m_bgMode ++;
-    if(m_bgMode > 2)
-        m_bgMode = 0;
+ //   m_bgMode ++;
+ //   if(m_bgMode > 2)
+ //       m_bgMode = 0;
 
-    if(m_bgMode == 0)
-	{
-        m_bgColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-		m_gui->setFontColor(glm::vec4(0.9f, 0.9f, 0.9f, 1.0f));
-	}
-   
-    if(m_bgMode == 1)
-	{
-        m_bgColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		m_gui->setFontColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	}
+ //   if(m_bgMode == 0)
+	//{
+ //       m_bgColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	//	m_gui->setFontColor(glm::vec4(0.9f, 0.9f, 0.9f, 1.0f));
+	//}
+ //  
+ //   if(m_bgMode == 1)
+	//{
+ //       m_bgColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	//	m_gui->setFontColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	//}
 
-    if(m_bgMode == 2)
-	{
-        m_bgColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		m_gui->setFontColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	}
+ //   if(m_bgMode == 2)
+	//{
+ //       m_bgColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	//	m_gui->setFontColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	//}
 }
 

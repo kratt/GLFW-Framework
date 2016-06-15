@@ -19,7 +19,7 @@ class Texture;
 class Renderer
 {
 public:
-    Renderer(Scene *scene, CameraManager *camManager, GUI *gui);
+    Renderer(Scene *scene, CameraManager *camManager);
     ~Renderer();
 
     void init();

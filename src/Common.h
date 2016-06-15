@@ -34,12 +34,6 @@ class VertexBufferObjectAttribs;
 
 using namespace std;
 
-struct Transform
-{
-	glm::mat4x4 view;
-	glm::mat4x4 projection;
-};
-
 struct TGAFILE
 {
     unsigned char imageTypeCode;

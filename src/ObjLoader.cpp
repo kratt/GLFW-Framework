@@ -4,7 +4,7 @@
 
 #include "ObjLoader.h"
 #include "VertexBufferObjectAttribs.h"
-#include "ModelObj.h"
+#include "ModelLoaderObj.h"
 #include <fstream>
 
 /**
@@ -21,7 +21,6 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
     const int *ib = model->getIndexBuffer();
     
 	std::vector<glm::vec3> tmpVertices;	
-	std::vector<glm::vec3> tmpColor;	
 	std::vector<glm::vec3> tmpNormals;
 	std::vector<glm::vec3> tmpTexCoords;
 
@@ -34,12 +33,10 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
         ModelOBJ::Vertex v = vb[j];
 
 		glm::vec3 p(v.position[0], v.position[1], v.position[2]);
-		glm::vec3 c(v.color[0], v.color[1], v.color[2]);
 		glm::vec3 n(v.normal[0], v.normal[1], v.normal[2]);
 		glm::vec3 t(v.texCoord[0], v.texCoord[1], 0.0f);  
 			
 		tmpVertices.push_back(p);
-		tmpColor.push_back(c);
 		tmpNormals.push_back(n);
 		tmpTexCoords.push_back(t);
     }        
@@ -49,7 +46,6 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
 	for(unsigned int i=0; i<tmpVertices.size(); ++i)
 	{
 		glm::vec3 pos = tmpVertices[i];
-		glm::vec3 c =   tmpColor[i];
 		glm::vec3 n   = tmpNormals[i];
 		glm::vec3 t   = tmpTexCoords[i];
 
@@ -58,10 +54,10 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
 		data[i].vz = pos.z;
 		data[i].vw = 1.0f;
 
-		data[i].cx = c.x;
-		data[i].cy = c.y;
-		data[i].cz = c.z;
-		data[i].cw = 1.0;
+		data[i].cx = 0.0f;
+		data[i].cy = 0.0f;
+		data[i].cz = 0.0f;
+		data[i].cw = 1.0f;
 
 		data[i].nx = n.x;
 		data[i].ny = n.y;

@@ -35,15 +35,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <algorithm>
-#include <cstdio>
 #include <cmath>
 #include <cstring>
 #include <limits>
 #include <string>
-#include "ModelObj.h"
+#include "ModelLoaderObj.h"
 
 namespace
 {
@@ -155,7 +152,6 @@ void ModelOBJ::destroy()
     m_attributeBuffer.clear();
 
     m_vertexCoords.clear();
-	m_vertexColor.clear();
     m_textureCoords.clear();
     m_normals.clear();
 
@@ -310,35 +306,26 @@ void ModelOBJ::addTrianglePos(int index, int material, int v0, int v1, int v2)
 {
     Vertex vertex =
     {
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f,
-        0.0f}, {0.0f, 0.0f}
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f
     };
 
     m_attributeBuffer[index] = material;
-	
+
     vertex.position[0] = m_vertexCoords[v0 * 3];
     vertex.position[1] = m_vertexCoords[v0 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v0 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v0 * 3];
-    vertex.color[1] = m_vertexColor[v0 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v0 * 3 + 2];
     m_indexBuffer[index * 3] = addVertex(v0, &vertex);
 
     vertex.position[0] = m_vertexCoords[v1 * 3];
     vertex.position[1] = m_vertexCoords[v1 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v1 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v1 * 3];
-    vertex.color[1] = m_vertexColor[v1 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v1 * 3 + 2];
     m_indexBuffer[index * 3 + 1] = addVertex(v1, &vertex);
 
     vertex.position[0] = m_vertexCoords[v2 * 3];
     vertex.position[1] = m_vertexCoords[v2 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v2 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v2 * 3];
-    vertex.color[1] = m_vertexColor[v2 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v2 * 3 + 2];
     m_indexBuffer[index * 3 + 2] = addVertex(v2, &vertex);
 }
 
@@ -347,10 +334,10 @@ void ModelOBJ::addTrianglePosNormal(int index, int material, int v0, int v1,
 {
     Vertex vertex =
     {
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f}
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f
     };
 
     m_attributeBuffer[index] = material;
@@ -358,9 +345,6 @@ void ModelOBJ::addTrianglePosNormal(int index, int material, int v0, int v1,
     vertex.position[0] = m_vertexCoords[v0 * 3];
     vertex.position[1] = m_vertexCoords[v0 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v0 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v0 * 3];
-    vertex.color[1] = m_vertexColor[v0 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v0 * 3 + 2];
     vertex.normal[0] = m_normals[vn0 * 3];
     vertex.normal[1] = m_normals[vn0 * 3 + 1];
     vertex.normal[2] = m_normals[vn0 * 3 + 2];
@@ -369,9 +353,6 @@ void ModelOBJ::addTrianglePosNormal(int index, int material, int v0, int v1,
     vertex.position[0] = m_vertexCoords[v1 * 3];
     vertex.position[1] = m_vertexCoords[v1 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v1 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v1 * 3];
-    vertex.color[1] = m_vertexColor[v1 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v1 * 3 + 2];
     vertex.normal[0] = m_normals[vn1 * 3];
     vertex.normal[1] = m_normals[vn1 * 3 + 1];
     vertex.normal[2] = m_normals[vn1 * 3 + 2];
@@ -380,9 +361,6 @@ void ModelOBJ::addTrianglePosNormal(int index, int material, int v0, int v1,
     vertex.position[0] = m_vertexCoords[v2 * 3];
     vertex.position[1] = m_vertexCoords[v2 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v2 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v2 * 3];
-    vertex.color[1] = m_vertexColor[v2 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v2 * 3 + 2];
     vertex.normal[0] = m_normals[vn2 * 3];
     vertex.normal[1] = m_normals[vn2 * 3 + 1];
     vertex.normal[2] = m_normals[vn2 * 3 + 2];
@@ -394,10 +372,10 @@ void ModelOBJ::addTrianglePosTexCoord(int index, int material, int v0, int v1,
 {
     Vertex vertex =
     {
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f,
-        0.0f}, {0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f}
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f
     };
 
     m_attributeBuffer[index] = material;
@@ -405,9 +383,6 @@ void ModelOBJ::addTrianglePosTexCoord(int index, int material, int v0, int v1,
     vertex.position[0] = m_vertexCoords[v0 * 3];
     vertex.position[1] = m_vertexCoords[v0 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v0 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v0 * 3];
-    vertex.color[1] = m_vertexColor[v0 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v0 * 3 + 2];
     vertex.texCoord[0] = m_textureCoords[vt0 * 2];
     vertex.texCoord[1] = m_textureCoords[vt0 * 2 + 1];
     m_indexBuffer[index * 3] = addVertex(v0, &vertex);
@@ -415,9 +390,6 @@ void ModelOBJ::addTrianglePosTexCoord(int index, int material, int v0, int v1,
     vertex.position[0] = m_vertexCoords[v1 * 3];
     vertex.position[1] = m_vertexCoords[v1 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v1 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v1 * 3];
-    vertex.color[1] = m_vertexColor[v1 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v1 * 3 + 2];
     vertex.texCoord[0] = m_textureCoords[vt1 * 2];
     vertex.texCoord[1] = m_textureCoords[vt1 * 2 + 1];
     m_indexBuffer[index * 3 + 1] = addVertex(v1, &vertex);
@@ -425,9 +397,6 @@ void ModelOBJ::addTrianglePosTexCoord(int index, int material, int v0, int v1,
     vertex.position[0] = m_vertexCoords[v2 * 3];
     vertex.position[1] = m_vertexCoords[v2 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v2 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v2 * 3];
-    vertex.color[1] = m_vertexColor[v2 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v2 * 3 + 2];
     vertex.texCoord[0] = m_textureCoords[vt2 * 2];
     vertex.texCoord[1] = m_textureCoords[vt2 * 2 + 1];
     m_indexBuffer[index * 3 + 2] = addVertex(v2, &vertex);
@@ -439,10 +408,10 @@ void ModelOBJ::addTrianglePosTexCoordNormal(int index, int material, int v0,
 {
     Vertex vertex =
     {
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f}
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f
     };
 
     m_attributeBuffer[index] = material;
@@ -450,9 +419,6 @@ void ModelOBJ::addTrianglePosTexCoordNormal(int index, int material, int v0,
     vertex.position[0] = m_vertexCoords[v0 * 3];
     vertex.position[1] = m_vertexCoords[v0 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v0 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v0 * 3];
-    vertex.color[1] = m_vertexColor[v0 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v0 * 3 + 2];
     vertex.texCoord[0] = m_textureCoords[vt0 * 2];
     vertex.texCoord[1] = m_textureCoords[vt0 * 2 + 1];
     vertex.normal[0] = m_normals[vn0 * 3];
@@ -463,9 +429,6 @@ void ModelOBJ::addTrianglePosTexCoordNormal(int index, int material, int v0,
     vertex.position[0] = m_vertexCoords[v1 * 3];
     vertex.position[1] = m_vertexCoords[v1 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v1 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v1 * 3];
-    vertex.color[1] = m_vertexColor[v1 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v1 * 3 + 2];
     vertex.texCoord[0] = m_textureCoords[vt1 * 2];
     vertex.texCoord[1] = m_textureCoords[vt1 * 2 + 1];
     vertex.normal[0] = m_normals[vn1 * 3];
@@ -476,9 +439,6 @@ void ModelOBJ::addTrianglePosTexCoordNormal(int index, int material, int v0,
     vertex.position[0] = m_vertexCoords[v2 * 3];
     vertex.position[1] = m_vertexCoords[v2 * 3 + 1];
     vertex.position[2] = m_vertexCoords[v2 * 3 + 2];
-    vertex.color[0] = m_vertexColor[v2 * 3];
-    vertex.color[1] = m_vertexColor[v2 * 3 + 1];
-    vertex.color[2] = m_vertexColor[v2 * 3 + 2];
     vertex.texCoord[0] = m_textureCoords[vt2 * 2];
     vertex.texCoord[1] = m_textureCoords[vt2 * 2 + 1];
     vertex.normal[0] = m_normals[vn2 * 3];
@@ -933,7 +893,6 @@ void ModelOBJ::importGeometryFirstPass(FILE *pFile)
 
     // Allocate memory for the OBJ model data.
     m_vertexCoords.resize(m_numberOfVertexCoords * 3);
-	m_vertexColor.resize(m_numberOfVertexCoords * 3);
     m_textureCoords.resize(m_numberOfTextureCoords * 2);
     m_normals.resize(m_numberOfNormals * 3);
     m_indexBuffer.resize(m_numberOfTriangles * 3);
@@ -944,9 +903,9 @@ void ModelOBJ::importGeometryFirstPass(FILE *pFile)
     {
         Material defaultMaterial =
         {
-            {0.2f, 0.2f, 0.2f, 1.0f},
-            {0.8f, 0.8f, 0.8f, 1.0f},
-            {0.0f, 0.0f, 0.0f, 1.0f},
+            0.2f, 0.2f, 0.2f, 1.0f,
+            0.8f, 0.8f, 0.8f, 1.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
             0.0f,
             1.0f,
             std::string("default"),
@@ -1122,14 +1081,10 @@ void ModelOBJ::importGeometrySecondPass(FILE *pFile)
             switch (buffer[1])
             {
             case '\0': // v
-                fscanf(pFile, "%f %f %f %f %f %f",
+                fscanf(pFile, "%f %f %f",
                     &m_vertexCoords[3 * numVertices],
                     &m_vertexCoords[3 * numVertices + 1],
-                    &m_vertexCoords[3 * numVertices + 2],
-					&m_vertexColor[3 * numVertices],
-					&m_vertexColor[3 * numVertices + 1],
-					&m_vertexColor[3 * numVertices + 2]
-					);
+                    &m_vertexCoords[3 * numVertices + 2]);
                 ++numVertices;
                 break;
 

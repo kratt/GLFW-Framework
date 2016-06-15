@@ -23,6 +23,7 @@
 #if !defined(MODEL_OBJ_H)
 #define MODEL_OBJ_H
 
+#include <cstdio>
 #include <map>
 #include <string>
 #include <vector>
@@ -60,7 +61,6 @@ public:
     struct Vertex
     {
         float position[3];
-        float color[3];
         float texCoord[2];
         float normal[3];
         float tangent[4];
@@ -154,7 +154,6 @@ private:
     std::vector<int> m_indexBuffer;
     std::vector<int> m_attributeBuffer;
     std::vector<float> m_vertexCoords;
-    std::vector<float> m_vertexColor;
     std::vector<float> m_textureCoords;
     std::vector<float> m_normals;
 

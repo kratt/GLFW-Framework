@@ -1,7 +1,6 @@
 #ifndef RENDER_CONTEXT_H
 #define RENDER_CONTEXT_H
 
-#include "Misc.h"
 #include "Transform.h"
 #include "GlobalObjectParam.h"
 

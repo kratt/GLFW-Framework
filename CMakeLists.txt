@@ -73,16 +73,17 @@ if (NOT GLEW_FOUND AND NOT APPLE)
 elseif(GLEW_FOUND)
 	include_directories(${GLEW_INCLUDE_DIRS})
 	list(APPEND used_libaries  ${GLEW_LIBRARIES})
-endif ()
-
-if(GLEW_FOUND)
+	
 	MESSAGE(STATUS "GLEW_INCLUDE_DIRS = ${GLEW_INCLUDE_DIRS}")
 	MESSAGE(STATUS "GLEW_LIBRARIES = ${GLEW_LIBRARIES}")
-endif()
+endif ()
+
 
 find_package(GLM)
 if(NOT GLM_FOUND)
 	message(FATAL_ERROR "GLM not found")
+elseif(GLM_FOUND)
+	include_directories(${GLM_INCLUDE_DIRS})
 endif ()
 
 

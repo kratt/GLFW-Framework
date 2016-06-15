@@ -24,14 +24,6 @@ Shader				-	Represents the vertex and fragment programs that are
 
 VertexBufferObjectAttribs	-	Geometry data, for example loaded from an
 						*.obj file.
-
-Vector2/3/4			-	1x2/3/4 vectors with methods like length,
-						normalization, dot- and crossproduct defined.
-
-Matrix2x2/3x3/4x4	-	2x2/3x3/4x4 matrices with methods like inverse,
-						transpose, as well as addition and multiplication
-						defined.
-
 -----------------------------------------------------------------------------
 */
 
@@ -49,7 +41,7 @@ void glfw_onScroll(GLFWwindow * window, GLdouble xo, GLdouble yo);
 void glfw_onResize(GLFWwindow * window, GLint width, GLint height);
 
 GLFWwindow*			g_glfwWindow		= NULL;
-vec2				g_oldMouse			= vec2(0, 0);
+glm::vec2			g_oldMouse			= glm::vec2(0, 0);
 GLboolean			g_leftButton		= GL_FALSE;
 GLboolean			g_rightButton		= GL_FALSE;
 const GLint			g_width				= 1024;
@@ -169,13 +161,13 @@ void glfw_onKey(GLFWwindow * window, GLint key, GLint scancode, GLint action, GL
 */
 void glfw_onMouseMove(GLFWwindow * window, GLdouble x, GLdouble y)
 {
-	vec2 mouse((GLfloat)x, (GLfloat)y);
-	vec2 d = mouse - g_oldMouse;
+	glm::vec2 mouse((GLfloat)x, (GLfloat)y);
+	glm::vec2 d = mouse - g_oldMouse;
 
 	if (g_leftButton)
 	{
-		app->m_rotate.y -= (0.1f * d.x);
-		app->m_rotate.x -= (0.1f * d.y);
+		app->m_rotate.y += (0.1f * d.x);
+		app->m_rotate.x += (0.1f * d.y);
 	}
 
 	g_oldMouse = mouse;
@@ -245,8 +237,8 @@ int main(int argc, const char* argv[])
 
 	// create App
 	app = new Application(g_width, g_height);
-	app->m_zoom = -10.0f;
-	app->m_rotate = vec2(-45.0f, -45.0f);
+	app->m_zoom = 10.0f;
+	app->m_rotate = glm::vec2(0.0f, 20.0f);
 	app->m_showMesh = true;
 
 	// initialize App

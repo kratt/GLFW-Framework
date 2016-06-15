@@ -4,7 +4,8 @@
 #ifndef RENDERER
 #define RENDERER
 
-#include "Misc.h"
+#include "Global.h"
+#include <glm/vec4.hpp> 
 
 class GUI;
 class CameraManager;

@@ -3,7 +3,7 @@
 // 2015
 
 #include "src/Common.h"
-#include "src/Application.h"
+#include "src/GLWindow.h"
 #include <iostream>
 
 /*
@@ -27,7 +27,7 @@ VertexBufferObjectAttribs	-	Geometry data, for example loaded from an
 -----------------------------------------------------------------------------
 */
 
-Application *app;
+GLWindow *app;
 
 // global functions
 void init();
@@ -152,7 +152,7 @@ void glfw_onKey(GLFWwindow * window, GLint key, GLint scancode, GLint action, GL
 	}
 	else
 	{
-		app->onKey(key, scancode, action, mods);
+		//app->onKey(key, scancode, action, mods);
 	}
 }
 
@@ -164,11 +164,11 @@ void glfw_onMouseMove(GLFWwindow * window, GLdouble x, GLdouble y)
 	glm::vec2 mouse((GLfloat)x, (GLfloat)y);
 	glm::vec2 d = mouse - g_oldMouse;
 
-	if (g_leftButton)
-	{
-		app->m_rotate.y += (0.1f * d.x);
-		app->m_rotate.x += (0.1f * d.y);
-	}
+	//if (g_leftButton)
+	//{
+	//	app->m_rotate.y += (0.1f * d.x);
+	//	app->m_rotate.x += (0.1f * d.y);
+	//}
 
 	g_oldMouse = mouse;
 }
@@ -200,16 +200,16 @@ void glfw_onMouse(GLFWwindow * window, GLint button, GLint action, GLint mods)
 */
 void glfw_onScroll(GLFWwindow * window, GLdouble xo, GLdouble yo)
 {
-	GLfloat delta = app->m_zoom * 0.1f;
+	//GLfloat delta = app->m_zoom * 0.1f;
 
-	if (yo < 0)
-	{
-		app->m_zoom += delta;
-	}
-	else
-	{
-		app->m_zoom -= delta;
-	}
+	//if (yo < 0)
+	//{
+	//	app->m_zoom += delta;
+	//}
+	//else
+	//{
+	//	app->m_zoom -= delta;
+	//}
 }
 
 /**
@@ -217,9 +217,11 @@ void glfw_onScroll(GLFWwindow * window, GLdouble xo, GLdouble yo)
 */
 void glfw_onResize(GLFWwindow * window, GLint width, GLint height)
 {
-    glfwGetFramebufferSize(window, &app->m_framebufferWidth, &app->m_framebufferHeight);
+	app->resize(width, height);
+
+ /*   glfwGetFramebufferSize(window, &app->m_framebufferWidth, &app->m_framebufferHeight);
 	app->m_width = width;
-	app->m_height = height;
+	app->m_height = height;*/
 }
 
 /**
@@ -236,19 +238,11 @@ int main(int argc, const char* argv[])
 	init();
 
 	// create App
-	app = new Application(g_width, g_height);
-	app->m_zoom = 10.0f;
-	app->m_rotate = glm::vec2(0.0f, 20.0f);
-	app->m_showMesh = true;
-
-	// initialize App
-	app->init();
+	app = new GLWindow(g_width, g_height);
 
 	// render loop
 	while (!glfwWindowShouldClose(g_glfwWindow))
 	{
-        GL_ASSERT_RESET();
-        glfwGetFramebufferSize(g_glfwWindow, &app->m_framebufferWidth, &app->m_framebufferHeight);
 		app->render();
 
 		glfwPollEvents();

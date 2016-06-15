@@ -6,6 +6,7 @@
 #define SHADER
 
 #include "Common.h"
+#include "Global.h"
 
 /*
 -----------------------------------------------------------------------------
@@ -87,15 +88,15 @@ class Shader
         void set2f(const GLchar* label, GLfloat arg1, GLfloat arg2);
         void set3i(const GLchar* label, GLint arg1, GLint arg2, GLint arg3);
         void set3f(const GLchar* label, GLfloat arg1, GLfloat arg2, GLfloat arg3);
-        void set3f(const GLchar* label, const vec3 &v);
+        void set3f(const GLchar* label, const glm::vec3 &v);
         void set4i(const GLchar* label, GLint arg1, GLint arg2, GLint arg3, GLint arg4);
         void set4f(const GLchar* label, GLfloat arg1, GLfloat arg2, GLfloat arg3, GLfloat arg4);
         void set3iv(const GLchar* label, const GLint* args);
         void set3fv(const GLchar* label, const GLfloat* args);
         void setMatrix(const GLchar* label, const GLfloat* m, GLboolean transpose = GL_FALSE);
         void setMatrix(const GLchar* label, const GLdouble* m, GLboolean transpose = GL_FALSE);
-        void setMatrix(const GLchar* label, const mat4 &mat, GLboolean transpose = GL_FALSE);
-        void setMatrix(const GLchar* label, const mat3 &mat, GLboolean transpose = GL_FALSE);
+        void setMatrix(const GLchar* label, const glm::mat4x4 &mat, GLboolean transpose = GL_FALSE);
+        void setMatrix(const GLchar* label, const glm::mat3x3 &mat, GLboolean transpose = GL_FALSE);
 
         GLuint id() const;
 

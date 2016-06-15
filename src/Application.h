@@ -5,7 +5,8 @@
 #ifndef APPLICATION
 #define APPLICATION
 
-#include "Vector2.h"
+#include "Common.h"
+#include "Global.h"
 
 class VertexBufferObjectAttribs;
 class Shader;
@@ -63,7 +64,7 @@ public:
 	float m_zoom;
 
 	// Rotation vector - defined rotation around x and y axis of the geometry.
-	vec2 m_rotate;
+	glm::vec2 m_rotate;
 };
 
 #endif

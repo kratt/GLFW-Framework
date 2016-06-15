@@ -31,16 +31,4 @@ const GLfloat math_epsilon  = 1e-5f;
 const GLfloat math_maxfloat = (std::numeric_limits<GLfloat>::max)();
 const GLfloat math_minfloat = -(std::numeric_limits<GLfloat>::max)();
 
-class Matrix4x4;
-class Matrix3x3;
-class Vector4;
-class Vector3;
-class Vector2;
-
-typedef Matrix4x4 mat4;
-typedef Matrix3x3 mat3;
-typedef Vector4 vec4;
-typedef Vector3 vec3;
-typedef Vector2 vec2;
-
 #endif

@@ -3,9 +3,6 @@
 // 2015
 
 #include "Application.h"
-#include "Global.h"
-#include "Matrix4x4.h"
-#include "Vector3.h"
 #include "Shader.h"
 #include "ObjLoader.h"
 #include "VertexBufferObjectAttribs.h"
@@ -60,9 +57,8 @@ void Application::init()
 	//m_shader = new Shader("../Shader/Default31.vert.glsl", "../Shader/Default31.frag.glsl");
 
 	// A vertex buffer object (which stores geometry) is loaded from an *.obj file.
-	m_vbo = ObjLoader::createVertexBufferObject("../Data/box.obj");
+	m_vbo = ObjLoader::createVertexBufferObject("../Data/box_long.obj");
 }
-
 
 
 /**
@@ -105,7 +101,6 @@ void Application::onKey(GLint key, GLint scancode, GLint action, GLint mods) {
 */
 void Application::render()
 {
-    
 	// Setting up the viewport of the window.
 	glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
 
@@ -127,9 +122,14 @@ void Application::render()
 
 
 	// The transformation matrices are set up which define the projection, the view frustum, and the transformation/scaling/rotation of the model.
-	mat4 projection = mat4::perspective(45.0f, (GLfloat)m_width / (GLfloat)m_height, 0.1f, 1000.0f);
-	mat4 view = mat4::translate(vec3(0, 0, m_zoom)) * mat4::rotate(m_rotate.x, 1, 0, 0) * mat4::rotate(m_rotate.y, 0, 1, 0);
-	mat4 model = mat4::identitiy();
+
+
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)m_width / (GLfloat)m_height, 0.1f, 1000.0f);
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -m_zoom));
+	view = glm::rotate(view, glm::radians(m_rotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	view = glm::rotate(view, glm::radians(m_rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4x4 model = glm::mat4x4(1.0f);
 
 
 	// The shader is activated. The upcoming geometry will be passed through the Vertex and Fragment shaders.

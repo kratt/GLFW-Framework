@@ -6,6 +6,7 @@
 #define VERTEXBUFFEROBJECTATTRIBS
 
 #include "Common.h"
+#include "Global.h"
 
 /*
 -----------------------------------------------------------------------------

@@ -20,10 +20,10 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
     const ModelOBJ::Vertex *vb = model->getVertexBuffer();
     const int *ib = model->getIndexBuffer();
     
-	std::vector<vec3> tmpVertices;	
-	std::vector<vec3> tmpColor;	
-	std::vector<vec3> tmpNormals;
-	std::vector<vec3> tmpTexCoords;
+	std::vector<glm::vec3> tmpVertices;	
+	std::vector<glm::vec3> tmpColor;	
+	std::vector<glm::vec3> tmpNormals;
+	std::vector<glm::vec3> tmpTexCoords;
 
 	const ModelOBJ::Mesh &objMesh = model->getMesh(0);
 	const int startIndex = objMesh.startIndex;
@@ -33,10 +33,10 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
 	{
         ModelOBJ::Vertex v = vb[j];
 
-		vec3 p(v.position[0], v.position[1], v.position[2]);
-		vec3 c(v.color[0], v.color[1], v.color[2]);
-		vec3 n(v.normal[0], v.normal[1], v.normal[2]);
-		vec3 t(v.texCoord[0], v.texCoord[1], 0.0f);  
+		glm::vec3 p(v.position[0], v.position[1], v.position[2]);
+		glm::vec3 c(v.color[0], v.color[1], v.color[2]);
+		glm::vec3 n(v.normal[0], v.normal[1], v.normal[2]);
+		glm::vec3 t(v.texCoord[0], v.texCoord[1], 0.0f);  
 			
 		tmpVertices.push_back(p);
 		tmpColor.push_back(c);
@@ -48,10 +48,10 @@ VertexBufferObjectAttribs* ObjLoader::createVertexBufferObject(char* file)
 
 	for(unsigned int i=0; i<tmpVertices.size(); ++i)
 	{
-		vec3 pos = tmpVertices[i];
-		vec3 c =   tmpColor[i];
-		vec3 n   = tmpNormals[i];
-		vec3 t   = tmpTexCoords[i];
+		glm::vec3 pos = tmpVertices[i];
+		glm::vec3 c =   tmpColor[i];
+		glm::vec3 n   = tmpNormals[i];
+		glm::vec3 t   = tmpTexCoords[i];
 
 		data[i].vx = pos.x;
 		data[i].vy = pos.y;

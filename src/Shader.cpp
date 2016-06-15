@@ -385,11 +385,10 @@ void Shader::set3f(const GLchar* label, GLfloat arg1, GLfloat arg2, GLfloat arg3
 	GL_ASSERT( glUniform3f(glGetUniformLocation(m_id, label), arg1, arg2, arg3) );
 }
 
-void Shader::set3f(const GLchar* label, const Vector3 &v)
+void Shader::set3f(const GLchar* label, const glm::vec3 &v)
 {
 	GL_ASSERT( glUniform3f(glGetUniformLocation(m_id, label), v.x, v.y, v.z) );
 }
-
 
 void Shader::set4i(const GLchar* label, GLint arg1, GLint arg2, GLint arg3, GLint arg4)
 {
@@ -422,20 +421,14 @@ void Shader::setMatrix(const GLchar* label, const GLdouble* m, GLboolean transpo
 	GL_ASSERT( glUniformMatrix4fv(glGetUniformLocation(m_id, label), 1, transpose, fm) );
 }
 
-void Shader::setMatrix(const GLchar* label, const mat4 &mat, GLboolean transpose)
+void Shader::setMatrix(const GLchar* label, const glm::mat4x4 &mat, GLboolean transpose)
 {
-	GLfloat m[16];
-	mat.data(m);
-
-	GL_ASSERT( glUniformMatrix4fv(glGetUniformLocation(m_id, label), 1, transpose, m) );
+	glUniformMatrix4fv(glGetUniformLocation(m_id, label), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::setMatrix(const GLchar* label, const mat3 &mat, GLboolean transpose)
+void Shader::setMatrix(const GLchar* label, const glm::mat3x3 &mat, GLboolean transpose)
 {
-	GLfloat m[9];
-	mat.data(m);
-
-	GL_ASSERT( glUniformMatrix3fv(glGetUniformLocation(m_id, label), 1, transpose, m) );
+	glUniformMatrix4fv(glGetUniformLocation(m_id, label), 1, GL_FALSE, &mat[0][0]);
 }
 
 void Shader::bindAttribLocations()

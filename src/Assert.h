@@ -36,8 +36,6 @@ inline std::string errorNoStoString(GLenum errorNo) {
 	default:
 		throw "unknown error number";
 	}
-
-
 }
 
 inline void printAssert(std::string cmd, int line, std::string file) {

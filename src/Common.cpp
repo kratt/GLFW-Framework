@@ -36,21 +36,6 @@ void checkOpenGL()
 
 
 /**
-	Returns the camera position from a given ModelView-Matrix.
-*/
-vec3 getCamPosFromModelView(const Transform &trans)
-{
-	mat4 m = trans.view;
-	vec3 c;
-
-	c.x = -(m.a11 * m.a43 + m.a21 * m.a24 + m.a31 * m.a34);
-	c.y = -(m.a12 * m.a43 + m.a22 * m.a24 + m.a32 * m.a34);
-	c.z = -(m.a13 * m.a43 + m.a23 * m.a24 + m.a33 * m.a34);
-
-	return c;
-}
-
-/**
 	OpenGL context setup.
 */
 void Common::setupContextHints(const OpenGLVersion &version) {

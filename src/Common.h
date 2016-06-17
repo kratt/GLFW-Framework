@@ -7,6 +7,9 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include "Transform.h"
+#include "Global.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
@@ -63,6 +66,12 @@ struct Common {
 	static OpenGLVersion detectMaximumOpenGlVersion();
 
 	static void setupOpenGLExtensions();
+
+	static void getCameraFrame(const Transform &trans, glm::vec3 &dir, glm::vec3 &up, glm::vec3 &right, glm::vec3 &pos);
+	static void renderTexture(GLuint texture, int posX, int posY, float width, float height);
+	static void glEnable2D();
+	static void glDisable2D();
+
 };
 
 float frand(float low, float high);

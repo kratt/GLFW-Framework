@@ -28,18 +28,15 @@ public:
 	~GLWindow();
 
     void init();
-	void initGLFW();
-
 	void initParams();
     void render();
 
 
-	void keyPressEvent();
-	void keyReleaseEvent();
-	void mouseMoveEvent();
-	void mousePressEvent();
-	void mouseReleaseEvent();
-	void mouseWheelEvent();
+	void keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods);
+	void keyReleaseEvent(GLint key, GLint scancode, GLint action, GLint mods);
+	void mouseMoveEvent(GLdouble x, GLdouble y);
+	void mousePressEvent(GLint button, GLint action, GLint mods);
+	void mouseWheelEvent(GLdouble xo, GLdouble yo);
 
 	void resize(int width, int height);
 
@@ -47,6 +44,14 @@ private:
 	int m_width;
 	int m_height;
 
+	glm::vec2 m_mouse;
+
+	bool m_leftButton;
+	bool m_rightButton;
+	bool m_ctrlPressed;
+	bool m_altPressed;
+	bool m_shiftPressed;
+	bool m_noOtherKey;
 
 private:
 	Scene *m_scene;

@@ -1,10 +1,8 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #include "Mesh.h"
 #include "VertexBufferObjectAttribs.h"
 #include "ModelLoaderObj.h"
 #include <glm/glm.hpp> 
+#include <iostream>
 
 Mesh::Mesh()
 {
@@ -189,9 +187,9 @@ VertexBufferObjectAttribs *Mesh::quad(int startX, int startY, int width, int hei
 	float d = 0.1;
 
     vertices.push_back(glm::vec3(mi.x, mi.y, d));
+    vertices.push_back(glm::vec3(ma.x, mi.y, d));
     vertices.push_back(glm::vec3(mi.x, ma.y, d));
     vertices.push_back(glm::vec3(ma.x, ma.y, d));
-    vertices.push_back(glm::vec3(ma.x, mi.y, d));
 
     normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
     normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -199,9 +197,9 @@ VertexBufferObjectAttribs *Mesh::quad(int startX, int startY, int width, int hei
     normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
 
 	texCoords.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+	texCoords.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
 	texCoords.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
 	texCoords.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
-	texCoords.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
 
 
    int nrVertices = vertices.size();
@@ -235,7 +233,7 @@ VertexBufferObjectAttribs *Mesh::quad(int startX, int startY, int width, int hei
     }
 
     VertexBufferObjectAttribs *vbo = new VertexBufferObjectAttribs();
-    vbo->setData(attrData, GL_STATIC_DRAW, nrVertices, primitive);
+    vbo->setData(attrData, GL_STATIC_DRAW, nrVertices, GL_TRIANGLE_STRIP);
 
     vbo->addAttrib(VERTEX_POSITION);
     vbo->addAttrib(VERTEX_NORMAL);
@@ -246,6 +244,74 @@ VertexBufferObjectAttribs *Mesh::quad(int startX, int startY, int width, int hei
     delete[] attrData;    
 
     return vbo;
+
+	//glm::vec3 mi(startX, startY, 0.0f);
+	//glm::vec3 ma(startX + width, startY + height, 0.0f);
+
+	//vector<glm::vec3> vertices;
+	//vector<glm::vec3> normals;
+	//vector<glm::vec3> texCoords;
+
+	//float d = 0.1;
+
+	//vertices.push_back(glm::vec3(mi.x, mi.y, d));
+	//vertices.push_back(glm::vec3(mi.x, ma.y, d));
+	//vertices.push_back(glm::vec3(ma.x, ma.y, d));
+	//vertices.push_back(glm::vec3(ma.x, mi.y, d));
+
+	//normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+	//normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+	//normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+	//normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+
+	//texCoords.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+	//texCoords.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+	//texCoords.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+	//texCoords.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+
+
+	//int nrVertices = vertices.size();
+	//VertexBufferObjectAttribs::DATA *attrData = new VertexBufferObjectAttribs::DATA[nrVertices];
+
+	//for (int i = 0; i<nrVertices; ++i)
+	//{
+	//	glm::vec3 v = vertices[i];
+	//	glm::vec3 n = normals[i];
+	//	glm::vec3 t = texCoords[i];
+
+	//	attrData[i].vx = v.x;
+	//	attrData[i].vy = v.y;
+	//	attrData[i].vz = v.z;
+	//	attrData[i].vw = 1.0f;
+
+	//	attrData[i].nx = n.x;
+	//	attrData[i].ny = n.y;
+	//	attrData[i].nz = n.z;
+	//	attrData[i].nw = 0.0f;
+
+	//	attrData[i].cx = color.x;
+	//	attrData[i].cy = color.y;
+	//	attrData[i].cz = color.z;
+	//	attrData[i].cw = color.w;
+
+	//	attrData[i].tx = t.x;
+	//	attrData[i].ty = t.y;
+	//	attrData[i].tz = 0.0f;
+	//	attrData[i].tw = 0.0f;
+	//}
+
+	//VertexBufferObjectAttribs *vbo = new VertexBufferObjectAttribs();
+	//vbo->setData(attrData, GL_STATIC_DRAW, nrVertices, GL_TRIANGLE_STRIP);
+
+	//vbo->addAttrib(VERTEX_POSITION);
+	//vbo->addAttrib(VERTEX_NORMAL);
+	//vbo->addAttrib(VERTEX_COLOR);
+	//vbo->addAttrib(VERTEX_TEXTURE);
+	//vbo->bindAttribs();
+
+	//delete[] attrData;
+
+	//return vbo;
 }
 
 VertexBufferObjectAttribs *Mesh::quad(int width, int height, const glm::vec4 &color, GLenum primitive)

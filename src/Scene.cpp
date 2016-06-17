@@ -25,18 +25,17 @@ void Scene::init()
 	m_niceGrid = new NiceGrid(100.0f, 40.0f);  
 
     initShaders();
+
+	m_vbo = Mesh::sphere(2.0f, 6, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+	//Object *sphere = new Object("../Data/Objs/sphere.obj", glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(1, 1, 1));
+	//m_objects.push_back(sphere);
 }
 
 void Scene::renderWorld()
 {
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-
 	m_niceGrid->render(); 
-    m_cameraManager->renderCameras();
-
-	glPopClientAttrib();
-    glPopAttrib();
+   // m_cameraManager->renderCameras();
 }
 
 void Scene::renderObjects()
@@ -46,27 +45,25 @@ void Scene::renderObjects()
 
     glm::mat4 projection = trans->projection;
 	glm::mat4 view = trans->view;
-	glm::mat4 model = glm::mat4(1.0f);
-
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
 
 
-  //  m_shaderNormal->bind();
-  //      m_shaderNormal->set3f("lightPos", param->lightPos);
+	//for (int i = 0; i<m_objects.size(); ++i)
+	//{
+	//	m_objects[i]->render();
+	//}
 
-  //      m_shaderNormal->setMatrix("matProjection", projection, GL_FALSE);
-		//m_shaderNormal->setMatrix("matView", view, GL_FALSE);
 
-  //      model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
-		//m_shaderNormal->setMatrix("matModel", model, GL_FALSE);
-  //      
-  //      m_vbo->render();    
+    m_shaderNormal->bind();
+        m_shaderNormal->set3f("lightPos", param->lightPos);
 
-  //  m_shaderNormal->release();
+        m_shaderNormal->setMatrix("matProjection", projection, GL_FALSE);
+		m_shaderNormal->setMatrix("matView", view, GL_FALSE);
+		m_shaderNormal->setMatrix("matModel", model, GL_FALSE);
+        
+        m_vbo->render();    
 
-	glPopClientAttrib();
-    glPopAttrib();
+    m_shaderNormal->release();
 }
 
 void Scene::renderObjectsDepth()
@@ -76,26 +73,17 @@ void Scene::renderObjectsDepth()
 
     glm::mat4 projection = trans->lightProjection;
     glm::mat4 view = trans->lightView;
-	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    m_shaderDepth->bind();
 
+        m_shaderDepth->setMatrix("matProjection", projection, GL_FALSE);
+        m_shaderDepth->setMatrix("matView", view, GL_FALSE);
+        m_shaderDepth->setMatrix("matModel", model, GL_FALSE);
+        
+        m_vbo->render();    
 
-    //m_shaderDepth->bind();
-
-    //    m_shaderDepth->setMatrix("matProjection", projection, GL_TRUE);
-    //    m_shaderDepth->setMatrix("matView", view, GL_TRUE);
-
-    //    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
-    //    m_shaderDepth->setMatrix("matModel", model, GL_TRUE); 
-    //    
-    //    m_vbo->render();    
-
-    //m_shaderDepth->release();
-
-	glPopClientAttrib();
-    glPopAttrib();
+    m_shaderDepth->release();
 }
  
 void Scene::update(float delta)

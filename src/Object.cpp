@@ -3,6 +3,7 @@
 #include "VertexBufferObjectAttribs.h"
 #include "ModelLoaderObj.h"
 #include "RenderContext.h"
+#include <iostream>
 
 Object::Object(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &scale, const glm::vec4 &rot, const glm::vec4 &color)
 : m_fileName(fileName),
@@ -61,16 +62,12 @@ void Object::render()
 	auto param = RenderContext::globalObjectParam();
 	auto trans = RenderContext::transform();
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position); // *mat4::rotateY(m_rotation.y) * mat4::scale(m_scale);
 	glm::mat4 view = trans->view;
 	glm::mat4 projection = trans->projection;
 	glm::mat4 lightView = trans->lightView;
 
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
 
     glEnable(GL_CLIP_DISTANCE0);    
 
@@ -119,12 +116,7 @@ void Object::render()
             }
 
 	    m_shaderLines->release();
-    }
-
-	glDisable(GL_CULL_FACE);    
-
-	glPopClientAttrib();
-	glPopAttrib();
+    }  
 }
 
 void Object::renderDepth()
@@ -132,16 +124,12 @@ void Object::renderDepth()
 	auto param = RenderContext::globalObjectParam();
 	auto trans = RenderContext::transform();
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-
     glEnable(GL_CLIP_DISTANCE0);
 
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position); // *mat4::rotateY(m_rotation.y) * mat4::scale(m_scale);
 	glm::mat4 view = trans->lightView;
 	glm::mat4 projection = trans->lightProjection;
 
-    glDisable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
     //glFrontFace(GL_CCW);
 
@@ -165,9 +153,6 @@ void Object::renderDepth()
         }
 
 	m_shaderTrianglesDepth->release();
-
-	glPopClientAttrib();
-	glPopAttrib();
 }
 
 

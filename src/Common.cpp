@@ -5,6 +5,8 @@
 #include "Common.h"
 #include "VertexBufferObjectAttribs.h"
 
+#include <iostream>
+
 /**
 	Returns a random float value between low and high.
 */
@@ -24,10 +26,10 @@ void checkOpenGL()
 	char *version = NULL;
 	char *extentions = NULL;
 
-	vendor = (char*)GL_ASSERT( glGetString(GL_VENDOR) );
-	renderer = (char*)GL_ASSERT( glGetString(GL_RENDERER) );
-	version = (char*)GL_ASSERT( glGetString(GL_VERSION) );
-	extentions = (char*)GL_ASSERT( glGetString(GL_EXTENSIONS) );
+	vendor = (char*)glGetString(GL_VENDOR);
+	renderer = (char*)glGetString(GL_RENDERER);
+	version = (char*) glGetString(GL_VERSION);
+	extentions = (char*) glGetString(GL_EXTENSIONS);
 
 	printf("Vendor: %s\n", vendor);
 	printf("Renderer: %s\n", renderer);
@@ -110,4 +112,104 @@ void Common::setupOpenGLExtensions() {
 #else
 	std::cout << "not required." << std::endl;
 #endif
+}
+
+void Common::getCameraFrame(const Transform & trans, glm::vec3 & dir, glm::vec3 & up, glm::vec3 & right, glm::vec3 & pos)
+{
+	glm::mat4 view = trans.view;
+
+	up = glm::normalize(glm::vec3(view[0][1], view[1][1], view[2][1]));
+	right = glm::normalize(glm::vec3(view[0][0], view[1][0], view[2][0]));
+	dir = glm::normalize(glm::cross(up, right));
+
+	pos.x = -(view[0][0] * view[0][3] + view[1][0] * view[1][3] + view[2][0] * view[2][3]);
+	pos.y = -(view[0][1] * view[0][3] + view[1][1] * view[1][3] + view[2][1] * view[2][3]);
+	pos.z = -(view[0][2] * view[0][3] + view[1][2] * view[1][3] + view[2][2] * view[2][3]);
+}
+
+void Common::renderTexture(GLuint texture, int posX, int posY, float width, float height)
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glColor4f(0.0, 0.0, 0.0, 1.0f);
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); 
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+
+
+	glDisable(GL_DEPTH_TEST);
+
+
+	glEnable2D();
+	glPushMatrix();
+	glTranslatef(posX, posY, 0.0f);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0.0f, 0.0f, 0.0f);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(width, 0.0f, 0.0f);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(width, height, 0.0f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0.0, height, 0.0f);
+	glEnd();
+	glPopMatrix();
+	glDisable2D();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+}
+
+void Common::glEnable2D()
+{
+	GLint iViewport[4];
+
+	// Get a copy of the viewport
+	glGetIntegerv(GL_VIEWPORT, iViewport);
+
+	// Save a copy of the projection matrix so that we can restore it 
+	// when it's time to do 3D rendering again.
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// Set up the orthographic projection
+	glOrtho(iViewport[0], iViewport[0] + iViewport[2], iViewport[1] + iViewport[3], iViewport[1], -1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// Make sure depth testing and lighting are disabled for 2D rendering until
+	// we are finished rendering in 2D
+	glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+}
+
+void Common::glDisable2D()
+{
+	glPopAttrib();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }

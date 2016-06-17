@@ -26,10 +26,10 @@ GLuint VertexBufferObjectAttribs::createVBO(GLenum target, GLuint dataSize, cons
 {
     GLuint vbo;
 
-	GL_ASSERT( glGenBuffers(1, &vbo) );
-	GL_ASSERT( glBindBuffer(target, vbo) );
-	GL_ASSERT( glBufferData(target, dataSize, data, usage) );
-	GL_ASSERT( glBindBuffer(target, 0) );
+	glGenBuffers(1, &vbo);
+	glBindBuffer(target, vbo);
+	glBufferData(target, dataSize, data, usage);
+	glBindBuffer(target, 0);
 
     return vbo;
 }
@@ -37,72 +37,72 @@ GLuint VertexBufferObjectAttribs::createVBO(GLenum target, GLuint dataSize, cons
 VertexBufferObjectAttribs::~VertexBufferObjectAttribs()
 {
 	if (m_bufferId != GL_INVALID_VALUE) {
-		GL_ASSERT( glDeleteBuffers(1, &m_bufferId) );
+		glDeleteBuffers(1, &m_bufferId) ;
 	}
 
 	if (m_indexBufferId != GL_INVALID_VALUE) {
-		GL_ASSERT( glDeleteBuffers(1, &m_indexBufferId) );
+		glDeleteBuffers(1, &m_indexBufferId);
 	}
 }
 
 void VertexBufferObjectAttribs::bindAttribs()
 {
     GLint size = m_attribLocations.size();
-	GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, m_bufferId) );
+	glBindBuffer(GL_ARRAY_BUFFER, m_bufferId);
   
     for(GLint i=0; i<size; ++i)
     {
         GLint attribLoc = m_attribLocations[i];
-		GL_ASSERT( glVertexAttribPointer(attribLoc, 4, GL_FLOAT, GL_FALSE, sizeof(DATA), ((GLchar*)NULL + 4 * sizeof(GLfloat) * i)) );
+		glVertexAttribPointer(attribLoc, 4, GL_FLOAT, GL_FALSE, sizeof(DATA), ((GLchar*)NULL + 4 * sizeof(GLfloat) * i));
     }
-	GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, 0) );
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void VertexBufferObjectAttribs::render()
 {    
     GLint size = m_attribLocations.size();
-	GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, m_bufferId) );
+	glBindBuffer(GL_ARRAY_BUFFER, m_bufferId);
   
     for(GLint i=0; i<size; ++i)
     {
         GLint attribLoc = m_attribLocations[i];
-		GL_ASSERT( glVertexAttribPointer(attribLoc, 4, GL_FLOAT, GL_FALSE, sizeof(DATA), ((GLchar*)NULL + 4 * sizeof(GLfloat) * i)) );
+		glVertexAttribPointer(attribLoc, 4, GL_FLOAT, GL_FALSE, sizeof(DATA), ((GLchar*)NULL + 4 * sizeof(GLfloat) * i));
     }
-	GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, 0) );
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	for (GLint i = 0; i < size; ++i) {
-		GL_ASSERT( glEnableVertexAttribArray(m_attribLocations[i]) );
+		glEnableVertexAttribArray(m_attribLocations[i]);
 	}
 
 
     if(m_useIndexBuffer)
     {
-		GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferId) );
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferId);
         
         if(m_dynamicRendering)
         {
-			GL_ASSERT( glDrawElements(m_primitiveMode, m_nrDynamicIndices, GL_UNSIGNED_INT, 0) );
+			glDrawElements(m_primitiveMode, m_nrDynamicIndices, GL_UNSIGNED_INT, 0);
         }
         else
         {
-			GL_ASSERT( glDrawElements(m_primitiveMode, m_nrIndices, GL_UNSIGNED_INT, 0) );
+			glDrawElements(m_primitiveMode, m_nrIndices, GL_UNSIGNED_INT, 0);
         }
     }
     else
     {
         if(m_dynamicRendering)
         {
-			GL_ASSERT( glDrawArrays(m_primitiveMode, 0, m_nrDynamicVertices) );
+			glDrawArrays(m_primitiveMode, 0, m_nrDynamicVertices);
         }
         else
         {
-			GL_ASSERT( glDrawArrays(m_primitiveMode, 0, m_nrVertices) );
+			glDrawArrays(m_primitiveMode, 0, m_nrVertices);
         }
     }
 
 	
 	for (GLint i = 0; i < size; ++i) {
-		GL_ASSERT( glDisableVertexAttribArray(m_attribLocations[i]) );
+		glDisableVertexAttribArray(m_attribLocations[i]);
 	}
 
 }
@@ -141,12 +141,12 @@ void VertexBufferObjectAttribs::setVerticesToRender(GLuint nrVertices)
 
 void VertexBufferObjectAttribs::bind()
 {
-	GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, m_bufferId) );
+	glBindBuffer(GL_ARRAY_BUFFER, m_bufferId);
 }
 
 void VertexBufferObjectAttribs::release()
 {
-	GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, 0) );
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void VertexBufferObjectAttribs::setDynamicRendering(GLboolean dynamicRendering)

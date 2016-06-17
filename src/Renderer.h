@@ -1,6 +1,3 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #ifndef RENDERER
 #define RENDERER
 
@@ -24,6 +21,7 @@ public:
 
     void init();
     void render();
+	void renderQuad();
     
     void resize(int width, int height);
     void toggleBGColor();
@@ -39,6 +37,9 @@ private:
 
     int m_width;
     int m_height;
+
+	VertexBufferObjectAttribs* m_vboQuad;
+	Shader *m_shaderQuad;
 
     glm::vec4 m_bgColor; 
 

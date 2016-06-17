@@ -1,6 +1,3 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #ifndef NICEGRID
 #define NICEGRID
 

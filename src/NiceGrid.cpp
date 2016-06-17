@@ -1,6 +1,3 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #include "NiceGrid.h"
 #include "Shader.h"
 #include "VertexBufferObjectAttribs.h"
@@ -41,16 +38,11 @@ void NiceGrid::render()
 	auto param = RenderContext::globalObjectParam();
 	auto trans = RenderContext::transform();
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-
     glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position);
     glm::mat4 view = trans->view;
 	glm::mat4 projection = trans->projection;
 	glm::mat4 viewProjection = trans->viewProjection;
 	glm::mat4 lightView = trans->lightViewProjectionBias;
-
-    glEnable(GL_TEXTURE_2D);
 
     m_shader->bind();  
 
@@ -82,21 +74,9 @@ void NiceGrid::render()
 		m_shader->setMatrix("matLightView", lightView, GL_FALSE);
 		m_shader->setMatrix("matViewProjection", viewProjection, GL_FALSE);
 
-        glEnable(GL_CULL_FACE);    
-        glCullFace(GL_BACK);
-
-        m_vbo->render();
-
-        glCullFace(GL_FRONT);
-        m_shader->setf("alpha", m_backFaceAlpha);
-        m_shader->seti("renderMode", 1);
-
         m_vbo->render();
 
     m_shader->release();
-
-    glPopClientAttrib();
-    glPopAttrib();
 }
 
 void NiceGrid::setAmbientColor(float r, float g, float b)
@@ -115,17 +95,13 @@ void NiceGrid::setDiffuseColor(float r, float g, float b)
 
 void NiceGrid::createVBO()
 {
-    m_shader->bindAttribLocation("Position", VERTEX_POSITION);
-    m_shader->bindAttribLocation("Normal", VERTEX_NORMAL);
-    m_shader->bindAttribLocation("Color", VERTEX_COLOR);
-    m_shader->bindAttribLocation("Texture", VERTEX_TEXTURE);
-
     int nrVertices = 4;
     VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[nrVertices];
 
+	// v0
     data[0].vx = -m_size;
     data[0].vy = 0.0f;
-    data[0].vz = -m_size;
+    data[0].vz = m_size;
     data[0].vw = 1.0f;
 
     data[0].nx = 0.0f;
@@ -143,71 +119,71 @@ void NiceGrid::createVBO()
     data[0].tz = 0.0f;
     data[0].tw = 0.0f;
 
+	//v1
+	data[1].vx = m_size;
+	data[1].vy = 0.0f;
+	data[1].vz = m_size;
+	data[1].vw = 1.0f;
+		 
+	data[1].nx = 0.0f;
+	data[1].ny = 1.0f;
+	data[1].nz = 0.0f;
+	data[1].nw = 0.0f;
+		 
+	data[1].cx = 1.0f;
+	data[1].cy = 1.0f;
+	data[1].cz = 1.0f;
+	data[1].cw = 1.0f;
+		 
+	data[1].tx = m_rep;
+	data[1].ty = 0.0f;
+	data[1].tz = 0.0f;
+	data[1].tw = 0.0f;
 
-    data[1].vx = -m_size;
-    data[1].vy = 0.0f;
-    data[1].vz = m_size;
-    data[1].vw = 1.0f;
-
-    data[1].nx = 0.0f;
-    data[1].ny = 1.0f;
-    data[1].nz = 0.0f;
-    data[1].nw = 0.0f;
-
-    data[1].cx = 1.0f;
-    data[1].cy = 1.0f;
-    data[1].cz = 1.0f;
-    data[1].cw = 1.0f;
-
-    data[1].tx = 0.0f;
-    data[1].ty = m_rep;
-    data[1].tz = 0.0f;
-    data[1].tw = 0.0f;
-
-
-    data[2].vx = m_size;
+	//v2
+    data[2].vx = -m_size;
     data[2].vy = 0.0f;
-    data[2].vz = m_size;
+    data[2].vz = -m_size;
     data[2].vw = 1.0f;
-
+		 
     data[2].nx = 0.0f;
     data[2].ny = 1.0f;
     data[2].nz = 0.0f;
     data[2].nw = 0.0f;
-
+		 
     data[2].cx = 1.0f;
     data[2].cy = 1.0f;
     data[2].cz = 1.0f;
     data[2].cw = 1.0f;
-
-    data[2].tx = m_rep;
+		 
+    data[2].tx = 0.0f;
     data[2].ty = m_rep;
     data[2].tz = 0.0f;
     data[2].tw = 0.0f;
 
-
+	//v3
     data[3].vx = m_size;
     data[3].vy = 0.0f;
     data[3].vz = -m_size;
     data[3].vw = 1.0f;
-
+		 
     data[3].nx = 0.0f;
     data[3].ny = 1.0f;
     data[3].nz = 0.0f;
     data[3].nw = 0.0f;
-
+		 
     data[3].cx = 1.0f;
     data[3].cy = 1.0f;
     data[3].cz = 1.0f;
     data[3].cw = 1.0f;
-
+		 
     data[3].tx = m_rep;
-    data[3].ty = 0.0f;
+    data[3].ty = m_rep;
     data[3].tz = 0.0f;
     data[3].tw = 0.0f;
 
     m_vbo = new VertexBufferObjectAttribs();
-    m_vbo->setData(data, GL_STATIC_DRAW, nrVertices, GL_QUADS);
+    m_vbo->setData(data, GL_STATIC_DRAW, nrVertices, GL_TRIANGLE_STRIP);
 
     m_vbo->addAttrib(VERTEX_POSITION);
     m_vbo->addAttrib(VERTEX_NORMAL);

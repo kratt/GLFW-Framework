@@ -1,7 +1,5 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #include "FrameBufferObject.h"
+#include <iostream>
 
 FrameBufferObject::FrameBufferObject(GLuint width, GLuint height, GLuint nrTexAtt, GLuint nrBufferAtt, GLboolean attachDepthTex, GLint filter)
 : m_width(width),
@@ -44,9 +42,6 @@ FrameBufferObject::FrameBufferObject(GLuint width, GLuint height, GLuint nrTexAt
         exit(0);
     }
 
-    #ifdef FRAMEBUFFER_DEBUG
-      //info();
-    #endif
 
     release();
 }
@@ -347,8 +342,8 @@ GLuint FrameBufferObject::emptyTexture(GLuint width, GLuint height, GLuint iform
     float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color); 
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 0);
-	
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
+	glBindTexture(GL_TEXTURE_2D, 0);
     return ret;
 }
 

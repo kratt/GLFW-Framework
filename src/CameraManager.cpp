@@ -19,7 +19,7 @@ CameraManager::CameraManager()
   m_zoom(20.0),
   m_fov(45.0f),
   m_ncp(1.0f),
-  m_fcp(1000.0f)
+  m_fcp(10000.0f)
 {
 	//Camera *cam1 = new Camera(glm::vec3(0, 4, 8), 0, 0, 0, m_fov, m_ncp, m_fcp);
 	//cam1->setColor(1.0f, 0.0f, 0.0f);

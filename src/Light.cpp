@@ -43,7 +43,7 @@ Light::Light(Scene *scene, const glm::vec3 &pos)
 
     m_fboLight = new FrameBufferObject(m_bufferWidth, m_bufferHeight);
     glBindTexture(GL_TEXTURE_2D, m_fboLight->texAttachment(GL_DEPTH_ATTACHMENT));
-        glTexParameteri( GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+        //glTexParameteri( GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE_ARB );	
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -68,15 +68,11 @@ Light::~Light()
     delete m_fboBlurH;   
 }
 
-
-#include "glm/ext.hpp" 
-#include "glm/gtx/string_cast.hpp"
-
 void Light::blurShadowMap()
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -1));
-	glm::mat4 projection = glm::ortho(0.0f, float(m_bufferWidth), float(m_bufferHeight), 0.0f, -1.0f, 1.0f);
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::mat4 projection = glm::ortho(0.0f, float(m_bufferWidth), 0.0f, float(m_bufferHeight), -1.0f, 1.0f);
 
     m_fboBlurH->bind();
 
@@ -155,9 +151,6 @@ void Light::renderLightView()
     {
 		auto param = RenderContext::globalObjectParam();
 
-	    glPushAttrib(GL_ALL_ATTRIB_BITS);
-	    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-
         m_fboLight->bind();
             
             glViewport(0, 0, m_bufferWidth, m_bufferHeight);
@@ -173,9 +166,6 @@ void Light::renderLightView()
        param->shadowMapID = m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0);
 	   param->shadowMapBlurredID = m_fboBlurV->texAttachment(GL_COLOR_ATTACHMENT0);
 
-	    glPopClientAttrib();
-	    glPopAttrib();
-
         m_moved = false;
     }
 }
@@ -189,9 +179,6 @@ void Light::render()
     glm::mat4 view = trans->view;
     glm::mat4 projection = trans->projection;
 
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);	
-
     m_shader->bind();  
 	m_shader->setMatrix("matModel", model, GL_FALSE);
 	m_shader->setMatrix("matView", view, GL_FALSE);
@@ -201,8 +188,6 @@ void Light::render()
 
     m_shader->release();
 
-	glPopClientAttrib();
-	glPopAttrib();
 }
 
 glm::vec3 Light::position()
@@ -251,7 +236,7 @@ void Light::move(CameraManager *camManager, float diffX, float diffY)
         glm::vec3 pos;
     	
 	    camManager->currentPerspective(trans);
-        //getCameraFrame(trans, dir, up, right, pos);
+        Common::getCameraFrame(trans, dir, up, right, pos);
 
 	    glm::vec3 movZ;
 	    glm::vec3 movX;

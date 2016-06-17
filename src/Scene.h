@@ -7,7 +7,9 @@ class Light;
 class VertexBufferObjectAttribs;
 class Shader;
 class CameraManager;
+class Object;
 
+#include <vector>
 
 class Scene
 {
@@ -35,9 +37,13 @@ private:
     NiceGrid *m_niceGrid;
     CameraManager *m_cameraManager;
     VertexBufferObjectAttribs *m_vbo;
+	VertexBufferObjectAttribs *m_vboQuad;
+
+	std::vector<Object*> m_objects;
 
     Shader *m_shaderNormal;
     Shader *m_shaderDepth;
+	Shader *m_shaderQuad;
 
     int m_activeIdx;
 };

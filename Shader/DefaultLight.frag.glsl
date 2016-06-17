@@ -22,6 +22,6 @@ void main()
    float d = max(0.0, dot(N, L));
 
    color.xyz *= d;
-
+   
    FragColor = vec4(color.xyz,1);	
 }

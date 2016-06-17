@@ -112,5 +112,6 @@ void main()
         color.a = alpha;
     }
 
-   FragColor = vec4(color.xyz, alpha);	
+   color.xyz = vec3(shadow * d);
+   FragColor = vec4(color.xyz, 1.0);	
 }

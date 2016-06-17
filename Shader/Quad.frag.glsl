@@ -5,11 +5,10 @@ in vec4 VertNormal;
 in vec4 VertColor;
 in vec4 VertTexture;
 
-out vec4 FragData;
-
-uniform vec3 lightPos;
+out vec4 FragColor;
 
 void main()
 {
-   FragData = vec4(0, 0, 0, 1);	
+   vec4 color = VertColor;
+   FragColor = vec4(VertTexture.xyz, 1.0);	
 }

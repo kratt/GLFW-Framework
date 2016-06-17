@@ -5,6 +5,8 @@ in vec4 VertNormal;
 in vec4 VertColor;
 in vec4 VertTexture;
 
+out vec4 FragData;
+
 uniform vec3 lightPos;
 
 float linearDepth(float expDepth, float zNear, float zFar)
@@ -18,5 +20,5 @@ void main()
     float moment1 = gl_FragCoord.z;
     float moment2 = moment1 * moment1;
 
-    gl_FragData[0] = vec4(moment1, moment2, 0.0, 1.0);
+    FragData = vec4(moment1, moment2, 0.0, 1.0);
 }

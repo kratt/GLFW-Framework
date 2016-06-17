@@ -6,6 +6,8 @@ in vec4 VertColor;
 in vec4 VertTexture;
 in vec4 VertShadowCoord;
 
+out vec4 FragData;
+
 uniform vec3 lightPos;
 uniform vec3 camPos;
 uniform int applyShadow;
@@ -80,7 +82,8 @@ void main()
     vec3 specular = matSpecular * lColor * s * 0.0;
 
     vec4 finalColor = vec4(diffuse + ambient + specular, 1);
-    finalColor.xyz *= shadow;
+    //finalColor.xyz *= shadow;
 
-    gl_FragColor = vec4(finalColor.xyz, 1.0);	
+	
+    FragData = vec4(finalColor.xyz, 1.0);	
 }

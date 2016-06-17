@@ -4,6 +4,7 @@
 
 #include "src/Common.h"
 #include "src/GLWindow.h"
+#include "src/debug.h"
 #include <iostream>
 
 /*
@@ -44,8 +45,8 @@ GLFWwindow*			g_glfwWindow		= NULL;
 glm::vec2			g_oldMouse			= glm::vec2(0, 0);
 GLboolean			g_leftButton		= GL_FALSE;
 GLboolean			g_rightButton		= GL_FALSE;
-const GLint			g_width				= 1024;
-const GLint			g_height			= 768;
+const GLint			g_width				= 1280;
+const GLint			g_height			= 720;
 const std::string	g_projectName		= "framework";
 
 
@@ -77,6 +78,11 @@ void init()
 		std::cin.get();
 		exit(EXIT_FAILURE);
 	}
+
+//#ifndef NDEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+//#endif
+
 
 	// set depths
 	glfwWindowHint(GLFW_RED_BITS, 8);
@@ -128,17 +134,22 @@ void init()
 	}
 	#endif
 
-	GL_ASSERT_RESET();
+	GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	{
+		setupDebug();
+	}
+
 	std::cout << "using OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
 	/*
 	Set up default VAO 
 	*/
 	GLuint vaoID;
-	GL_ASSERT( glGenVertexArrays(1, &vaoID) );
-	GL_ASSERT( glBindVertexArray(vaoID) );
+	glGenVertexArrays(1, &vaoID);
+	glBindVertexArray(vaoID);
 
-	GL_ASSERT( glEnable(GL_DEPTH_TEST) );
+	glEnable(GL_DEPTH_TEST);
 }
 
 /**
@@ -152,7 +163,10 @@ void glfw_onKey(GLFWwindow * window, GLint key, GLint scancode, GLint action, GL
 	}
 	else
 	{
-		//app->onKey(key, scancode, action, mods);
+		if(action == GLFW_PRESS)
+			app->keyPressEvent(key, scancode, action, mods);
+		if(action == GLFW_RELEASE)
+			app->keyReleaseEvent(key, scancode, action, mods);
 	}
 }
 
@@ -161,16 +175,7 @@ void glfw_onKey(GLFWwindow * window, GLint key, GLint scancode, GLint action, GL
 */
 void glfw_onMouseMove(GLFWwindow * window, GLdouble x, GLdouble y)
 {
-	glm::vec2 mouse((GLfloat)x, (GLfloat)y);
-	glm::vec2 d = mouse - g_oldMouse;
-
-	//if (g_leftButton)
-	//{
-	//	app->m_rotate.y += (0.1f * d.x);
-	//	app->m_rotate.x += (0.1f * d.y);
-	//}
-
-	g_oldMouse = mouse;
+	app->mouseMoveEvent(x, y);
 }
 
 /**
@@ -178,21 +183,7 @@ void glfw_onMouseMove(GLFWwindow * window, GLdouble x, GLdouble y)
 */
 void glfw_onMouse(GLFWwindow * window, GLint button, GLint action, GLint mods)
 {
-	if(button == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		if(action == GLFW_PRESS)
-			g_leftButton = GL_TRUE;
-		else
-			g_leftButton = GL_FALSE;
-	}
-
-	if(button == GLFW_MOUSE_BUTTON_RIGHT)
-	{
-		if(action == GLFW_PRESS)
-			g_rightButton = GL_TRUE;
-		else
-			g_rightButton = GL_FALSE;
-	}
+	app->mousePressEvent(button, action, mods);
 }
 
 /**
@@ -200,16 +191,7 @@ void glfw_onMouse(GLFWwindow * window, GLint button, GLint action, GLint mods)
 */
 void glfw_onScroll(GLFWwindow * window, GLdouble xo, GLdouble yo)
 {
-	//GLfloat delta = app->m_zoom * 0.1f;
-
-	//if (yo < 0)
-	//{
-	//	app->m_zoom += delta;
-	//}
-	//else
-	//{
-	//	app->m_zoom -= delta;
-	//}
+	app->mouseWheelEvent(xo, yo);
 }
 
 /**
@@ -218,10 +200,6 @@ void glfw_onScroll(GLFWwindow * window, GLdouble xo, GLdouble yo)
 void glfw_onResize(GLFWwindow * window, GLint width, GLint height)
 {
 	app->resize(width, height);
-
- /*   glfwGetFramebufferSize(window, &app->m_framebufferWidth, &app->m_framebufferHeight);
-	app->m_width = width;
-	app->m_height = height;*/
 }
 
 /**

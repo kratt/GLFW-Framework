@@ -72,6 +72,7 @@ struct Common {
 	static void glEnable2D();
 	static void glDisable2D();
 
+	template <class T> static void loop(T &a, const T &low, const T &high, const T &inc = 1.0) { if (a >= high) a = low; else a += inc; }
 };
 
 float frand(float low, float high);

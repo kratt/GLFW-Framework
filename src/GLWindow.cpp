@@ -117,13 +117,15 @@ void GLWindow::render()
 
 void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods)
 {
-	//if (action == GLFW_REPEAT)
-	//	std::cout << " key" << std::endl;
+	auto param = RenderContext::globalObjectParam();
 
 	m_cameraManager->onKeyPress(key);
 	
 	switch (key)
 	{
+		case GLFW_KEY_SPACE:
+		Common::loop(param->polygonMode, 0, 1, 1);
+
 		case GLFW_KEY_PAGE_UP:
 			m_cameraManager->increaseSpeed();
 			break;
@@ -252,7 +254,21 @@ void GLWindow::mousePressEvent(GLint button, GLint action, GLint mods)
 
 void GLWindow::mouseWheelEvent(GLdouble xo, GLdouble yo)
 {
-	m_cameraManager->onMouseWheel(int(yo));
+	if (!m_altPressed && !m_ctrlPressed)
+	{
+		m_cameraManager->onMouseWheel(int(yo));
+	}
+
+	if (m_altPressed)
+	{
+		glm::vec3 lPos = m_scene->m_light->position();
+		float delta = lPos.y * 0.1;
+
+		if (yo > 0)
+			m_scene->m_light->setPosition(glm::vec3(lPos.x, lPos.y + delta, lPos.z));
+		else
+			m_scene->m_light->setPosition(glm::vec3(lPos.x, lPos.y - delta, lPos.z));
+	}
 }
 
 void GLWindow::resize(int w, int h)

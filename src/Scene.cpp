@@ -28,13 +28,14 @@ void Scene::init()
 
 	m_vbo = Mesh::sphere(2.0f, 6, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	//Object *sphere = new Object("../Data/Objs/sphere.obj", glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(1, 1, 1));
-	//m_objects.push_back(sphere);
+	Object *sphere = new Object("../Data/Objs/sphere.obj", glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(1, 1, 1));
+	m_objects.push_back(sphere);
 }
 
 void Scene::renderWorld()
 {
 	m_niceGrid->render(); 
+	m_light->render();
    // m_cameraManager->renderCameras();
 }
 
@@ -43,47 +44,54 @@ void Scene::renderObjects()
 	auto param = RenderContext::globalObjectParam();
 	auto trans = RenderContext::transform();
 
-    glm::mat4 projection = trans->projection;
-	glm::mat4 view = trans->view;
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+ //   glm::mat4 projection = trans->projection;
+	//glm::mat4 view = trans->view;
+	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
 
 
-	//for (int i = 0; i<m_objects.size(); ++i)
-	//{
-	//	m_objects[i]->render();
-	//}
+ //   m_shaderNormal->bind();
+ //       m_shaderNormal->set3f("lightPos", param->lightPos);
+
+ //       m_shaderNormal->setMatrix("matProjection", projection, GL_FALSE);
+	//	m_shaderNormal->setMatrix("matView", view, GL_FALSE);
+	//	m_shaderNormal->setMatrix("matModel", model, GL_FALSE);
+ //       
+ //       m_vbo->render();    
+
+ //   m_shaderNormal->release();
 
 
-    m_shaderNormal->bind();
-        m_shaderNormal->set3f("lightPos", param->lightPos);
 
-        m_shaderNormal->setMatrix("matProjection", projection, GL_FALSE);
-		m_shaderNormal->setMatrix("matView", view, GL_FALSE);
-		m_shaderNormal->setMatrix("matModel", model, GL_FALSE);
-        
-        m_vbo->render();    
-
-    m_shaderNormal->release();
+	for (int i = 0; i < m_objects.size(); ++i)
+	{
+		m_objects[i]->render();
+	}
+	
 }
 
 void Scene::renderObjectsDepth()
 {
-	auto param = RenderContext::globalObjectParam();
-	auto trans = RenderContext::transform();
+	//auto param = RenderContext::globalObjectParam();
+	//auto trans = RenderContext::transform();
 
-    glm::mat4 projection = trans->lightProjection;
-    glm::mat4 view = trans->lightView;
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+ //   glm::mat4 projection = trans->lightProjection;
+ //   glm::mat4 view = trans->lightView;
+	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
 
-    m_shaderDepth->bind();
+ //   m_shaderDepth->bind();
 
-        m_shaderDepth->setMatrix("matProjection", projection, GL_FALSE);
-        m_shaderDepth->setMatrix("matView", view, GL_FALSE);
-        m_shaderDepth->setMatrix("matModel", model, GL_FALSE);
-        
-        m_vbo->render();    
+ //       m_shaderDepth->setMatrix("matProjection", projection, GL_FALSE);
+ //       m_shaderDepth->setMatrix("matView", view, GL_FALSE);
+ //       m_shaderDepth->setMatrix("matModel", model, GL_FALSE);
+ //       
+ //       m_vbo->render();    
 
-    m_shaderDepth->release();
+ //   m_shaderDepth->release();
+
+	for (int i = 0; i < m_objects.size(); ++i)
+	{
+		m_objects[i]->renderDepth();
+	}
 }
  
 void Scene::update(float delta)

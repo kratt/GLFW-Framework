@@ -90,7 +90,7 @@ vec4 blurV(sampler2D tex, vec2 coord, vec2 dimensions, float stride)
 vec4 blurVNew(sampler2D tex, vec2 coord, vec2 dimensions, float stride, const float sigma)
 {
 	float unit = stride/dimensions.y;
-	const int radius = min(20, max(1, 3 * int(sigma)));
+	int radius = min(20, max(1, 3 * int(sigma)));
     float sigmasquare = sigma*sigma;
 	float gauss[20];
 	
@@ -130,7 +130,7 @@ vec4 blurVNew(sampler2D tex, vec2 coord, vec2 dimensions, float stride, const fl
 vec4 blurHNew(sampler2D tex, vec2 coord, vec2 dimensions, float stride, const float sigma)
 {
 	float unit = stride/dimensions.x;
-	const int radius = min(20, max(1, 3 * int(sigma)));
+	int radius = min(20, max(1, 3 * int(sigma)));
     float sigmasquare = sigma*sigma;
 	float gauss[20];
 	

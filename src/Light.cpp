@@ -46,7 +46,7 @@ Light::Light(Scene *scene, const glm::vec3 &pos)
         //glTexParameteri( GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE_ARB );	
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+       //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);    
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -161,10 +161,10 @@ void Light::renderLightView()
 
         m_fboLight->release();
 
-        blurShadowMap();
+       blurShadowMap();
 
        param->shadowMapID = m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0);
-	   param->shadowMapBlurredID = m_fboBlurV->texAttachment(GL_COLOR_ATTACHMENT0);
+	   param->shadowMapBlurredID = m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0);
 
         m_moved = false;
     }

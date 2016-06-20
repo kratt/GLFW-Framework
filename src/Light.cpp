@@ -137,7 +137,6 @@ void Light::setLightView()
 			0.0f, 0.0f, 0.5f, 0.0f,
 			0.5f, 0.5f, 0.5f, 1.0f);
 
-
 		trans->lightView = view;
 		trans->lightProjection = projection;
 		trans->lightViewProjection = projection * view;
@@ -164,7 +163,7 @@ void Light::renderLightView()
        blurShadowMap();
 
        param->shadowMapID = m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0);
-	   param->shadowMapBlurredID = m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0);
+	   param->shadowMapBlurredID = m_fboBlurV->texAttachment(GL_COLOR_ATTACHMENT0);
 
         m_moved = false;
     }

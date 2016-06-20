@@ -1,27 +1,30 @@
-//Author: Thomas Lindemeier
-//Date: 09.04.2014
-// http://nehe.gamedev.net/tutorial/loading_compressed_and_uncompressed_tga's/22001/
-
-#ifndef MY_TEXTURE_H
-#define MY_TEXTURE_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include "Global.h"
 
-struct Texture
+#include <string> 
+
+class Texture
 {
-	// Image Data (Up To 32 Bits)
-	GLubyte	* imageData;
-	// Image Color Depth In Bits Per Pixel
-	GLuint	bpp;				
-	// Image Width
-	GLuint	width;	
-	// Image Height
-	GLuint	height;		
-	// Texture ID Used To Select A Texture
-	GLuint	texID;	
-	// Image Type (GL_RGB, GL_RGBA)
-	GLuint	type;											
+
+public:
+	Texture();
+	Texture(const std::string fileName);
+
+	void load(const std::string fileName);
+	GLuint id() const;
+
+private: 
+	void createTexture(const std::string fileName);
+
+private:
+	GLuint m_texId;
+	
+	unsigned int m_width;
+	unsigned int m_height;
+
+	std::string m_fileName;
 };
 
-
-#endif // MY_TEXTURE_H
+#endif

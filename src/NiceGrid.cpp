@@ -4,18 +4,23 @@
 #include "Texture.h"
 #include "Mesh.h"
 #include "RenderContext.h"
+#include "PngLoader.h"
+#include "Texture.h"
 
 NiceGrid::NiceGrid(GLfloat size, GLfloat rep)
 : m_size(size),
   m_rep(rep),
   m_shader(NULL),
-  m_texture(NULL),
+	m_texID(0),
   m_backFaceAlpha(0.2),
   m_ambient(0.12f, 0.12f, 0.1f),
   m_diffuse(1.0f, 1.0f, 0.9f),
   m_vbo(NULL),
   m_position(0.0f, 0.0f, 0.0f)
 {
+	m_tex = new Texture("../Data/Textures/floor_blue.png");
+
+	//m_texID = PngLoader::loadTexture("../Data/Textures/floor_blue.png");
     //QImage tex("Data/floor_blue.png");
 
     //m_texture = new Texture(tex);
@@ -30,7 +35,6 @@ NiceGrid::NiceGrid(GLfloat size, GLfloat rep)
 NiceGrid::~NiceGrid()
 {
     delete m_shader;
-    delete m_texture;
 }
 
 void NiceGrid::render()
@@ -46,9 +50,9 @@ void NiceGrid::render()
 
     m_shader->bind();  
 
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, m_texture->id());    
-        //m_shader->seti("tex", 0);    
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_tex->id());    
+        m_shader->seti("tex", 0);    
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, param->shadowMapID);    

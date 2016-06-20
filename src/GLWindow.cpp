@@ -3,7 +3,6 @@
 #include "ObjLoader.h"
 #include "VertexBufferObjectAttribs.h"
 #include "Texture.h"
-#include "TgaLoader.h"
 #include "RenderContext.h"
 #include "Renderer.h"
 #include "CameraManager.h"
@@ -260,7 +259,7 @@ void GLWindow::mouseWheelEvent(GLdouble xo, GLdouble yo)
 	}
 
 	if (m_altPressed)
-	{
+	{ 
 		glm::vec3 lPos = m_scene->m_light->position();
 		float delta = lPos.y * 0.1;
 

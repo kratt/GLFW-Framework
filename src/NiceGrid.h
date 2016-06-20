@@ -27,8 +27,8 @@ private:
     GLfloat m_size;
     GLfloat m_rep;
 
+	Texture *m_tex;
     Shader *m_shader;
-    Texture *m_texture;
     VertexBufferObjectAttribs *m_vbo;
 
     glm::vec3 m_ambient;

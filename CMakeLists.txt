@@ -87,6 +87,17 @@ elseif(GLM_FOUND)
 endif ()
 
 
+find_package(PNG)
+if(NOT PNG_FOUND)
+	message (FATAL_ERROR "libpng not found!")
+	return()
+elseif(PNG_FOUND)
+	include_directories(${PNG_INCLUDE_DIRS})
+	list(APPEND used_libaries  ${PNG_LIBRARIES})
+	
+	MESSAGE(STATUS "PNG_INCLUDE_DIRS = ${PNG_INCLUDE_DIRS}")
+	MESSAGE(STATUS "PNG_LIBRARIES = ${PNG_LIBRARIES}")
+endif()
 # executable
 add_executable(${project_name} ${SOURCES} ${HEADERS} ${SHADERS})
 

@@ -22,8 +22,7 @@ public:
 	int width() const;
 	int height() const;
 
-private:
-	void clean();
+	void clear();
 
 private:
 	png_structp m_pngPtr;

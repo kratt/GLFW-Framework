@@ -27,7 +27,7 @@ PngLoader::PngLoader(const std::string fileName)
 
 PngLoader::~PngLoader()
 {
-	clean();
+	clear();
 }
 
 void PngLoader::load(const std::string fileName)
@@ -142,8 +142,6 @@ void PngLoader::load(const std::string fileName)
 
 	//read the png into image_data through row_pointers
 	png_read_image(m_pngPtr, row_pointers);
-
-
 }
 
 unsigned char * PngLoader::imageData()
@@ -162,7 +160,7 @@ int PngLoader::height() const
 }
 
 
-void PngLoader::clean()
+void PngLoader::clear()
 {
 	png_destroy_read_struct(&m_pngPtr, &m_infoPtr, &m_endInfo);
 	delete[] m_imageData;

@@ -51,12 +51,16 @@ void Texture::createTexture(const std::string fileName)
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
+	bool hasAlpha = png.hasAlpha();
 
+	GLenum format = hasAlpha ? GL_RGBA8 : GL_RGB8;
+	GLenum internalFormat = hasAlpha ? GL_RGBA : GL_RGB;
 
 	glGenTextures(1, &m_id);
 	glBindTexture(GL_TEXTURE_2D, m_id);
-	glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, m_width, m_height);
-	glTexSubImage2D(GL_TEXTURE_2D, 0,0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
+	glTexStorage2D(GL_TEXTURE_2D, 4, format, m_width, m_height);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, internalFormat, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
+
 	//glTexImage2D(m_target, 4, GL_RGBA8, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);  //Generate num_mipmaps number of mipmaps here.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

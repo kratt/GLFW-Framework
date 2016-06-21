@@ -45,6 +45,8 @@ private:
 
     const GLuint m_samples;
     GLuint m_bgMode;
+
+	Texture *m_texTest;
 };
 
 #endif

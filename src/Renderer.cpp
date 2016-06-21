@@ -11,6 +11,7 @@
 #include "Texture.h"
 #include "RenderContext.h"
 #include "Common.h"
+#include "RenderUtils.h"
 
 Renderer::Renderer(Scene *scene, CameraManager *camManager)
 : m_scene(scene),
@@ -23,6 +24,8 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
   m_vboQuad(nullptr)
 {
     init();
+
+	m_texTest = new Texture("../Data/Textures/floor_test.png");
 }
 
 Renderer::~Renderer()
@@ -46,6 +49,9 @@ void Renderer::render()
     }    
 
      renderScene();
+
+	RenderUtils::instance()->renderTexture(10, 10, 200, 400, m_texTest->id());
+
 	//renderQuad();
 	//m_gui->render();
 

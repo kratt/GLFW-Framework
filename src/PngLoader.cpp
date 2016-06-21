@@ -8,6 +8,7 @@ PngLoader::PngLoader()
   m_endInfo(nullptr),
   m_imageData(nullptr),
   m_rowPointers(nullptr),
+  m_hasAlpha(false),
   m_width(0),
   m_height(0)
 {
@@ -19,6 +20,7 @@ PngLoader::PngLoader(const std::string fileName)
   m_endInfo(nullptr),
   m_imageData(nullptr),
   m_rowPointers(nullptr),
+  m_hasAlpha(false),
   m_width(0),
   m_height(0)
 {
@@ -32,7 +34,6 @@ PngLoader::~PngLoader()
 
 void PngLoader::load(const std::string fileName)
 {
-
 	//header for testing if it is a png
 	png_byte header[8];
 
@@ -104,6 +105,10 @@ void PngLoader::load(const std::string fileName)
 	// get info about png
 	png_get_IHDR(m_pngPtr, m_infoPtr, &twidth, &theight, &bit_depth, &color_type, NULL, NULL, NULL);
 
+	m_hasAlpha = (color_type & PNG_COLOR_MASK_ALPHA);
+
+	std::cout << "alpha: " << m_hasAlpha << std::endl;
+
 	//update width and height based on png info
 	m_width = twidth;
 	m_height = theight;
@@ -159,6 +164,10 @@ int PngLoader::height() const
 	return m_height;
 }
 
+bool PngLoader::hasAlpha() const
+{
+	return m_hasAlpha;
+}
 
 void PngLoader::clear()
 {

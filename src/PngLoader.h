@@ -21,6 +21,7 @@ public:
 
 	int width() const;
 	int height() const;
+	bool hasAlpha() const;
 
 	void clear();
 
@@ -34,6 +35,8 @@ private:
 
 	int m_width;
 	int m_height;
+
+	bool m_hasAlpha;
 };
 
 #endif 

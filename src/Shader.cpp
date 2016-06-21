@@ -375,6 +375,11 @@ void Shader::set2f(const GLchar* label, GLfloat arg1, GLfloat arg2)
 	glUniform2f(glGetUniformLocation(m_id, label), arg1, arg2);
 }
 
+void Shader::set2f(const GLchar* label, const glm::vec2 &v)
+{
+	glUniform2f(glGetUniformLocation(m_id, label), v.x, v.y);
+}
+
 void Shader::set3i(const GLchar* label, GLint arg1, GLint arg2, GLint arg3)
 {
 	glUniform3i(glGetUniformLocation(m_id, label), arg1, arg2, arg3);

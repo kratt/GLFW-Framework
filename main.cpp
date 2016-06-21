@@ -134,11 +134,11 @@ void init()
 	}
 	#endif
 
-	GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-	{
-		setupDebug();
-	}
+	//GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	//{
+	//	setupDebug();
+	//}
 
 	std::cout << "using OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 

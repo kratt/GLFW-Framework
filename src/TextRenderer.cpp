@@ -13,7 +13,7 @@ TextRenderer::TextRenderer()
 {
 	init();
 
-	m_texTest = new Texture("../Data/Textures/floor_test.png");
+	m_texTest = new Texture("../Data/Textures/floor_blue.png");
 }
 
 void TextRenderer::init()
@@ -38,13 +38,18 @@ void TextRenderer::init()
 
 void TextRenderer::renderText(int x, int y, const char *text)
 {
-	FT_Set_Pixel_Sizes(face, 0, 48);
+	FT_Set_Pixel_Sizes(face, 0, 10);
 
 	const char *p;
 	FT_GlyphSlot g = face->glyph;
 
 	/* Create a texture that will be used to hold one "glyph" */
 	GLuint texId;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glEnable(GL_TEXTURE_2D);
 
 	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(1, &texId);
@@ -58,8 +63,8 @@ void TextRenderer::renderText(int x, int y, const char *text)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	/* Linear filtering usually looks best for text */
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	auto param = RenderContext::globalObjectParam();
 	float sx = 2.0f / float(param->windowWidth);
@@ -69,20 +74,22 @@ void TextRenderer::renderText(int x, int y, const char *text)
 	/* Loop through all characters */
 	for (p = text; *p; p++) {
 		/* Try to load and render the character */
-		if (FT_Load_Char(face, 'k', FT_LOAD_RENDER))
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
 		/* Upload the "bitmap", which contains an 8-bit grayscale image, as an alpha texture */
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, g->bitmap.width, g->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
-	
+		//glTexImage2D(GL_TEXTURE_2D,0, GL_ALPHA, g->bitmap.width, g->bitmap.rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+
+						
 		/* Calculate the vertex and texture coordinates */
 		float x2 = x + g->bitmap_left * sx;
 		float y2 = -y - g->bitmap_top * sy;
 		float w = g->bitmap.width;// *sx;
 		float h = g->bitmap.rows; // *sy;
-
-		std::cout << x2 << " " << y2 << " " << w << " " << h << std::endl;
+		
+		//std::cout << x2 << " " << y2 << " " << w << " " << h << std::endl;
 
 	/*	point box[4] = {
 			{ x2, -y2, 0, 0 },
@@ -92,8 +99,8 @@ void TextRenderer::renderText(int x, int y, const char *text)
 		};*/
 
 
-		glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 0.0f));
-		glm::mat4 model = glm::scale(trans, glm::vec3(float(h), float(w), 1.0f));
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
+		glm::mat4 model = glm::scale(trans, glm::vec3(float(w), float(h), 1.0f));
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 		glm::mat4 projection = glm::ortho(0.0f, float(param->windowWidth), 0.0f, float(param->windowHeight), -1.0f, 1.0f);
 
@@ -120,8 +127,8 @@ void TextRenderer::renderText(int x, int y, const char *text)
 
 
 		/* Advance the cursor to the start of the next character */
-		x += (g->advance.x >> 6) * sx;
-		y += (g->advance.y >> 6) * sy;
+		x += (g->advance.x >> 6);// *sx;
+		y += (g->advance.y >> 6);// *sy;
 	}
 
 

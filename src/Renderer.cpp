@@ -26,7 +26,7 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
 {
     init();
 
-	m_texTest = new Texture("../Data/Textures/floor_test.png");
+	m_texTest = new Texture("../Data/Textures/floor_blue.png");
 }
 
 Renderer::~Renderer()
@@ -79,7 +79,7 @@ void Renderer::renderScene()
     //m_scene->renderObjects();
     //m_scene->renderWorld();
 
-	TextRenderer::instance()->renderText(100, 100, "h");
+	TextRenderer::instance()->renderText(100, 100, "hallo");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

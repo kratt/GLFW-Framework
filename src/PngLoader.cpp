@@ -117,6 +117,9 @@ void PngLoader::load(const std::string fileName)
 	// Row size in bytes.
 	int rowbytes = png_get_rowbytes(m_pngPtr, m_infoPtr);
 
+	std::cout << "pngLoader: " << m_width << " " << m_height << " " << rowbytes << std::endl;
+
+
 	// Allocate the image_data as a big block (e.g. to be given to opengl)
 	m_imageData = new png_byte[rowbytes * m_height];
 	if (!m_imageData) {

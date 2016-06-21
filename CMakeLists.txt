@@ -98,6 +98,20 @@ elseif(PNG_FOUND)
 	MESSAGE(STATUS "PNG_INCLUDE_DIRS = ${PNG_INCLUDE_DIRS}")
 	MESSAGE(STATUS "PNG_LIBRARIES = ${PNG_LIBRARIES}")
 endif()
+
+find_package(Freetype)
+if(NOT FREETYPE_FOUND)
+	message (FATAL_ERROR "Freetype not found!")
+	return()
+elseif(FREETYPE_FOUND)
+	include_directories(${FREETYPE_INCLUDE_DIRS})
+	list(APPEND used_libaries  ${FREETYPE_LIBRARIES})
+	
+	MESSAGE(STATUS "FREETYPE_INCLUDE_DIRS = ${FREETYPE_INCLUDE_DIRS}")
+	MESSAGE(STATUS "FREETYPE_LIBRARIES = ${FREETYPE_LIBRARIES}")
+endif()
+
+
 # executable
 add_executable(${project_name} ${SOURCES} ${HEADERS} ${SHADERS})
 

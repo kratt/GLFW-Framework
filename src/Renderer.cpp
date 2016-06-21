@@ -12,6 +12,7 @@
 #include "RenderContext.h"
 #include "Common.h"
 #include "RenderUtils.h"
+#include "TextRenderer.h"
 
 Renderer::Renderer(Scene *scene, CameraManager *camManager)
 : m_scene(scene),
@@ -48,14 +49,16 @@ void Renderer::render()
         m_scene->m_light->renderLightView(); 
     }    
 
-     renderScene();
+    renderScene();
 
-	RenderUtils::instance()->renderTexture(10, 10, 200, 400, m_texTest->id());
+	//RenderUtils::instance()->renderTexture(10, 10, 200, 400, m_texTest->id());
 
 	//renderQuad();
 	//m_gui->render();
 
    // Common::renderTexture(m_scene->m_light->m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0), 10, 10, 400, 300);
+
+
 }
 
 void Renderer::renderScene()
@@ -73,8 +76,10 @@ void Renderer::renderScene()
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
-    m_scene->renderObjects();
-    m_scene->renderWorld();
+    //m_scene->renderObjects();
+    //m_scene->renderWorld();
+
+	TextRenderer::instance()->renderText(100, 100, "h");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

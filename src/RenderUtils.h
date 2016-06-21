@@ -22,7 +22,7 @@ public:
 
 protected:
 	// static instance / singelton
-	static RenderUtils* m_instance;
+	static RenderUtils* s_renderUtilInstance;
 
 	Shader* m_shaderTex2D;
 	VertexBufferObjectAttribs* m_vboQuad;

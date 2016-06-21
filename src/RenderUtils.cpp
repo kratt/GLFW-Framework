@@ -6,7 +6,7 @@
 
 #include <glm/vec2.hpp>
 
-RenderUtils* RenderUtils::m_instance = nullptr;
+RenderUtils* RenderUtils::s_renderUtilInstance = nullptr;
 
 
 RenderUtils::RenderUtils()
@@ -63,8 +63,8 @@ void RenderUtils::renderTexture(int x, int y, int width, int height, GLuint id)
 
 RenderUtils* RenderUtils::instance()
 {
-	if (m_instance == nullptr)
-		m_instance = new RenderUtils();
+	if (s_renderUtilInstance == nullptr)
+		s_renderUtilInstance = new RenderUtils();
 
-	return m_instance;
+	return s_renderUtilInstance;
 }

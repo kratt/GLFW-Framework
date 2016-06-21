@@ -107,8 +107,6 @@ void PngLoader::load(const std::string fileName)
 
 	m_hasAlpha = (color_type & PNG_COLOR_MASK_ALPHA);
 
-	std::cout << "alpha: " << m_hasAlpha << std::endl;
-
 	//update width and height based on png info
 	m_width = twidth;
 	m_height = theight;

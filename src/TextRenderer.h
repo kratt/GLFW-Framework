@@ -3,6 +3,7 @@
 
 //https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_01
 //https://gitlab.com/wikibooks-opengl/modern-tutorials/blob/master/text01_intro/text.cpp
+//https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_02
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

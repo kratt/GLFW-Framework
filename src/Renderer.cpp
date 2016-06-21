@@ -13,6 +13,7 @@
 #include "Common.h"
 #include "RenderUtils.h"
 #include "TextRenderer.h"
+#include "PngLoader.h"
 
 Renderer::Renderer(Scene *scene, CameraManager *camManager)
 : m_scene(scene),
@@ -26,7 +27,12 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
 {
     init();
 
-	m_texTest = new Texture("../Data/Textures/floor_blue.png");
+	m_texTest = new Texture("../Data/Textures/test.png");
+
+	//PngLoader png;
+	//png.read_png_file("../Data/Textures/test.png");
+	//png.process_file();
+	//png.write_png_file("../Data/Textures/test_2.png");
 }
 
 Renderer::~Renderer()
@@ -51,7 +57,7 @@ void Renderer::render()
 
     renderScene();
 
-	//RenderUtils::instance()->renderTexture(10, 10, 200, 400, m_texTest->id());
+	RenderUtils::instance()->renderTexture(10, 10, 2, 2, m_texTest->id());
 
 	//renderQuad();
 	//m_gui->render();
@@ -79,7 +85,7 @@ void Renderer::renderScene()
     //m_scene->renderObjects();
     //m_scene->renderWorld();
 
-	TextRenderer::instance()->renderText(100, 100, "hallo");
+	//TextRenderer::instance()->renderText(100, 100, "hallo");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

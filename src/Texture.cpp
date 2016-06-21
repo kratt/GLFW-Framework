@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "PngLoader.h"
+#include <iostream>
 
 Texture::Texture()
 	: m_id(0)
@@ -38,12 +39,37 @@ GLuint Texture::id() const
 
 void Texture::createTexture(const std::string fileName)
 {
-	PngLoader png(fileName);
+	PngLoader png;// (fileName);
 
-	m_width = png.width();
-	m_height = png.height();
+	GLubyte *textureImage;
+	int width, height;
+	bool hasAlpha;
+	bool success = png.loadPngImage(fileName.c_str(), width, height, hasAlpha, &textureImage);
+	if (!success) {
+		std::cout << "Unable to load png file" << std::endl;
+		return;
+	}
 
-	unsigned char *imageData = png.imageData();
+	std::cout << "width: " << width << " " << "heiht: " << height << std::endl;
+
+	for (int x = 0; x < width; ++x)
+	{
+		for (int y = 0; y < height; ++y)
+		{
+			int idx = 4 * (y*width + x);
+			std::cout << int(textureImage[idx]) << " " << int(textureImage[idx + 1]) << " " << int(textureImage[idx + 2]) << " " << int(textureImage[idx + 3]) << std::endl;
+		}
+	}
+
+
+
+
+
+
+	//m_width = png.width();
+	//m_height = png.height();
+
+	//unsigned char *imageData = png.imageData();
 
 	//glGenTextures(1, &m_id);
 	//glBindTexture(GL_TEXTURE_2D, m_texId);
@@ -51,16 +77,17 @@ void Texture::createTexture(const std::string fileName)
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
-	bool hasAlpha = png.hasAlpha();
+	//bool hasAlpha = png.hasAlpha();
 
 	GLenum format = hasAlpha ? GL_RGBA8 : GL_RGB8;
 	GLenum internalFormat = hasAlpha ? GL_RGBA : GL_RGB;
 
 	glGenTextures(1, &m_id);
 	glBindTexture(GL_TEXTURE_2D, m_id);
-	glTexStorage2D(GL_TEXTURE_2D, 4, format, m_width, m_height);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, internalFormat, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
+	glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, textureImage);
 
+	//glTexImage2D(GL_TEXTURE_2D, 0, hasAlpha ? 4 : 3, width, height, 0, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, textureImage);
 	//glTexImage2D(m_target, 4, GL_RGBA8, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);  //Generate num_mipmaps number of mipmaps here.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

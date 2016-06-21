@@ -7,8 +7,17 @@ in vec4 VertTexture;
 
 out vec4 FragColor;
 
+uniform sampler2D tex;
+
 void main()
 {
-   vec4 color = VertColor;
-   FragColor = vec4(VertTexture.xyz, 1.0);	
+   if(VertTexture.x < 0.0 || VertTexture.x > 1.0f || 
+      VertTexture.y < 0.0 || VertTexture.y > 1.0f)
+	  {
+		  discard;
+	  }
+	  
+	
+   vec4 color = texture(tex, VertTexture.xy);
+   FragColor = vec4(color.xyz, 1.0);	
 }

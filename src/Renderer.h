@@ -12,6 +12,7 @@ class Shader;
 class Scene;
 class VertexBufferObjectAttribs;
 class Texture;
+class TextString;
 
 class Renderer
 {
@@ -47,6 +48,8 @@ private:
     GLuint m_bgMode;
 
 	Texture *m_texTest;
+
+	TextString* m_testString;
 };
 
 #endif

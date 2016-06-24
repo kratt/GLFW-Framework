@@ -14,6 +14,7 @@
 #include "RenderUtils.h"
 #include "TextRenderer.h"
 #include "PngLoader.h"
+#include "TextString.h"
 
 Renderer::Renderer(Scene *scene, CameraManager *camManager)
 : m_scene(scene),
@@ -33,6 +34,8 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
 	//png.read_png_file("../Data/Textures/test.png");
 	//png.process_file();
 	//png.write_png_file("../Data/Textures/test_2.png");
+
+	m_testString = new TextString("Renderer::renderScene()", glm::vec2(100, 100));
 }
 
 Renderer::~Renderer()
@@ -57,7 +60,7 @@ void Renderer::render()
 
     renderScene();
 
-	RenderUtils::instance()->renderTexture(10, 10, 2, 2, m_texTest->id());
+	//RenderUtils::instance()->renderTexture(10, 10, 2, 2, m_texTest->id());
 
 	//renderQuad();
 	//m_gui->render();
@@ -75,7 +78,7 @@ void Renderer::renderScene()
     glClearColor(m_bgColor.x, m_bgColor.y, m_bgColor.z, m_bgColor.w);    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     
 
-    glEnable(GL_MULTISAMPLE);        
+    //glEnable(GL_MULTISAMPLE);        
 
    if(param->polygonMode == 1)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -85,7 +88,10 @@ void Renderer::renderScene()
     //m_scene->renderObjects();
     //m_scene->renderWorld();
 
-	//TextRenderer::instance()->renderText(100, 100, "hallo");
+	TextRenderer::instance()->renderText(100, 350, "Renderer::renderScene()");
+	//TextRenderer::instance()->renderText(50, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	
+	TextRenderer::instance()->render(m_testString);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

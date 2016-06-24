@@ -50,16 +50,16 @@ void Texture::createTexture(const std::string fileName)
 		return;
 	}
 
-	std::cout << "width: " << width << " " << "heiht: " << height << std::endl;
+	//std::cout << "width: " << width << " " << "heiht: " << height << std::endl;
 
-	for (int x = 0; x < width; ++x)
-	{
-		for (int y = 0; y < height; ++y)
-		{
-			int idx = 4 * (y*width + x);
-			std::cout << int(textureImage[idx]) << " " << int(textureImage[idx + 1]) << " " << int(textureImage[idx + 2]) << " " << int(textureImage[idx + 3]) << std::endl;
-		}
-	}
+	//for (int x = 0; x < width; ++x)
+	//{
+	//	for (int y = 0; y < height; ++y)
+	//	{
+	//		int idx = 4 * (y*width + x);
+	//		std::cout << int(textureImage[idx]) << " " << int(textureImage[idx + 1]) << " " << int(textureImage[idx + 2]) << " " << int(textureImage[idx + 3]) << std::endl;
+	//	}
+	//}
 
 
 

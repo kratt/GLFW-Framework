@@ -35,7 +35,7 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
 	//png.process_file();
 	//png.write_png_file("../Data/Textures/test_2.png");
 
-	m_testString = new TextString("Renderer::renderScene()", glm::vec2(100, 100));
+	m_testString = new TextString("A", glm::vec2(500, 300));
 }
 
 Renderer::~Renderer()
@@ -88,7 +88,7 @@ void Renderer::renderScene()
     //m_scene->renderObjects();
     //m_scene->renderWorld();
 
-	TextRenderer::instance()->renderText(100, 350, "Renderer::renderScene()");
+	//TextRenderer::instance()->renderText(100, 350, "Renderer::renderScene()");
 	//TextRenderer::instance()->renderText(50, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	
 	TextRenderer::instance()->render(m_testString);

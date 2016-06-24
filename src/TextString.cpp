@@ -74,7 +74,7 @@ void TextString::initTexture()
 
 	for (p = m_text.c_str(); *p; p++)
 	{
-		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
 			continue;
 
 		float w = g->bitmap.width;
@@ -125,7 +125,7 @@ void TextString::initTexture()
 	/* Loop through all characters */
 	for (p = m_text.c_str(); *p; p++)
 	{
-		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
 			continue;
 
 		float w = g->bitmap.width;

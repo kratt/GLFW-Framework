@@ -20,10 +20,12 @@ class TextRenderer {
 
 public:
 	TextRenderer();
+	~TextRenderer();
 
 	void renderText(int x, int y, const char *text);
 	
 	void render(TextString* text);
+	void renderSdf(TextString* text);
 
 
 	static TextRenderer* instance();
@@ -38,6 +40,7 @@ private:
 	FT_Face face;
 
 	Shader* m_shaderText;
+	Shader* m_shaderTextSdf;
 	VertexBufferObjectAttribs* m_vboQuad;
 
 	Texture *m_texTest;

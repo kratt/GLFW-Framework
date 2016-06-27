@@ -12,8 +12,11 @@ TextRenderer* TextRenderer::s_texRendererInstance = nullptr;
 TextRenderer::TextRenderer()
 {
 	init();
+}
 
-	m_texTest = new Texture("../Data/Textures/floor_blue.png");
+TextRenderer::~TextRenderer()
+{
+	delete s_texRendererInstance;
 }
 
 void TextRenderer::init()
@@ -30,6 +33,9 @@ void TextRenderer::init()
 
 	m_shaderText = new Shader("../Shader/Text.vert.glsl", "../Shader/Text.frag.glsl");
 	m_shaderText->bindAttribLocations();
+
+	m_shaderTextSdf = new Shader("../Shader/TextSdf.vert.glsl", "../Shader/TextSdf.frag.glsl");
+	m_shaderTextSdf->bindAttribLocations();
 
 	// quad to render one glyph. Sscale it according to needs
 	m_vboQuad = Mesh::quad(0, 0, 1, 1);
@@ -140,6 +146,41 @@ void TextRenderer::render(TextString * text)
 	m_vboQuad->render();
 
 	m_shaderText->release();
+	glEnable(GL_DEPTH_TEST);
+}
+
+void TextRenderer::renderSdf(TextString * text)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glDisable(GL_DEPTH_TEST);
+
+
+	auto param = RenderContext::globalObjectParam();
+
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	glm::mat4 projection = glm::ortho(0.0f, float(param->windowWidth), 0.0f, float(param->windowHeight), -1.0f, 1.0f);
+
+	glm::vec2 dims = text->dims();
+	glm::vec2 pos = text->pos();
+
+	m_shaderTextSdf->bind();
+
+	glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
+	glm::mat4 model = glm::scale(trans, glm::vec3(float(dims.x), float(dims.y), 1.0f));
+
+	m_shaderTextSdf->setMatrix("matModel", model, GL_TRUE);
+	m_shaderTextSdf->setMatrix("matView", view, GL_TRUE);
+	m_shaderTextSdf->setMatrix("matProjection", projection, GL_TRUE);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, text->texId());
+	m_shaderTextSdf->seti("tex", 0);
+
+	m_vboQuad->render();
+
+	m_shaderTextSdf->release();
 	glEnable(GL_DEPTH_TEST);
 }
 

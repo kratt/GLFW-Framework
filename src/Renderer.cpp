@@ -28,8 +28,6 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
 {
     init();
 
-	m_texTest = new Texture("../Data/Textures/test.png");
-
 	//PngLoader png;
 	//png.read_png_file("../Data/Textures/test.png");
 	//png.process_file();
@@ -91,7 +89,9 @@ void Renderer::renderScene()
 	//TextRenderer::instance()->renderText(100, 350, "Renderer::renderScene()");
 	//TextRenderer::instance()->renderText(50, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	
-	TextRenderer::instance()->render(m_testString);
+   auto textRenderer = TextRenderer::instance();
+   
+   textRenderer->renderSdf(m_testString);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

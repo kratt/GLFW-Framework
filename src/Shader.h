@@ -7,6 +7,8 @@
 
 #include "Common.h"
 #include "Global.h"
+#include <agents.h>
+#include <windows.h>
 
 /*
 -----------------------------------------------------------------------------
@@ -56,12 +58,25 @@ class Shader
         GLuint m_geomProg;
         GLuint m_fragProg;
         
+		FILETIME  m_vOldDateTime;
+		FILETIME  m_cOldDateTime;
+		FILETIME  m_eOldDateTime;
+		FILETIME  m_gOldDateTime;
+		FILETIME  m_fOldDateTime;
+		bool      m_firstUpdate;
+
+
         GLuint m_refreshTime;
 
 		const GLchar *readFile(const GLchar *fileName);
-        void checkFile(const GLchar *fileName, GLuint type);        
+        void checkFile(const char *fileName, FILETIME &oldTime, GLuint type);
         GLuint compile(const GLchar *source, GLuint type);
-        void cleanUp();        
+        void cleanUp();      
+		void autoUpdate();
+
+		concurrency::timer<int> *m_timer;
+		concurrency::call<int> *m_call;
+		void initTimer();
 
     public:       
         Shader();
@@ -81,7 +96,7 @@ class Shader
 
         void bindAttribLocation(const GLchar *label, GLuint attribID);
 
-
+		void testAutoUpdate();
         void seti(const GLchar* label, GLint arg);
         void setf(const GLchar* label, GLfloat arg);
         void set2i(const GLchar* label, GLint arg1, GLint arg2);

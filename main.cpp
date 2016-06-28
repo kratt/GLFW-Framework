@@ -210,6 +210,7 @@ void shutdown()
 	exit(EXIT_SUCCESS);
 }
 
+
 int main(int argc, const char* argv[])
 {
 	// initialize GLFW

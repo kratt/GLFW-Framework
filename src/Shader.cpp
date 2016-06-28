@@ -6,7 +6,8 @@
 
 #include <iostream>
 #include <cstdio>
-
+#include <agents.h>
+#include <functional>
 
 Shader::Shader()
 : m_id(0),
@@ -27,7 +28,12 @@ Shader::Shader(const GLchar *vFileName, const GLchar *fFileName)
   m_contProg(0),
   m_evalProg(0),
   m_geomProg(0),
-  m_fragProg(0)
+  m_fragProg(0),
+  m_vFileName(nullptr),
+  m_cFileName(nullptr),
+  m_eFileName(nullptr),
+  m_gFileName(nullptr),
+  m_fFileName(nullptr)
 {  
 	if (!m_id) {
 		m_id = glCreateProgram();
@@ -36,6 +42,8 @@ Shader::Shader(const GLchar *vFileName, const GLchar *fFileName)
 	attachVertexShader(vFileName);
 	attachFragmentShader(fFileName);
 	bindAttribLocations();
+	
+	initTimer();
 }
 
 Shader::Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *fFileName)
@@ -44,7 +52,12 @@ Shader::Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *f
   m_contProg(0),
   m_evalProg(0),
   m_geomProg(0),
-  m_fragProg(0)
+  m_fragProg(0),
+  m_vFileName(nullptr),
+  m_cFileName(nullptr),
+  m_eFileName(nullptr),
+  m_gFileName(nullptr),
+  m_fFileName(nullptr)
 {
 	if (!m_id) {
 		m_id = glCreateProgram();
@@ -55,11 +68,24 @@ Shader::Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *f
 	attachGeometryShader(gFileName);
 	attachFragmentShader(fFileName);
 	bindAttribLocations();
+
+	initTimer();
 }
 
 Shader::~Shader()
 {
 	cleanUp();
+
+	delete m_timer;
+	delete m_call;
+}
+
+
+void Shader::initTimer()
+{
+	m_call = new concurrency::call<int>(std::bind(&Shader::autoUpdate, this));
+	m_timer = new concurrency::timer<int>(1000, 0, m_call, true);
+	m_timer->start();
 }
 
 void Shader::attachVertexShader(const GLchar *fileName)
@@ -184,54 +210,88 @@ void Shader::attachFragmentShader(const GLchar *fileName)
 	}
 }
 
-void Shader::checkFile(const GLchar *fileName, GLuint type)
+void Shader::autoUpdate()
 {
-	if(type == GL_VERTEX_SHADER)
+	checkFile(m_vFileName, m_vOldDateTime, GL_VERTEX_SHADER);
+	checkFile(m_cFileName, m_cOldDateTime, GL_TESS_CONTROL_SHADER);
+	checkFile(m_eFileName, m_eOldDateTime, GL_TESS_EVALUATION_SHADER);
+	checkFile(m_gFileName, m_gOldDateTime, GL_GEOMETRY_SHADER);
+	checkFile(m_fFileName, m_fOldDateTime, GL_FRAGMENT_SHADER);
+
+	m_firstUpdate = false;
+}
+
+void Shader::checkFile(const char *fileName, FILETIME &oldTime, GLuint type)
+{
+	if (!fileName)
+		return;
+
+	FILETIME ftWrite;
+	//HANDLE hFile = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE hFile = CreateFile(fileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+		return;
+
+	GetFileTime(hFile, NULL, NULL, &ftWrite);
+
+	 
+	if (ftWrite.dwHighDateTime != oldTime.dwHighDateTime)
 	{
-		glDetachShader(m_id, m_vertProg) ;
-		glDeleteShader(m_vertProg) ;
+		std::cout << "time: " << oldTime.dwHighDateTime << " " << ftWrite.dwHighDateTime << std::endl;
 
-		attachVertexShader(fileName);
-		printf("SHADER::Vertex updated");
+		if (!m_firstUpdate)
+		{
+			if (type == GL_VERTEX_SHADER)
+			{
+				glDetachShader(m_id, m_vertProg);
+				glDeleteShader(m_vertProg);
+
+				attachVertexShader(fileName);
+				printf("SHADER::Vertex updated");
+			}
+
+			if (type == GL_TESS_CONTROL_SHADER)
+			{
+				glDetachShader(m_id, m_contProg);
+				glDeleteShader(m_contProg);
+
+				attachControlShader(fileName);
+				printf("SHADER::Control updated");
+			}
+
+			if (type == GL_TESS_EVALUATION_SHADER)
+			{
+				glDetachShader(m_id, m_evalProg);
+				glDeleteShader(m_evalProg);
+
+				attachEvaluationShader(fileName);
+				printf("SHADER::Evaluation updated");
+			}
+
+			if (type == GL_GEOMETRY_SHADER)
+			{
+				glDetachShader(m_id, m_geomProg);
+				glDeleteShader(m_geomProg);
+
+				attachGeometryShader(fileName);
+				printf("SHADER::Geometry updated");
+			}
+
+			if (type == GL_FRAGMENT_SHADER)
+			{
+				glDetachShader(m_id, m_fragProg);
+				glDeleteShader(m_fragProg);
+
+				attachFragmentShader(fileName);
+				printf("SHADER::Fragment updated");
+			}
+
+			glLinkProgram(m_id);
+		}
+
+		oldTime = ftWrite;
 	}
-
-	if(type == GL_TESS_CONTROL_SHADER)
-	{
-		glDetachShader(m_id, m_contProg);
-		glDeleteShader(m_contProg);
-
-		attachControlShader(fileName);
-		printf("SHADER::Control updated");
-	}
-
-	if(type == GL_TESS_EVALUATION_SHADER)
-	{
-		glDetachShader(m_id, m_evalProg);
-		glDeleteShader(m_evalProg);
-
-		attachEvaluationShader(fileName);
-		printf("SHADER::Evaluation updated");
-	}
-
-	if(type == GL_GEOMETRY_SHADER)
-	{
-		glDetachShader(m_id, m_geomProg);
-		glDeleteShader(m_geomProg);
-
-		attachGeometryShader(fileName);
-		printf("SHADER::Geometry updated");
-	}
-
-	if(type == GL_FRAGMENT_SHADER)
-	{
-		glDetachShader(m_id, m_fragProg);
-		glDeleteShader(m_fragProg);
-
-		attachFragmentShader(fileName);
-		printf("SHADER::Fragment updated");
-	}
-
-	glLinkProgram(m_id);
 }
 
 const GLchar *Shader::readFile(const GLchar *fileName)
@@ -353,6 +413,11 @@ void Shader::link() const
 void Shader::bindAttribLocation(const GLchar *label, GLuint attribID)
 {    
 	glBindAttribLocation(m_id, attribID, label);
+}
+
+void Shader::testAutoUpdate()
+{
+	std::cout << "Shader update" << std::endl;
 }
 
 void Shader::seti(const GLchar* label, GLint arg)

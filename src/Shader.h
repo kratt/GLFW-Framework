@@ -8,7 +8,7 @@
 #include "Common.h"
 #include "Global.h"
 #include <agents.h>
-#include <windows.h>
+#include <experimental/filesystem>
 
 /*
 -----------------------------------------------------------------------------
@@ -57,19 +57,22 @@ class Shader
         GLuint m_evalProg;
         GLuint m_geomProg;
         GLuint m_fragProg;
+
+		bool m_vertIsDirty;
+		bool m_fragIsDirty;
         
-		FILETIME  m_vOldDateTime;
-		FILETIME  m_cOldDateTime;
-		FILETIME  m_eOldDateTime;
-		FILETIME  m_gOldDateTime;
-		FILETIME  m_fOldDateTime;
+		std::experimental::filesystem::file_time_type  m_vOldDateTime;
+		std::experimental::filesystem::file_time_type  m_cOldDateTime;
+		std::experimental::filesystem::file_time_type  m_eOldDateTime;
+		std::experimental::filesystem::file_time_type  m_gOldDateTime;
+		std::experimental::filesystem::file_time_type  m_fOldDateTime;
 		bool      m_firstUpdate;
 
 
         GLuint m_refreshTime;
 
 		const GLchar *readFile(const GLchar *fileName);
-        void checkFile(const char *fileName, FILETIME &oldTime, GLuint type);
+        void checkFile(const char *fileName, std::experimental::filesystem::file_time_type &oldTime, GLuint type);
         GLuint compile(const GLchar *source, GLuint type);
         void cleanUp();      
 		void autoUpdate();
@@ -78,13 +81,15 @@ class Shader
 		concurrency::call<int> *m_call;
 		void initTimer();
 
+		void reload();
+
     public:       
         Shader();
         Shader(const GLchar *vFileName, const GLchar *fFileName);
         Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *fFileName);
         virtual ~Shader();
 
-		void bind() const;
+		void bind();
 		void release() const;  
         void link() const;
 

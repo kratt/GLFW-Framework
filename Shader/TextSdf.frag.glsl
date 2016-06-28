@@ -17,5 +17,5 @@ void main()
    float distance = texture(tex, vec2(VertTexture.x, 1.0f - VertTexture.y)).x;
 	
    float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);
-   FragColor = vec4(vec3(distance), 1.0);		
+   FragColor = vec4(vec3(0.3), 2.0);
 }

@@ -9,13 +9,22 @@
 #include <agents.h>
 #include <functional>
 
+
 Shader::Shader()
 : m_id(0),
   m_vertProg(0),
   m_contProg(0),
   m_evalProg(0),
   m_geomProg(0),
-  m_fragProg(0)
+  m_fragProg(0),
+  m_vFileName(nullptr),
+  m_cFileName(nullptr),
+  m_eFileName(nullptr),
+  m_gFileName(nullptr),
+  m_fFileName(nullptr),
+  m_firstUpdate(true),
+  m_vertIsDirty(false),
+  m_fragIsDirty(false)
 {  
 	if (!m_id) {
 		m_id = glCreateProgram();
@@ -33,7 +42,10 @@ Shader::Shader(const GLchar *vFileName, const GLchar *fFileName)
   m_cFileName(nullptr),
   m_eFileName(nullptr),
   m_gFileName(nullptr),
-  m_fFileName(nullptr)
+  m_fFileName(nullptr),
+  m_firstUpdate(true),
+  m_vertIsDirty(false),   
+  m_fragIsDirty(false)
 {  
 	if (!m_id) {
 		m_id = glCreateProgram();
@@ -213,85 +225,74 @@ void Shader::attachFragmentShader(const GLchar *fileName)
 void Shader::autoUpdate()
 {
 	checkFile(m_vFileName, m_vOldDateTime, GL_VERTEX_SHADER);
-	checkFile(m_cFileName, m_cOldDateTime, GL_TESS_CONTROL_SHADER);
-	checkFile(m_eFileName, m_eOldDateTime, GL_TESS_EVALUATION_SHADER);
-	checkFile(m_gFileName, m_gOldDateTime, GL_GEOMETRY_SHADER);
+	//checkFile(m_cFileName, m_cOldDateTime, GL_TESS_CONTROL_SHADER);
+	//checkFile(m_eFileName, m_eOldDateTime, GL_TESS_EVALUATION_SHADER);
+	//checkFile(m_gFileName, m_gOldDateTime, GL_GEOMETRY_SHADER);
 	checkFile(m_fFileName, m_fOldDateTime, GL_FRAGMENT_SHADER);
 
 	m_firstUpdate = false;
 }
 
-void Shader::checkFile(const char *fileName, FILETIME &oldTime, GLuint type)
+void Shader::checkFile(const char *fileName, std::experimental::filesystem::file_time_type &oldTime, GLuint type)
 {
 	if (!fileName)
 		return;
 
-	FILETIME ftWrite;
-	//HANDLE hFile = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL, 0);
-	HANDLE hFile = CreateFile(fileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	std::experimental::filesystem::file_time_type ftime = std::experimental::filesystem::last_write_time(fileName);
 
-	if (hFile == INVALID_HANDLE_VALUE)
-		return;
-
-	GetFileTime(hFile, NULL, NULL, &ftWrite);
-
-	 
-	if (ftWrite.dwHighDateTime != oldTime.dwHighDateTime)
+	if (ftime != oldTime)
 	{
-		std::cout << "time: " << oldTime.dwHighDateTime << " " << ftWrite.dwHighDateTime << std::endl;
-
 		if (!m_firstUpdate)
 		{
 			if (type == GL_VERTEX_SHADER)
 			{
-				glDetachShader(m_id, m_vertProg);
-				glDeleteShader(m_vertProg);
-
-				attachVertexShader(fileName);
-				printf("SHADER::Vertex updated");
-			}
-
-			if (type == GL_TESS_CONTROL_SHADER)
-			{
-				glDetachShader(m_id, m_contProg);
-				glDeleteShader(m_contProg);
-
-				attachControlShader(fileName);
-				printf("SHADER::Control updated");
-			}
-
-			if (type == GL_TESS_EVALUATION_SHADER)
-			{
-				glDetachShader(m_id, m_evalProg);
-				glDeleteShader(m_evalProg);
-
-				attachEvaluationShader(fileName);
-				printf("SHADER::Evaluation updated");
-			}
-
-			if (type == GL_GEOMETRY_SHADER)
-			{
-				glDetachShader(m_id, m_geomProg);
-				glDeleteShader(m_geomProg);
-
-				attachGeometryShader(fileName);
-				printf("SHADER::Geometry updated");
+				std::cout << "update vert" << std::endl;
+				m_vertIsDirty = true;
 			}
 
 			if (type == GL_FRAGMENT_SHADER)
 			{
-				glDetachShader(m_id, m_fragProg);
-				glDeleteShader(m_fragProg);
-
-				attachFragmentShader(fileName);
-				printf("SHADER::Fragment updated");
+				std::cout << "update frag" << std::endl;
+				m_fragIsDirty = true;
 			}
-
-			glLinkProgram(m_id);
 		}
 
-		oldTime = ftWrite;
+		oldTime = ftime;
 	}
+}
+
+void Shader::reload()
+{
+	std::cout << "reload" << m_fragIsDirty << std::endl;
+	if (m_vertIsDirty)
+	{
+		glDetachShader(m_id, m_vertProg);
+		glDeleteShader(m_vertProg);
+
+		std::cout << "update vertsss" << std::endl;
+
+		attachVertexShader(m_vFileName);
+		printf("SHADER::Vertex updated");
+
+		m_vertIsDirty = false;
+	}
+
+	if (m_fragIsDirty)
+	{
+		std::cout << "updatesss frag" << std::endl;
+
+		glDetachShader(m_id, m_fragProg);
+		glDeleteShader(m_fragProg);
+
+		GLuint id = glCreateShader(GL_FRAGMENT_SHADER);
+
+		attachFragmentShader(m_fFileName);
+		printf("SHADER::Fragment updated");
+
+		//m_fragIsDirty = false;
+	}
+
+	glLinkProgram(m_id);
 }
 
 const GLchar *Shader::readFile(const GLchar *fileName)
@@ -395,8 +396,9 @@ GLuint Shader::id() const
 	return m_id;
 }
 
-void Shader::bind() const
+void Shader::bind()
 {
+	reload();
 	glUseProgram(m_id);
 }
 

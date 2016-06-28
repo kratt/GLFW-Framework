@@ -31,6 +31,7 @@ public:
 
 private:
 	void initTexture();
+	void initTextureSdf();
 
 	void distanceField(FT_Bitmap* bitmap, unsigned char** outData);
 	void unpackMonoBitmap(FT_Bitmap* bitmap, unsigned char** outData);

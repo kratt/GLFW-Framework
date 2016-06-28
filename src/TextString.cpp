@@ -8,7 +8,8 @@ TextString::TextString(std::string text, glm::vec2 screenPos)
 	: m_text(text),
 	m_pos(screenPos)
 {
-	initTexture();
+	//initTexture();
+	initTextureSdf();
 }
 
 TextString::~TextString()
@@ -45,7 +46,7 @@ void TextString::initTexture()
 		fprintf(stderr, "Could not open font %s\n", "Calibri");
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, 224);
+	FT_Set_Pixel_Sizes(face, 0, 48);
 
 	const char *p;
 	FT_GlyphSlot g = face->glyph;
@@ -101,8 +102,8 @@ void TextString::initTexture()
 		maxHeight = std::max(maxHeight, int(h));
 	}
 
-
-	m_dims = glm::vec2(totalWidth, maxHeight);
+	float scale = 10.0f;
+	m_dims = scale*glm::vec2(totalWidth, maxHeight);
 
 	std::cout << "Text dims: " << m_dims.x << " " << m_dims.y << std::endl;
 
@@ -161,10 +162,77 @@ void TextString::initTexture()
 	//	pen_y += g->advance.y >> 6;
 	//}
 
-
-
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+
+void TextString::initTextureSdf()
+{
+	FT_Library ft;
+	FT_Face face;
+
+	if (FT_Init_FreeType(&ft)) {
+		fprintf(stderr, "Could not init freetype library\n");
+	}
+
+	/* Load a font */
+	if (FT_New_Face(ft, "C:/Windows/Fonts/Calibri.TTF", 0, &face)) {
+		fprintf(stderr, "Could not open font %s\n", "Arial");
+	}
+
+	FT_Set_Pixel_Sizes(face, 0, 64);
+
+	const char *p;
+	FT_GlyphSlot g = face->glyph;
+
+
+	/* Create a texture that will be used to hold one "glyph" */
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &m_texId);
+	glBindTexture(GL_TEXTURE_2D, m_texId);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int pen_x = 0;
+	int pen_y = 0;
+
+	int totalWidth = 0.0f;
+	int maxHeight = 0.0f;
+
+	/* Loop through all characters */
+	for (p = m_text.c_str(); *p; p++)
+	{
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
+			continue;
+
+		unsigned char* sdfData;
+		unpackMonoBitmap(&g->bitmap, &sdfData);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, g->bitmap.width, g->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, sdfData);
+
+		float w = g->bitmap.width;
+		float h = g->bitmap.rows;
+
+		float pos_x = pen_x + g->bitmap_left;
+		float pos_y = pen_y + g->bitmap_top - h;
+
+		pen_x += g->advance.x >> 6;
+		pen_y += g->advance.y >> 6;
+
+		maxHeight = h;
+		totalWidth = w;
+		break;
+	}
+
+	std::cout << "width: " << totalWidth << " , height: " << maxHeight << std::endl;
+
+	m_dims = glm::vec2(totalWidth, maxHeight);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 
 void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 {
@@ -188,7 +256,8 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 			glm::vec2 pos = glm::vec2(x, y);
 			auto val = bitMapData[y*width + x];
 
-			float sign = val > 0 ? 1.0f : -1.0f;
+			// inside texels (white) have a negative sign
+			float sign = val > 0 ? -1.0f : 1.0f;
 
 			// found nearest opposite texel
 			float dist = std::numeric_limits<float>::max();
@@ -219,13 +288,31 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 	std::cout << "min: " << minDist << " , max:" << maxDist << std::endl;
 
 	// normalize data
+	float rangeStart = 0.0f;
+	float rangeMid = 192.0f;
+	float rangeEnd = 255.0f;
+
 	unsigned char* finalData = new unsigned char[width * height];
 	for (int x = 0; x < width; ++x)
 	{
 		for (int y = 0; y < height; ++y)
 		{
 			int idx = y*width + x;
-			finalData[idx] =  (sdf[idx] - minDist) / (maxDist - minDist) * 255;
+			float val = sdf[idx];
+			
+			float newVal = 0.0f;
+
+			// val between -1 and 1
+			if (val < 0.0f) {
+				val /= minDist;
+				newVal = std::abs(val) * (rangeEnd - rangeMid) + rangeMid;
+			}
+			else {
+				val /= maxDist;
+				newVal = val * rangeMid;
+			}
+					
+			finalData[idx] = newVal; // (sdf[idx] - minDist) / (maxDist - minDist) * 255;
 		}
 	}
 

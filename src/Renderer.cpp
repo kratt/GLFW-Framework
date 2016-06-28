@@ -33,7 +33,7 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
 	//png.process_file();
 	//png.write_png_file("../Data/Textures/test_2.png");
 
-	m_testString = new TextString("A", glm::vec2(500, 300));
+	m_testString = new TextString("H", glm::vec2(500, 300));
 }
 
 Renderer::~Renderer()
@@ -91,7 +91,7 @@ void Renderer::renderScene()
 	
    auto textRenderer = TextRenderer::instance();
    
-   textRenderer->renderSdf(m_testString);
+   textRenderer->render(m_testString);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

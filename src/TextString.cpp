@@ -4,12 +4,13 @@
 #include <algorithm>
 #include <glm/gtx/norm.hpp>
 
-TextString::TextString(std::string text, glm::vec2 screenPos)
-	: m_text(text),
-	m_pos(screenPos)
+TextString::TextString(std::string text, int fontSize, const std::string &font)
+:   m_text(text),
+    m_font(font),
+    m_fontSize(fontSize),
+	m_fontPath("C:/Windows/Fonts/")
 {
-	//initTexture();
-	initTextureSdf();
+	initTexture();
 }
 
 TextString::~TextString()
@@ -26,44 +27,26 @@ glm::vec2 TextString::dims() const
 	return m_dims;
 }
 
-glm::vec2 TextString::pos() const
-{
-	return m_pos;
-}
-
 void TextString::initTexture()
 {
 	FT_Library ft;
 	FT_Face face;
-
 
 	if (FT_Init_FreeType(&ft)) {
 		fprintf(stderr, "Could not init freetype library\n");
 	}
 
 	/* Load a font */
-	if (FT_New_Face(ft, "C:/Windows/Fonts/Calibri.TTF", 0, &face)) {
-		fprintf(stderr, "Could not open font %s\n", "Calibri");
+	std::string font = m_fontPath + m_font + ".TTF";
+	if (FT_New_Face(ft, font.c_str(), 0, &face)) {
+		fprintf(stderr, "Could not open font %s\n", m_font);
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, 48);
+	FT_Set_Pixel_Sizes(face, 0, m_fontSize);
 
 	const char *p;
 	FT_GlyphSlot g = face->glyph;
 
-
-	// determine min and max dims
-	
-
-	//for (p = m_text.c_str(); *p; p++)
-	//{
-	//	if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
-	//		continue;
-
-	//	//totalWidth += g->bitmap.width;
-	//	totalWidth += g->advance.x >> 6;
-	//	maxHeight = std::max(maxHeight, g->bitmap.rows);
-	//}
 
 	int totalWidth = 0.0f;
 	int maxHeight = 0.0f;
@@ -76,7 +59,7 @@ void TextString::initTexture()
 
 	for (p = m_text.c_str(); *p; p++)
 	{
-		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
 		float w = g->bitmap.width;
@@ -85,14 +68,14 @@ void TextString::initTexture()
 		float pos_x = pen_x + g->bitmap_left;
 		float pos_y = pen_y + g->bitmap_top - h;
 
-		// update position based on beginning of first character
-		if (firstRun) {
-			m_pos.x = m_pos.x + g->bitmap_left;
-			m_pos.y = m_pos.y + g->bitmap_top - h;
+		//// update position based on beginning of first character
+		//if (firstRun) {
+		//	m_pos.x = m_pos.x + g->bitmap_left;
+		//	m_pos.y = m_pos.y + g->bitmap_top - h;
 
-			firstDist = g->bitmap_left;
-			firstRun = false;
-		}
+		//	firstDist = g->bitmap_left;
+		//	firstRun = false;
+		//}
 	
 		totalWidth = pen_x + w;
 
@@ -102,7 +85,7 @@ void TextString::initTexture()
 		maxHeight = std::max(maxHeight, int(h));
 	}
 
-	float scale = 10.0f;
+	float scale = 1.0f;
 	m_dims = scale*glm::vec2(totalWidth, maxHeight);
 
 	std::cout << "Text dims: " << m_dims.x << " " << m_dims.y << std::endl;
@@ -125,7 +108,7 @@ void TextString::initTexture()
 	/* Loop through all characters */
 	for (p = m_text.c_str(); *p; p++)
 	{
-		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
 
@@ -136,31 +119,11 @@ void TextString::initTexture()
 		float pos_y = maxHeight-pen_y;// +g->bitmap_top;
 
 
-		unsigned char* sdfData;
-		distanceField(&g->bitmap, &sdfData);
-
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight-h, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, sdfData);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight-h, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
 		pen_x += g->advance.x >> 6;
 		pen_y += g->advance.y >> 6;
 	}
-
-
-	///* Loop through all characters */
-	//for (p = text; *p; p++)
-	//{
-	//	float w = g->bitmap.width;
-	//	float h = g->bitmap.rows;
-
-	//	float pos_x = pen_x + g->bitmap_left;
-	//	float pos_y = pen_y + g->bitmap_top - h;
-
-	//	glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(pos_x, pos_y, 0.0f));
-	//	glm::mat4 model = glm::scale(trans, glm::vec3(float(w), float(h), 1.0f));
-
-	//	pen_x += g->advance.x >> 6;
-	//	pen_y += g->advance.y >> 6;
-	//}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -209,7 +172,7 @@ void TextString::initTextureSdf()
 			continue;
 
 		unsigned char* sdfData;
-		unpackMonoBitmap(&g->bitmap, &sdfData);
+		distanceField(&g->bitmap, &sdfData);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, g->bitmap.width, g->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, sdfData);
 
@@ -350,4 +313,19 @@ void TextString::unpackMonoBitmap(FT_Bitmap* bitmap, unsigned char** outData)
 	}
 
 	*outData = data;
+}
+
+int TextString::fontSize() const
+{
+	return m_fontSize;
+}
+
+std::string TextString::font() const
+{
+	return m_font;
+}
+
+std::string TextString::text() const
+{
+	return m_text;
 }

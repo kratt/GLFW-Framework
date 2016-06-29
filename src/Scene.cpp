@@ -28,7 +28,7 @@ void Scene::init()
 
 	m_vbo = Mesh::sphere(2.0f, 6, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	Object *sphere = new Object("../Data/Objs/sphere.obj", glm::vec3(0.0f, 2.5f, 0.0f), glm::vec3(1, 1, 1));
+	Object *sphere = new Object("../Data/Objs/sphere.obj", glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(1, 1, 1));
 	m_objects.push_back(sphere);
 }
 

@@ -14,7 +14,7 @@ CameraManager::CameraManager()
   m_mouseSensivity(0.2f),
   m_camSpeed(10.0f),
   m_useCam(false),
-  m_rotate(20.0f, 40.0f, 0.0f),
+  m_rotate(00.0f, 0.0f, 0.0f),
   m_translate(0.0f, 0.0f, 0.0f),
   m_zoom(20.0),
   m_fov(45.0f),

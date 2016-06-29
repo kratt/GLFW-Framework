@@ -29,5 +29,11 @@ void main()
 	VertColor    = Color;
 	VertTexture  = Texture;
 	
-    gl_Position = matProjection * matView * matModel * vec4(Position.xyz, 1);
+	mat4 tmpView = matView * matModel;
+	tmpView[0].xyz = vec3(1,0,0);
+	tmpView[1].xyz = vec3(0,1,0);
+	tmpView[2].xyz = vec3(0,0,1);
+	//tmpView[3].xyz = Position.xyz;
+	
+    gl_Position = matProjection * tmpView *vec4(Position.xyz, 1);
 }

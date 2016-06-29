@@ -21,13 +21,15 @@ class Texture;
 class TextString
 {
 public: 
-	TextString(std::string text, glm::vec2 screenPos);
+	TextString(std::string text, int fontSize = 24, const std::string &font = "Calibri");
 	~TextString();
 
 	GLuint texId() const;
 	glm::vec2 dims() const;
-	glm::vec2 pos() const;
 
+	int fontSize() const;
+	std::string font() const;
+	std::string text() const;
 
 private:
 	void initTexture();
@@ -38,10 +40,13 @@ private:
 	
 private:
 	std::string m_text;
+	std::string m_font;
+	std::string m_fontPath;
+
+	int m_fontSize;
 
 	GLuint m_texId;
-	glm::vec2 m_pos;
-	glm::vec2 m_dims;
+	glm::vec2 m_dims; 
 };
 
 #endif

@@ -57,8 +57,6 @@ void Renderer::render()
 	//m_gui->render();
 
    // Common::renderTexture(m_scene->m_light->m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0), 10, 10, 400, 300);
-
-
 }
 
 void Renderer::renderScene()
@@ -77,9 +75,12 @@ void Renderer::renderScene()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
       m_scene->renderObjects();
-	  m_scene->renderWorld();
+	 // m_scene->renderWorld();
 	
-    TextRenderer::instance()->render3d("Hallo", glm::vec3(10,10,10), 24);
+ //   TextRenderer::instance()->render3d("Hallo", glm::vec3(10,10,10), 128);
+	//TextRenderer::instance()->render("Hallo", glm::vec2(10, 10), 24);
+
+	  TextRenderer::instance()->renderSdf("o", glm::vec2(0, 0), 64);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

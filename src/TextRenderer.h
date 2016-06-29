@@ -5,6 +5,8 @@
 //https://gitlab.com/wikibooks-opengl/modern-tutorials/blob/master/text01_intro/text.cpp
 //https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_02
 
+
+//http://contourtextures.wikidot.com/
 #include "TextString.h"
 #include <string> 
 #include <vector>
@@ -20,8 +22,10 @@ public:
 	TextRenderer();
 	~TextRenderer();
 
-	void render(const std::string &text, int x, int y, int fontSize = 24, const std::string &font = "Calibri");
+	void render(const std::string &text, glm::vec2 pos, int fontSize = 24, const std::string &font = "Calibri");
 	void render3d(const std::string &text, glm::vec3 pos, int fontSize = 24, const std::string &font = "Calibri");
+
+	void renderSdf(const std::string &text, glm::vec2 pos, int fontSize = 24, const std::string &font = "Calibri");
 
 	static TextRenderer* instance();
 
@@ -33,7 +37,7 @@ private:
 	
 	TextString* getTextString(const std::string &text, const std::string &font, int fontSize);
 
-	void renderSdf(TextString* text);
+	
 
 
 	Shader* m_shaderText;

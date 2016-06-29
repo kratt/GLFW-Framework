@@ -10,7 +10,8 @@ TextString::TextString(std::string text, int fontSize, const std::string &font)
     m_fontSize(fontSize),
 	m_fontPath("C:/Windows/Fonts/")
 {
-	initTexture();
+	//initTexture();
+	initTextureSdf();
 }
 
 TextString::~TextString()
@@ -139,11 +140,12 @@ void TextString::initTextureSdf()
 	}
 
 	/* Load a font */
-	if (FT_New_Face(ft, "C:/Windows/Fonts/Calibri.TTF", 0, &face)) {
-		fprintf(stderr, "Could not open font %s\n", "Arial");
+	std::string font = m_fontPath + m_font + ".TTF";
+	if (FT_New_Face(ft, font.c_str(), 0, &face)) {
+		fprintf(stderr, "Could not open font %s\n", m_font);
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, 64);
+	FT_Set_Pixel_Sizes(face, 0, m_fontSize);
 
 	const char *p;
 	FT_GlyphSlot g = face->glyph;
@@ -174,7 +176,10 @@ void TextString::initTextureSdf()
 		unsigned char* sdfData;
 		distanceField(&g->bitmap, &sdfData);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, g->bitmap.width, g->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, sdfData);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R8, g->bitmap.width, g->bitmap.rows);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, sdfData);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexImage2D(GL_TEXTURE_2D, 2, GL_RED, g->bitmap.width, g->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, sdfData);
 
 		float w = g->bitmap.width;
 		float h = g->bitmap.rows;
@@ -192,7 +197,9 @@ void TextString::initTextureSdf()
 
 	std::cout << "width: " << totalWidth << " , height: " << maxHeight << std::endl;
 
+	
 	m_dims = glm::vec2(totalWidth, maxHeight);
+	
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -211,6 +218,8 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 	float minDist = std::numeric_limits<float>::max();
 	float maxDist = std::numeric_limits<float>::lowest();
 
+	float spread = 4.0f;
+
 	//compute signed distance field
 	for (int x = 0; x < width; ++x)
 	{
@@ -225,6 +234,7 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 			// found nearest opposite texel
 			float dist = std::numeric_limits<float>::max();
 
+			bool found = false;
 			for (int s = 0; s < width; ++s)
 			{
 				for (int t = 0; t < height; ++t)
@@ -236,7 +246,13 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 						continue;
 
 					float curDist = glm::length(curPos - pos);
-					dist = std::min(dist, curDist);
+
+					//if (curDist < spread) 
+					{
+
+						dist = std::min(dist, curDist);
+						found = true;
+					}
 				}
 			}
 
@@ -245,16 +261,23 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 
 			minDist = std::min(minDist, newVal);
 			maxDist = std::max(maxDist, newVal);
+	/*		if (found) {
+				float newVal = sign * dist;
+				sdf[y*width + x] = newVal;
+
+				minDist = std::min(minDist, newVal);
+				maxDist = std::max(maxDist, newVal);
+			}
+			else {
+				float newVal = sign < 0 ? 0.0f : 255.0f;
+				sdf[y*width + x] = newVal;
+			}	*/
 		}
 	}
 
 	std::cout << "min: " << minDist << " , max:" << maxDist << std::endl;
 
 	// normalize data
-	float rangeStart = 0.0f;
-	float rangeMid = 192.0f;
-	float rangeEnd = 255.0f;
-
 	unsigned char* finalData = new unsigned char[width * height];
 	for (int x = 0; x < width; ++x)
 	{
@@ -262,22 +285,44 @@ void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
 		{
 			int idx = y*width + x;
 			float val = sdf[idx];
-			
-			float newVal = 0.0f;
 
-			// val between -1 and 1
-			if (val < 0.0f) {
-				val /= minDist;
-				newVal = std::abs(val) * (rangeEnd - rangeMid) + rangeMid;
-			}
-			else {
-				val /= maxDist;
-				newVal = val * rangeMid;
-			}
-					
-			finalData[idx] = newVal; // (sdf[idx] - minDist) / (maxDist - minDist) * 255;
+			finalData[idx] = (sdf[idx] - minDist) / (maxDist - minDist) * 255;
+/*
+			if (val != 0.0 && val != 255.0) {
+				finalData[idx] = (sdf[idx] - minDist) / (maxDist - minDist) * 255;
+			}	*/	
 		}
 	}
+
+
+	//// normalize data
+	//float rangeStart = 0.0f;
+	//float rangeMid = 192.0f;
+	//float rangeEnd = 255.0f;
+
+	//unsigned char* finalData = new unsigned char[width * height];
+	//for (int x = 0; x < width; ++x)
+	//{
+	//	for (int y = 0; y < height; ++y)
+	//	{
+	//		int idx = y*width + x;
+	//		float val = sdf[idx];
+	//		
+	//		float newVal = 0.0f;
+
+	//		// val between -1 and 1
+	//		if (val < 0.0f) {
+	//			val /= minDist;
+	//			newVal = std::abs(val) * (rangeEnd - rangeMid) + rangeMid;
+	//		}
+	//		else {
+	//			val /= maxDist;
+	//			newVal = val * rangeMid;
+	//		}
+	//				
+	//		finalData[idx] = newVal; // (sdf[idx] - minDist) / (maxDist - minDist) * 255;
+	//	}
+	//}
 
 	delete[] sdf;
 	delete[] bitMapData;

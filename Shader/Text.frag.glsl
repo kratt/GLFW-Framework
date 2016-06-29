@@ -17,5 +17,5 @@ void main()
    //alpha = alpha > 0 ? 1.0: 0.0f;
    
    alpha = max(0.0, alpha);
-   FragColor = vec4(vec3(alpha), 1);
+   FragColor = vec4(vec3(1.0f), alpha);
 }

@@ -18,7 +18,7 @@ NiceGrid::NiceGrid(GLfloat size, GLfloat rep)
   m_vbo(NULL),
   m_position(0.0f, 0.0f, 0.0f)
 {
-	m_tex = new Texture("../Data/Textures/floor_test.png");
+	//m_tex = new Texture("../Data/Textures/floor_test.png");
 
 	//m_texID = PngLoader::loadTexture("../Data/Textures/floor_blue.png");
     //QImage tex("Data/floor_blue.png");

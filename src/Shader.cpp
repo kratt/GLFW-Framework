@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <agents.h>
 #include <functional>
+#include "CallbackTimer.h"
 
 
 Shader::Shader()
@@ -31,7 +32,7 @@ Shader::Shader()
 	}
 }
 
-Shader::Shader(const GLchar *vFileName, const GLchar *fFileName)
+Shader::Shader(const GLchar *vFileName, const GLchar *fFileName, bool autoUpdate)
 : m_id(0),
   m_vertProg(0),
   m_contProg(0),
@@ -45,7 +46,11 @@ Shader::Shader(const GLchar *vFileName, const GLchar *fFileName)
   m_fFileName(nullptr),
   m_firstUpdate(true),
   m_vertIsDirty(false),   
-  m_fragIsDirty(false)
+  m_fragIsDirty(false),
+  m_geomIsDirty(false),
+  m_contIsDirty(false),
+  m_evalIsDirty(false),
+  m_autoUpdate(autoUpdate)
 {  
 	if (!m_id) {
 		m_id = glCreateProgram();
@@ -55,10 +60,11 @@ Shader::Shader(const GLchar *vFileName, const GLchar *fFileName)
 	attachFragmentShader(fFileName);
 	bindAttribLocations();
 	
-	initTimer();
+	if(m_autoUpdate)
+		initTimer();
 }
 
-Shader::Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *fFileName)
+Shader::Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *fFileName, bool autoUpdate)
 : m_id(0),
   m_vertProg(0),
   m_contProg(0),
@@ -69,35 +75,36 @@ Shader::Shader(const GLchar *vFileName, const GLchar *gFileName, const GLchar *f
   m_cFileName(nullptr),
   m_eFileName(nullptr),
   m_gFileName(nullptr),
-  m_fFileName(nullptr)
+  m_fFileName(nullptr),
+  m_firstUpdate(true),
+  m_vertIsDirty(false),
+  m_fragIsDirty(false),
+  m_geomIsDirty(false),
+  m_contIsDirty(false),
+  m_evalIsDirty(false),
+ m_autoUpdate(autoUpdate)
 {
 	if (!m_id) {
 		m_id = glCreateProgram();
 	}
-
 
 	attachVertexShader(vFileName);
 	attachGeometryShader(gFileName);
 	attachFragmentShader(fFileName);
 	bindAttribLocations();
 
-	initTimer();
+	if (m_autoUpdate)
+		initTimer();
 }
 
 Shader::~Shader()
 {
 	cleanUp();
-
-	delete m_timer;
-	delete m_call;
 }
-
 
 void Shader::initTimer()
 {
-	m_call = new concurrency::call<int>(std::bind(&Shader::autoUpdate, this));
-	m_timer = new concurrency::timer<int>(1000, 0, m_call, true);
-	m_timer->start();
+	start_callback_timer(std::bind(&Shader::autoUpdate, this), 1000);
 }
 
 void Shader::attachVertexShader(const GLchar *fileName)
@@ -170,7 +177,6 @@ void Shader::attachEvaluationShader(const GLchar *fileName)
 			printf("SHADER::attachEvaluationShader():not found: %s\n", fileName);
 			std::cin.get();
 		}
-
 	}
 }
 
@@ -225,9 +231,9 @@ void Shader::attachFragmentShader(const GLchar *fileName)
 void Shader::autoUpdate()
 {
 	checkFile(m_vFileName, m_vOldDateTime, GL_VERTEX_SHADER);
-	//checkFile(m_cFileName, m_cOldDateTime, GL_TESS_CONTROL_SHADER);
-	//checkFile(m_eFileName, m_eOldDateTime, GL_TESS_EVALUATION_SHADER);
-	//checkFile(m_gFileName, m_gOldDateTime, GL_GEOMETRY_SHADER);
+	checkFile(m_cFileName, m_cOldDateTime, GL_TESS_CONTROL_SHADER);
+	checkFile(m_eFileName, m_eOldDateTime, GL_TESS_EVALUATION_SHADER);
+	checkFile(m_gFileName, m_gOldDateTime, GL_GEOMETRY_SHADER);
 	checkFile(m_fFileName, m_fOldDateTime, GL_FRAGMENT_SHADER);
 
 	m_firstUpdate = false;
@@ -244,17 +250,11 @@ void Shader::checkFile(const char *fileName, std::experimental::filesystem::file
 	{
 		if (!m_firstUpdate)
 		{
-			if (type == GL_VERTEX_SHADER)
-			{
-				std::cout << "update vert" << std::endl;
-				m_vertIsDirty = true;
-			}
-
-			if (type == GL_FRAGMENT_SHADER)
-			{
-				std::cout << "update frag" << std::endl;
-				m_fragIsDirty = true;
-			}
+			if (type == GL_VERTEX_SHADER)           m_vertIsDirty = true;	
+			if (type == GL_TESS_CONTROL_SHADER)     m_contIsDirty = true;
+			if (type == GL_TESS_EVALUATION_SHADER)  m_evalIsDirty = true;
+			if (type == GL_GEOMETRY_SHADER)         m_geomIsDirty = true;
+			if (type == GL_FRAGMENT_SHADER)         m_fragIsDirty = true;
 		}
 
 		oldTime = ftime;
@@ -263,36 +263,68 @@ void Shader::checkFile(const char *fileName, std::experimental::filesystem::file
 
 void Shader::reload()
 {
-	std::cout << "reload" << m_fragIsDirty << std::endl;
 	if (m_vertIsDirty)
 	{
 		glDetachShader(m_id, m_vertProg);
 		glDeleteShader(m_vertProg);
 
-		std::cout << "update vertsss" << std::endl;
-
 		attachVertexShader(m_vFileName);
-		printf("SHADER::Vertex updated");
+		glLinkProgram(m_id);
+		std::cout << "SHADER::Vertex updated" << std::endl;
 
 		m_vertIsDirty = false;
 	}
 
+	if (m_contIsDirty)
+	{
+		glDetachShader(m_id, m_contProg);
+		glDeleteShader(m_contProg);
+
+		attachControlShader(m_cFileName);
+		glLinkProgram(m_id);
+		std::cout << "SHADER::Control updated" << std::endl;
+
+		m_contIsDirty = false;
+	}
+
+
+	if (m_evalIsDirty)
+	{
+		glDetachShader(m_id, m_evalProg);
+		glDeleteShader(m_evalProg);
+
+		attachEvaluationShader(m_eFileName);
+		glLinkProgram(m_id);
+		std::cout << "SHADER::Evaluation updated" << std::endl;;
+
+		m_evalIsDirty = false;
+	}
+
+	if (m_geomIsDirty)
+	{
+		glDetachShader(m_id, m_geomProg);
+		glDeleteShader(m_geomProg);
+
+		attachGeometryShader(m_gFileName);
+
+		glLinkProgram(m_id);
+		std::cout << "SHADER::Geometry updated" << std::endl;
+
+		m_geomIsDirty = false;
+	}
+
 	if (m_fragIsDirty)
 	{
-		std::cout << "updatesss frag" << std::endl;
-
 		glDetachShader(m_id, m_fragProg);
 		glDeleteShader(m_fragProg);
 
-		GLuint id = glCreateShader(GL_FRAGMENT_SHADER);
-
 		attachFragmentShader(m_fFileName);
-		printf("SHADER::Fragment updated");
 
-		//m_fragIsDirty = false;
-	}
+		glLinkProgram(m_id);
+		std::cout << "SHADER::Fragment updated" << std::endl;
 
-	glLinkProgram(m_id);
+		m_fragIsDirty = false;
+	}	
 }
 
 const GLchar *Shader::readFile(const GLchar *fileName)
@@ -398,7 +430,9 @@ GLuint Shader::id() const
 
 void Shader::bind()
 {
-	reload();
+	if(m_autoUpdate)
+		reload();
+
 	glUseProgram(m_id);
 }
 

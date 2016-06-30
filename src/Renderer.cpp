@@ -80,7 +80,7 @@ void Renderer::renderScene()
  //   TextRenderer::instance()->render3d("Hallo", glm::vec3(10,10,10), 128);
 	//TextRenderer::instance()->render("Hallo", glm::vec2(10, 10), 24);
 
-	  TextRenderer::instance()->renderSdf("o", glm::vec2(0, 0), 64);
+	  TextRenderer::instance()->render("void Renderer::renderScene()", glm::vec2(100, 100), 64);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

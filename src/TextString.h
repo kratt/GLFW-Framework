@@ -30,6 +30,7 @@ public:
 	int fontSize() const;
 	std::string font() const;
 	std::string text() const;
+	float borderSize() const;
 
 private:
 	void initTexture();
@@ -47,6 +48,8 @@ private:
 
 	GLuint m_texId;
 	glm::vec2 m_dims; 
+
+	float m_borderSize;
 };
 
 #endif

@@ -11,11 +11,11 @@ uniform sampler2D tex;
 
 void main()
 {
-   float alpha = texture(tex, vec2(VertTexture.x, 1.0f - VertTexture.y)).x;
+   float alpha = texture(tex, vec2(VertTexture.x,  1.0f-VertTexture.y)).x;
    vec3 color = vec3(1.0f, 1.0f, 1.0f);
    
    //alpha = alpha > 0 ? 1.0: 0.0f;
    
-   alpha = max(0.0, alpha);
+   alpha = max(0.1, alpha);
    FragColor = vec4(vec3(1.0f), alpha);
 }

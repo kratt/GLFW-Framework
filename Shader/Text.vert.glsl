@@ -12,6 +12,7 @@ uniform mat4x4 matModel;
 uniform mat4x4 matView;
 uniform mat4x4 matProjection;
 uniform bool faceToCamera = false;
+uniform vec2 textDims = vec2(1.0f);
 
 layout(location = VERT_POSITION) in vec4 Position;
 layout(location = VERT_NORMAL)   in vec4 Normal;
@@ -43,5 +44,21 @@ void main()
 		matModelNew[3] = vec4(0,0,0,1);
 	}
 	
+	float border = 10.0f;
+	float textWidth  = textDims.x;
+	float textHeight = textDims.y;
+	
+	float textCoordX = Texture.x;// / (1.0f - 2.0f*border/textWidth);
+	float textCoordY = Texture.y;// / (1.0f - 2.0f*border/textHeight);
+	
+	VertTexture = vec4(textCoordX, textCoordY, 0.0, 0.0);
+	
+	
     gl_Position = matProjection * matViewNew * matModelNew * vec4(Position.xyz, 1);
 }
+
+
+
+
+
+

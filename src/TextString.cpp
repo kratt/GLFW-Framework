@@ -8,10 +8,11 @@ TextString::TextString(std::string text, int fontSize, const std::string &font)
 :   m_text(text),
     m_font(font),
     m_fontSize(fontSize),
-	m_fontPath("C:/Windows/Fonts/")
+	m_fontPath("C:/Windows/Fonts/"),
+	m_borderSize(0.0f)
 {
-	//initTexture();
-	initTextureSdf();
+	initTexture();
+	//initTextureSdf();
 }
 
 TextString::~TextString()
@@ -101,7 +102,6 @@ void TextString::initTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, totalWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
-
 
 	pen_x = 0;
 	pen_y = 0;
@@ -373,4 +373,9 @@ std::string TextString::font() const
 std::string TextString::text() const
 {
 	return m_text;
+}
+
+float TextString::borderSize() const
+{
+	return m_borderSize;
 }

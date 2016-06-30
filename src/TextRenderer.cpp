@@ -49,14 +49,17 @@ void TextRenderer::render(const std::string &text, glm::vec2 pos, int fontSize, 
 
 	glm::vec2 dims = textStr->dims();
 
+	float border = 0.0f;
+
 	m_shaderText->bind();
 
 	glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
-	glm::mat4 model = glm::scale(trans, glm::vec3(float(dims.x), float(dims.y), 1.0f));
+	glm::mat4 model = glm::scale(trans, glm::vec3(float(dims.x) + 2.0f*border, float(dims.y) + 2.0f*border, 1.0f));
 
 	m_shaderText->setMatrix("matModel", model, GL_TRUE);
 	m_shaderText->setMatrix("matView", view, GL_TRUE);
 	m_shaderText->setMatrix("matProjection", projection, GL_TRUE);
+	m_shaderText->set2f("textDims", dims);
 	m_shaderText->seti("faceToCamera", false);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -85,7 +88,7 @@ void TextRenderer::render3d(const std::string &text, glm::vec3 pos, int fontSize
 	glm::mat4 view = trans->view;
 	glm::mat4 projection = trans->projection;
 
-	float scale = 0.1f;
+	float scale = 0.01f;
 
 	glm::vec2 dims = textStr->dims();
 	glm::vec3 center = 0.5f * glm::vec3(float(dims.x), float(dims.y), 0.0f);
@@ -100,7 +103,9 @@ void TextRenderer::render3d(const std::string &text, glm::vec3 pos, int fontSize
 	m_shaderText->setMatrix("matModel", model, GL_TRUE);
 	m_shaderText->setMatrix("matView", view, GL_TRUE);
 	m_shaderText->setMatrix("matProjection", projection, GL_TRUE);
+	m_shaderText->set2f("textDims", dims);
 	m_shaderText->seti("faceToCamera", true);
+
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textStr->texId());
@@ -113,6 +118,7 @@ void TextRenderer::render3d(const std::string &text, glm::vec3 pos, int fontSize
 
 TextString * TextRenderer::getTextString(const std::string &text, const std::string &font, int fontSize)
 {		
+	// first check if we already have a StringText object for the text
 	auto iter =	std::find_if(m_textStrings.begin(), m_textStrings.end(),
 		[&](const TextString* s) 
 	{ 
@@ -122,15 +128,12 @@ TextString * TextRenderer::getTextString(const std::string &text, const std::str
 	});
 
 	TextString * resPrt = nullptr;
-
-	// first check if we already have a StringText object for the text
 	if (iter == m_textStrings.end())
 	{
 		//init new text
-		TextString *s = new TextString(text, fontSize, font);
-		m_textStrings.push_back(s);
+		resPrt = new TextString(text, fontSize, font);
+		m_textStrings.push_back(resPrt);
 
-		resPrt = s;
 		std::cout << "TextRenderer. Added new text string." << std::endl;
 	}
 	else

@@ -87,8 +87,7 @@ void TextString::initTexture()
 		maxHeight = std::max(maxHeight, int(h));
 	}
 
-	float scale = 1.0f;
-	m_dims = scale*glm::vec2(totalWidth, maxHeight);
+	m_dims = glm::vec2(totalWidth, maxHeight);
 
 	std::cout << "Text dims: " << m_dims.x << " " << m_dims.y << std::endl;
 
@@ -96,8 +95,8 @@ void TextString::initTexture()
 	glGenTextures(1, &m_texId);
 	glBindTexture(GL_TEXTURE_2D, m_texId);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -117,10 +116,13 @@ void TextString::initTexture()
 		float h = g->bitmap.rows;
 
 		float pos_x = pen_x + g->bitmap_left;
-		float pos_y = maxHeight-pen_y;// +g->bitmap_top;
+		//float pos_y = maxHeight-pen_y;// +g->bitmap_top;
+		float pos_y = maxHeight - h;// +g->bitmap_top;
 
+		GLubyte *data;
+		emptyTexture(&g->bitmap, &data);
 
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight-h, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, pos_y /*maxHeight-h*/, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
 		pen_x += g->advance.x >> 6;
 		pen_y += g->advance.y >> 6;
@@ -354,6 +356,24 @@ void TextString::unpackMonoBitmap(FT_Bitmap* bitmap, unsigned char** outData)
 				else
 					data[row_start + bitIndex] = 0;
 			}
+		}
+	}
+
+	*outData = data;
+}
+
+void TextString::emptyTexture(FT_Bitmap* bitmap, unsigned char** outData)
+{
+	int width = bitmap->width;
+	int height = bitmap->rows;
+
+	GLubyte *data = new unsigned char[width * height];
+
+	for (int x = 0; x < width; ++x)
+	{
+		for (int y = 0; y < height; ++y)
+		{
+			data[y*width + x] = 255;
 		}
 	}
 

@@ -70,6 +70,7 @@ class Shader
         void set3f(const GLchar* label, GLfloat arg1, GLfloat arg2, GLfloat arg3);
         void set3f(const GLchar* label, const glm::vec3 &v);
         void set4i(const GLchar* label, GLint arg1, GLint arg2, GLint arg3, GLint arg4);
+		void set4f(const GLchar* label, const glm::vec4 &v);
         void set4f(const GLchar* label, GLfloat arg1, GLfloat arg2, GLfloat arg3, GLfloat arg4);
         void set3iv(const GLchar* label, const GLint* args);
         void set3fv(const GLchar* label, const GLfloat* args);

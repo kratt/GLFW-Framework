@@ -501,6 +501,11 @@ void Shader::set4i(const GLchar* label, GLint arg1, GLint arg2, GLint arg3, GLin
 	glUniform4i(glGetUniformLocation(m_id, label), arg1, arg2, arg3, arg4);
 }
 
+void Shader::set4f(const GLchar * label, const glm::vec4 & v)
+{
+	glUniform4f(glGetUniformLocation(m_id, label), v.x, v.y, v.z, v.w);
+}
+
 void Shader::set4f(const GLchar* label, GLfloat arg1, GLfloat arg2, GLfloat arg3, GLfloat arg4)
 {
 	glUniform4f(glGetUniformLocation(m_id, label), arg1, arg2, arg3, arg4);

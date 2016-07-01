@@ -29,11 +29,22 @@ void TextRenderer::init()
 	m_shaderTextSdf = new Shader("../Shader/TextSdf.vert.glsl", "../Shader/TextSdf.frag.glsl");
 	m_shaderTextSdf->bindAttribLocations();
 
-	// quad to render one glyph. Sscale it according to needs
+	// quad to render one glyph. Scale it according to needs
 	m_vboQuad = Mesh::quad(0, 0, 1, 1);
 }
 
-void TextRenderer::render(const std::string &text, glm::vec2 pos, int fontSize, const std::string &font)
+
+void TextRenderer::render(const std::string &text, glm::vec2 pos, int fontSize, glm::vec4 &textColor, const std::string &font)
+{
+	render(text, glm::vec3(pos, 0.0f), textColor, glm::vec4(0.0f), 0, 0, fontSize, font, false);
+}
+
+void TextRenderer::render(const std::string & text, glm::vec2 pos, int border, int gapToBorder, int fontSize, glm::vec4 & textColor, glm::vec4 & borderColor, const std::string & font)
+{
+	render(text, glm::vec3(pos, 0.0f), textColor, borderColor, border, gapToBorder, fontSize, font, false);
+}
+
+void TextRenderer::render(const std::string & text, glm::vec3 pos, glm::vec4 textColor, glm::vec4 borderColor, int border, int gapToBorder, int fontSize, const std::string & font, bool render3D)
 {
 	auto textStr = getTextString(text, font, fontSize);
 
@@ -49,18 +60,26 @@ void TextRenderer::render(const std::string &text, glm::vec2 pos, int fontSize, 
 
 	glm::vec2 dims = textStr->dims();
 
-	float border = 0.0f;
+	float totalWidth  = float(dims.x) + 2.0f*(border + gapToBorder);
+	float totalHeight = float(dims.y) + 2.0f*(border + gapToBorder);
 
 	m_shaderText->bind();
 
-	glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
-	glm::mat4 model = glm::scale(trans, glm::vec3(float(dims.x) + 2.0f*border, float(dims.y) + 2.0f*border, 1.0f));
+	glm::mat4 trans = glm::translate(glm::mat4(1.0f), pos);
+	glm::mat4 model = glm::scale(trans, glm::vec3(totalWidth, totalHeight, 1.0f));
 
 	m_shaderText->setMatrix("matModel", model, GL_TRUE);
 	m_shaderText->setMatrix("matView", view, GL_TRUE);
 	m_shaderText->setMatrix("matProjection", projection, GL_TRUE);
+
+	m_shaderText->set4f("textColor", textColor);
+	m_shaderText->set4f("borderColor", borderColor);
 	m_shaderText->set2f("textDims", dims);
+
 	m_shaderText->seti("faceToCamera", false);
+	m_shaderText->setf("border", border);
+	m_shaderText->setf("gapToBorder", gapToBorder);
+
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textStr->texId());
@@ -73,7 +92,7 @@ void TextRenderer::render(const std::string &text, glm::vec2 pos, int fontSize, 
 }
 
 
-void TextRenderer::render3d(const std::string &text, glm::vec3 pos, int fontSize, const std::string &font)
+void TextRenderer::render(const std::string &text, glm::vec3 pos, int fontSize, const std::string &font)
 {
 	auto textStr = getTextString(text, font, fontSize);
 
@@ -88,12 +107,23 @@ void TextRenderer::render3d(const std::string &text, glm::vec3 pos, int fontSize
 	glm::mat4 view = trans->view;
 	glm::mat4 projection = trans->projection;
 
-	float scale = 0.01f;
+	float scale = 1.0f;
 
 	glm::vec2 dims = textStr->dims();
-	glm::vec3 center = 0.5f * glm::vec3(float(dims.x), float(dims.y), 0.0f);
+	
+	float border =  2.0f;
+	float gapToBorder = 2.0f;
 
-	glm::mat4 matScale = glm::scale(glm::mat4(1.0f), scale*glm::vec3(float(dims.x), float(dims.y), 1.0f));
+	float totalWidth  = float(dims.x) + 2.0f*(border + gapToBorder);
+	float totalHeight = float(dims.y) + 2.0f*(border + gapToBorder);
+
+	border *= scale;
+	gapToBorder *= scale;
+	totalWidth  *= scale;
+	totalHeight *= scale;
+
+
+	glm::mat4 matScale = glm::scale(glm::mat4(1.0f), glm::vec3(totalWidth, totalHeight, 1.0f));
 	glm::mat4 matTransPos = glm::translate(glm::mat4(1.0f), pos);
 
 	m_shaderText->bind();
@@ -105,6 +135,8 @@ void TextRenderer::render3d(const std::string &text, glm::vec3 pos, int fontSize
 	m_shaderText->setMatrix("matProjection", projection, GL_TRUE);
 	m_shaderText->set2f("textDims", dims);
 	m_shaderText->seti("faceToCamera", true);
+	m_shaderText->setf("border", border);
+	m_shaderText->setf("gapToBorder", gapToBorder);
 
 
 	glActiveTexture(GL_TEXTURE0);

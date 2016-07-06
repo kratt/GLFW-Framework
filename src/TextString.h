@@ -26,11 +26,11 @@ public:
 
 	GLuint texId() const;
 	glm::vec2 dims() const;
+	float offsetY() const;
 
 	int fontSize() const;
 	std::string font() const;
 	std::string text() const;
-	float borderSize() const;
 
 private:
 	void initTexture();
@@ -50,8 +50,7 @@ private:
 
 	GLuint m_texId;
 	glm::vec2 m_dims; 
-
-	float m_borderSize;
+	float m_offsetY;
 };
 
 #endif

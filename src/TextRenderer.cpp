@@ -33,7 +33,6 @@ void TextRenderer::init()
 	m_vboQuad = Mesh::quad(0, 0, 1, 1);
 }
 
-
 void TextRenderer::render(const std::string &text, glm::vec2 pos, int fontSize, glm::vec4 &textColor, const std::string &font)
 {
 	render(text, glm::vec3(pos, 0.0f), textColor, glm::vec4(0.0f), 0, 0, fontSize, font, false);
@@ -59,6 +58,9 @@ void TextRenderer::render(const std::string & text, glm::vec3 pos, glm::vec4 tex
 	glm::mat4 projection = glm::ortho(0.0f, float(param->windowWidth), 0.0f, float(param->windowHeight), -1.0f, 1.0f);
 
 	glm::vec2 dims = textStr->dims();
+	float offsetY = textStr->offsetY();
+
+	pos.y -= offsetY;
 
 	float totalWidth  = float(dims.x) + 2.0f*(border + gapToBorder);
 	float totalHeight = float(dims.y) + 2.0f*(border + gapToBorder);

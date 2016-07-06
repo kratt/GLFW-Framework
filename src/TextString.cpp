@@ -9,7 +9,7 @@ TextString::TextString(std::string text, int fontSize, const std::string &font)
     m_font(font),
     m_fontSize(fontSize),
 	m_fontPath("C:/Windows/Fonts/"),
-	m_borderSize(0.0f)
+	m_offsetY(0.0f)
 {
 	initTexture();
 	//initTextureSdf();
@@ -27,6 +27,11 @@ GLuint TextString::texId() const
 glm::vec2 TextString::dims() const
 {
 	return m_dims;
+}
+
+float TextString::offsetY() const
+{
+	return m_offsetY;
 }
 
 void TextString::initTexture()
@@ -52,13 +57,10 @@ void TextString::initTexture()
 
 	int totalWidth = 0.0f;
 	int maxHeight = 0.0f;
+	
+	float maxOffset = 0.0f;
 
 	int pen_x = 0;
-	int pen_y = 0;
-
-	bool firstRun = true;
-	float firstDist = 0.0f;
-
 	for (p = m_text.c_str(); *p; p++)
 	{
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
@@ -68,28 +70,20 @@ void TextString::initTexture()
 		float h = g->bitmap.rows;
 
 		float pos_x = pen_x + g->bitmap_left;
-		float pos_y = pen_y + g->bitmap_top - h;
 
-		//// update position based on beginning of first character
-		//if (firstRun) {
-		//	m_pos.x = m_pos.x + g->bitmap_left;
-		//	m_pos.y = m_pos.y + g->bitmap_top - h;
+		float belowBaseLine = h - g->bitmap_top;
 
-		//	firstDist = g->bitmap_left;
-		//	firstRun = false;
-		//}
-	
 		totalWidth = pen_x + w;
 
 		pen_x += g->advance.x >> 6;
-		pen_y += g->advance.y >> 6;
-	
-		maxHeight = std::max(maxHeight, int(h));
+
+		maxHeight = std::max(maxHeight, int(h + belowBaseLine));
+		maxOffset = std::max(maxOffset, belowBaseLine);
 	}
 
 	m_dims = glm::vec2(totalWidth, maxHeight);
+	m_offsetY = maxOffset;
 
-	std::cout << "Text dims: " << m_dims.x << " " << m_dims.y << std::endl;
 
 	/* Create an empty texture that will be used to hold the entire text */
 	glGenTextures(1, &m_texId);
@@ -99,33 +93,21 @@ void TextString::initTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, totalWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
 	pen_x = 0;
-	pen_y = 0;
-
 	/* Loop through all characters */
 	for (p = m_text.c_str(); *p; p++)
 	{
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
-
 		float w = g->bitmap.width;
 		float h = g->bitmap.rows;
-
 		float pos_x = pen_x + g->bitmap_left;
-		//float pos_y = maxHeight-pen_y;// +g->bitmap_top;
-		float pos_y = maxHeight - h;// +g->bitmap_top;
 
-		GLubyte *data;
-		emptyTexture(&g->bitmap, &data);
-
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, pos_y /*maxHeight-h*/, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-
+		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (h), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 		pen_x += g->advance.x >> 6;
-		pen_y += g->advance.y >> 6;
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -393,9 +375,4 @@ std::string TextString::font() const
 std::string TextString::text() const
 {
 	return m_text;
-}
-
-float TextString::borderSize() const
-{
-	return m_borderSize;
 }

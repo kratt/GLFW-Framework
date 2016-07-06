@@ -57,7 +57,6 @@ void TextString::initTexture()
 
 	int totalWidth = 0.0f;
 	int maxHeight = 0.0f;
-	
 	float maxOffset = 0.0f;
 
 	int pen_x = 0;
@@ -70,13 +69,10 @@ void TextString::initTexture()
 		float h = g->bitmap.rows;
 
 		float pos_x = pen_x + g->bitmap_left;
-
 		float belowBaseLine = h - g->bitmap_top;
 
 		totalWidth = pen_x + w;
-
 		pen_x += g->advance.x >> 6;
-
 		maxHeight = std::max(maxHeight, int(h + belowBaseLine));
 		maxOffset = std::max(maxOffset, belowBaseLine);
 	}
@@ -102,11 +98,8 @@ void TextString::initTexture()
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
-		float w = g->bitmap.width;
-		float h = g->bitmap.rows;
 		float pos_x = pen_x + g->bitmap_left;
-
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (h), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (g->bitmap_top + m_offsetY), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 		pen_x += g->advance.x >> 6;
 	}
 

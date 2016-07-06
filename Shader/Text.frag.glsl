@@ -37,6 +37,6 @@ void main()
 	   color = borderColor.xyz;	   
    }
    
-   alpha = max(0.1, alpha);
+   alpha = max(0.3, alpha);
    FragColor = vec4(color, alpha);
 }

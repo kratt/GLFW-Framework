@@ -60,7 +60,7 @@ void TextRenderer::render(const std::string & text, glm::vec3 pos, glm::vec4 tex
 	glm::vec2 dims = textStr->dims();
 	float offsetY = textStr->offsetY();
 
-	pos.y -= offsetY;
+	//pos.y -= offsetY;
 
 	float totalWidth  = float(dims.x) + 2.0f*(border + gapToBorder);
 	float totalHeight = float(dims.y) + 2.0f*(border + gapToBorder);
@@ -112,7 +112,10 @@ void TextRenderer::render(const std::string &text, glm::vec3 pos, int fontSize, 
 	float scale = 1.0f;
 
 	glm::vec2 dims = textStr->dims();
-	
+	float offsetY = textStr->offsetY();
+
+	pos.y -= offsetY;
+
 	float border =  2.0f;
 	float gapToBorder = 2.0f;
 

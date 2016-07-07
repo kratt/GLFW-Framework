@@ -77,8 +77,9 @@ void Renderer::renderScene()
       m_scene->renderObjects();
 	 // m_scene->renderWorld();
 	
-	//TextRenderer::instance()->render("void Renderer::renderfghQuad()", glm::vec2(10, 10), 20, 50, 24, glm::vec4(1,0,0,0.5), glm::vec4(0, 1, 0, 0.5));
-	 TextRenderer::instance()->render("void", glm::vec2(10, 10), 64); 
+	//TextRenderer::instance()->render("void Renderer::renderfghQuad()", glm::vec2(10, 10), 20, 50, 24, glm::vec4(1,1,1,0.5), glm::vec4(0, 1, 0, 0.5));
+	//TextRenderer::instance()->render("vg", glm::vec2(10, 10), 42); 
+	TextRenderer::instance()->render("TextRenderer::instance()->render(void Renderer::renderfghQuad()", glm::vec3(-0.5, 0.5, -0.5), glm::vec2(0.0f, 0.1), glm::vec4(1,0,0,1.0f));
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 

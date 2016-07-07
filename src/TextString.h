@@ -26,7 +26,7 @@ public:
 
 	GLuint texId() const;
 	glm::vec2 dims() const;
-	float offsetY() const;
+	float offsetBaseline() const;
 
 	int fontSize() const;
 	std::string font() const;
@@ -50,7 +50,7 @@ private:
 
 	GLuint m_texId;
 	glm::vec2 m_dims; 
-	float m_offsetY;
+	float m_offsetBaseline;
 };
 
 #endif

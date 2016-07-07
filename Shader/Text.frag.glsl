@@ -23,7 +23,8 @@ void main()
 	if(VertTexture.x >= 0.0f && VertTexture.x <= 1.0f &&
 	   VertTexture.y >= 0.0f && VertTexture.y <= 1.0f)
    {
-	  alpha = texture(tex, vec2(VertTexture.x,  1.0f-VertTexture.y)).x;
+	  float texAlpha = texture(tex, vec2(VertTexture.x,  1.0f-VertTexture.y)).x;
+	  alpha = min(texAlpha, textColor.a);
 	  color = textColor.xyz;
    }
    // gap between text and border
@@ -37,6 +38,6 @@ void main()
 	   color = borderColor.xyz;	   
    }
    
-   alpha = max(0.3, alpha);
+   alpha = max(0.0, alpha);
    FragColor = vec4(color, alpha);
 }

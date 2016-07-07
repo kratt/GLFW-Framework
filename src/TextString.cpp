@@ -9,7 +9,7 @@ TextString::TextString(std::string text, int fontSize, const std::string &font)
     m_font(font),
     m_fontSize(fontSize),
 	m_fontPath("C:/Windows/Fonts/"),
-	m_offsetY(0.0f)
+	m_offsetBaseline(0.0f)
 {
 	initTexture();
 	//initTextureSdf();
@@ -29,9 +29,9 @@ glm::vec2 TextString::dims() const
 	return m_dims;
 }
 
-float TextString::offsetY() const
+float TextString::offsetBaseline() const
 {
-	return m_offsetY;
+	return m_offsetBaseline;
 }
 
 void TextString::initTexture()
@@ -55,9 +55,12 @@ void TextString::initTexture()
 	FT_GlyphSlot g = face->glyph;
 
 
-	int totalWidth = 0.0f;
-	int maxHeight = 0.0f;
-	float maxOffset = 0.0f;
+	int totalWidth = 0;
+	int maxHeight  = 0;
+	int maxOffset  = 0;
+
+	int maxTop    = 0;
+	int maxBottom = 0;
 
 	int pen_x = 0;
 	for (p = m_text.c_str(); *p; p++)
@@ -65,21 +68,27 @@ void TextString::initTexture()
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
-		float w = g->bitmap.width;
-		float h = g->bitmap.rows;
+		int w = g->bitmap.width;
+		int h = g->bitmap.rows;
 
-		float pos_x = pen_x + g->bitmap_left;
-		float belowBaseLine = h - g->bitmap_top;
+		int pos_x = pen_x + g->bitmap_left;
+		int belowBaseLine = h - g->bitmap_top;
 
 		totalWidth = pen_x + w;
 		pen_x += g->advance.x >> 6;
-		maxHeight = std::max(maxHeight, int(h + belowBaseLine));
+
+		maxTop = std::max(maxTop, g->bitmap_top);
+		maxBottom = std::max(maxBottom, h - g->bitmap_top);
 		maxOffset = std::max(maxOffset, belowBaseLine);
 	}
 
-	m_dims = glm::vec2(totalWidth, maxHeight);
-	m_offsetY = maxOffset;
+	maxHeight = maxTop + maxBottom;
 
+
+	m_dims = glm::vec2(totalWidth, maxHeight);
+	m_offsetBaseline = maxOffset;
+
+	std::cout << "dims: " << m_dims.x << " " << m_dims.y << std::endl;
 
 	/* Create an empty texture that will be used to hold the entire text */
 	glGenTextures(1, &m_texId);
@@ -98,8 +107,12 @@ void TextString::initTexture()
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
+		float w = g->bitmap.width;
+		float h = g->bitmap.rows;
+		float top_left = g->bitmap_top;
+
 		float pos_x = pen_x + g->bitmap_left;
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (g->bitmap_top + m_offsetY), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (g->bitmap_top + m_offsetBaseline), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 		pen_x += g->advance.x >> 6;
 	}
 

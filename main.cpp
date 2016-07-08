@@ -91,7 +91,7 @@ void init()
 	glfwWindowHint(GLFW_ALPHA_BITS, 8);
 	glfwWindowHint(GLFW_STENCIL_BITS, 8);
 	glfwWindowHint(GLFW_DEPTH_BITS, 16);
-	glfwWindowHint(GLFW_SAMPLES, 1);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // allow the window to be resized
 

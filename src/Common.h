@@ -73,6 +73,8 @@ struct Common {
 	static void glDisable2D();
 
 	template <class T> static void loop(T &a, const T &low, const T &high, const T &inc = 1.0) { if (a >= high) a = low; else a += inc; }
+
+	static double hermiteInterpolation(double y0, double y1, double y2, double y3, double mu, double tension, double bias);
 };
 
 float frand(float low, float high);

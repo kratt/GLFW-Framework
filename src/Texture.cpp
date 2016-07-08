@@ -84,7 +84,7 @@ void Texture::createTexture(const std::string fileName)
 
 	glGenTextures(1, &m_id);
 	glBindTexture(GL_TEXTURE_2D, m_id);
-	glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
+	glTexStorage2D(GL_TEXTURE_2D, 4, format, width, height);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, textureImage);
 
 	//glTexImage2D(GL_TEXTURE_2D, 0, hasAlpha ? 4 : 3, width, height, 0, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, textureImage);

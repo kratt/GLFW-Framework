@@ -123,19 +123,26 @@ void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods
 	switch (key)
 	{
 		case GLFW_KEY_SPACE:
-		Common::loop(param->polygonMode, 0, 1, 1);
-
+			Common::loop(param->polygonMode, 0, 1, 1);
+			break;
 		case GLFW_KEY_PAGE_UP:
 			m_cameraManager->increaseSpeed();
 			break;
 		case GLFW_KEY_PAGE_DOWN:
 			m_cameraManager->decreaseSpeed();
-
+			break;
 		case GLFW_KEY_F2:
 			m_cameraManager->toggleCam();
 			break;
 		case GLFW_KEY_F4:
 			m_renderer->toggleBGColor();
+			break;
+		case GLFW_KEY_F5:
+			if (m_ctrlPressed)
+				m_cameraManager->toggleFrameset();
+			break;
+		case GLFW_KEY_I:
+			m_cameraManager->toggleInterpolation();
 			break;
 	}
 

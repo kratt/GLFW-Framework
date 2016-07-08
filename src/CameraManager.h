@@ -8,9 +8,12 @@
 #include "Transform.h"
 
 #include <glm/vec3.hpp> 
+#include <vector>
+
+class Camera;
 
 class CameraManager
-{
+{	
 public:
    CameraManager();
    ~CameraManager();
@@ -32,10 +35,10 @@ public:
    void clearFrameset();
    void saveFrameset();
    void toggleFrameset();
-   //QString currentFramesetName();
-   //Camera *lodCamera();
-   //std::vector<Camera*> cameras();
-   //Camera *currentCam();
+   std::string currentFramesetName();
+   Camera *lodCamera();
+   std::vector<Camera*> cameras();
+   Camera *currentCam();
    glm::vec3 currentCamPos();  
    float currentCamFov();
    float currentCamNcp();
@@ -45,7 +48,7 @@ public:
 
 private:
 	
-	//std::vector<Camera *> m_cameras;
+	std::vector<Camera *> m_cameras;
 
 	int m_active;
 	float m_width;

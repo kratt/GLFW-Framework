@@ -21,14 +21,14 @@ Scene::~Scene()
 
 void Scene::init()
 {
-    m_light = new Light(this, glm::vec3(0.0f, 20.0f, 0.1f));
+    m_light = new Light(this, glm::vec3(0.0f, 20.0f, 10.0f));
 	m_niceGrid = new NiceGrid(100.0f, 40.0f);  
 
     initShaders();
 
 	m_vbo = Mesh::sphere(2.0f, 6, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	Object *sphere = new Object("../Data/Objs/unit_box.obj", glm::vec3(0.0f), glm::vec3(1.0f));
+	Object *sphere = new Object("../Data/Objs/head.obj", glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(10.0f));
 	m_objects.push_back(sphere);
 }
 

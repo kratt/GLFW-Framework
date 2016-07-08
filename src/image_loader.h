@@ -1,5 +1,5 @@
-#ifndef UTILS_IMAGE_UTILS_H_
-#define UTILS_IMAGE_UTILS_H_
+#ifndef UTILS_IMAGE_LOADER_H_
+#define UTILS_IMAGE_LOADER_H_
 
 #include "Global.h"
 #include <string>

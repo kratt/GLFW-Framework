@@ -63,7 +63,10 @@ void Object::render()
 	auto trans = RenderContext::transform();
 
 
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position); // *mat4::rotateY(m_rotation.y) * mat4::scale(m_scale);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position);
+	model = glm::rotate(model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, m_scale);
+	
 	glm::mat4 view = trans->view;
 	glm::mat4 projection = trans->projection;
 	glm::mat4 lightView = trans->lightView;

@@ -1,7 +1,3 @@
-// Computer Graphics and Media Informatics
-// University of Konstanz
-// 2015
-
 #include "Shader.h"
 
 #include <iostream>
@@ -449,11 +445,6 @@ void Shader::link() const
 void Shader::bindAttribLocation(const GLchar *label, GLuint attribID)
 {    
 	glBindAttribLocation(m_id, attribID, label);
-}
-
-void Shader::testAutoUpdate()
-{
-	std::cout << "Shader update" << std::endl;
 }
 
 void Shader::seti(const GLchar* label, GLint arg)

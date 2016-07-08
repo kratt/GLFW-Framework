@@ -1,7 +1,3 @@
-// Computer Graphics and Media Informatics
-// University of Konstanz
-// 2015
-
 #ifndef SHADER
 #define SHADER
 
@@ -9,36 +5,6 @@
 #include "Global.h"
 #include <experimental/filesystem>
 
-/*
------------------------------------------------------------------------------
-Shader.h
------------------------------------------------------------------------------
-
-This class represents a set of shader programs.
-A short usage description:
-
-1.	Shader(const GLchar *pathToVertexShader, const GLchar *pathToFragmentShader)
-	Creates a shader with a vertex and fragment program attached. Parameters are
-	the localtions of the vertex and fragment shader code files (text files).
-
-2.  bind()
-	Activates the shader. All upcoming geometry is passed through the vertex and
-	fragment program from the shader. The vertex shader is called for each vertex
-	and the fragment shader for each fragment (potential pixel).
-
-3.	set*()
-	Possible methods: setMatrix() / setf() / seti() / set[2/3/4][f/i][v]()
-	Binds uniform variables to a shader. Uniform variables are a possibility to
-	transfer parameters from the CPU to the GPU. Uniform parameters are visible
-	in all shaders.
-	Example:	CPU: shader->setf("floatVar", 1.0f);
-				GPU: uniform float floatVar;
-
-4.  release()
-	Deactivates the shader.
-
------------------------------------------------------------------------------
-*/
 
 class Shader
 {
@@ -60,7 +26,6 @@ class Shader
 
         void bindAttribLocation(const GLchar *label, GLuint attribID);
 
-		void testAutoUpdate();
         void seti(const GLchar* label, GLint arg);
         void setf(const GLchar* label, GLfloat arg);
         void set2i(const GLchar* label, GLint arg1, GLint arg2);

@@ -1,5 +1,4 @@
-#include <cgfw/utils/fs.h>
-#include <cgfw/utils/image_loader.h>
+#include "image_utils.h"
 
 #include <array>
 #include <fstream>
@@ -7,7 +6,7 @@
 
 #include <png.h>
 
-namespace cgfw {
+
 namespace utils {
 
 /*
@@ -157,4 +156,4 @@ bool load_image(const std::string &path, std::vector<unsigned char> &data,
   }
 }
 }
-}
+

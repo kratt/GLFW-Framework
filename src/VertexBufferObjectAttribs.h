@@ -80,7 +80,7 @@ private:
 
     GLuint m_sizeAsStride;
 
-    vector<GLint> m_attribLocations;
+	std::vector<GLint> m_attribLocations;
 
     GLboolean m_dynamicRendering;   
 };

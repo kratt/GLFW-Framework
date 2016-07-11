@@ -16,11 +16,14 @@ GUI::GUI()
 : m_width(0),
   m_height(0),
   m_oldTime(0),
-  m_fontColor(0.9f, 0.9f, 0.9f, 1.0)
+  m_fontColor(0.9f, 0.9f, 0.9f, 1.0),
+  m_shaderSlider(nullptr),
+  m_shaderCheckBox(nullptr),
+  m_shaderButton(nullptr)
 {
-	//initShortcuts();
-	//initUIElements();
-
+	initShortcuts();
+	initUIElements();
+	initShaders();
 	//connect(&m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 	//m_timer.start(200);
 
@@ -35,18 +38,32 @@ GUI::GUI()
 GUI::~GUI()
 {
 	delete m_vboQuad;
-	delete m_shader;
+	delete m_shaderSlider;
+	delete m_shaderCheckBox;
+	delete m_shaderButton;
+}
+
+void GUI::initShaders()
+{
+	m_shaderSlider = new Shader("../Shader/Gui/GuiSlider.vert.glsl", "../Shader/Gui/GuiSlider.frag.glsl");
+	m_shaderSlider->bindAttribLocations();
+
+	m_shaderCheckBox = new Shader("../Shader/Gui/GuiCheckbox.vert.glsl", "../Shader/Gui/GuiCheckbox.frag.glsl");
+	m_shaderCheckBox->bindAttribLocations();
+
+	m_shaderButton = new Shader("../Shader/Gui/GuiButton.vert.glsl", "../Shader/Gui/GuiButton.frag.glsl");
+	m_shaderButton->bindAttribLocations();
 }
 
 void GUI::initShortcuts()
 {
-	//m_shortcuts.push_back(QString("Toggle Fullscreen (F1)"));
-	//m_shortcuts.push_back(QString("Toggle Cameras (F2)"));
-	//m_shortcuts.push_back(QString("Screen Shot (F3)"));
-	//m_shortcuts.push_back(QString("Toggle Background Color (F4)"));
- //   m_shortcuts.push_back(QString("Toggle Shadow (U)"));
- //   m_shortcuts.push_back(QString("Adjust Cam Speed (PgUp/PgDown)"));
- //   m_shortcuts.push_back(QString("Interpolate Cam (I)"));
+	m_shortcuts.push_back("Toggle Fullscreen (F1)");
+	m_shortcuts.push_back("Toggle Cameras (F2)");
+	m_shortcuts.push_back("Screen Shot (F3)");
+	m_shortcuts.push_back("Toggle Background Color (F4)");
+    m_shortcuts.push_back("Toggle Shadow (U)");
+    m_shortcuts.push_back("Adjust Cam Speed (PgUp/PgDown)");
+    m_shortcuts.push_back("Interpolate Cam (I)");
 }
 
 void GUI::initUIElements()
@@ -55,11 +72,11 @@ void GUI::initUIElements()
 
     int y = 120;
     
- //   Slider<float> *s01 = new Slider<float>(10, y, 200, 15, "Shadow Intensity: ");
- //   s01->setRange(0.0f, 1.0f);
-	//s01->setVariable(&param->shadowIntensity);
-	//s01->setValue(param->shadowIntensity);
- //   m_guiElements.push_back(s01);
+    Slider<float> *s01 = new Slider<float>(10, y, 200, 15, "Shadow Intensity: ");
+    s01->setRange(0.0f, 1.0f);
+	s01->setVariable(&param->shadowIntensity);
+	s01->setValue(param->shadowIntensity);
+    m_guiElements.push_back(s01);
 
  //   y+=45;
  //   Slider<float> *s02 = new Slider<float>(10, y, 200, 15, "Offset Units: ");
@@ -164,10 +181,18 @@ void GUI::render()
 
 	//	m_shader->release();
 
-	//    for(uint i=0; i<m_guiElements.size(); ++i)
-	//    {
-	//	    m_guiElements[i]->render();
-	//    }
+	    for(int i=0; i<m_guiElements.size(); ++i)
+	    {
+			auto ele = m_guiElements[i];
+
+			switch (ele->type())
+			{
+			case GUI_TYPE::GUI_SLIDER:
+				ele->render(m_shaderSlider);
+				break;
+			}
+
+	    }
 
  //       //top
  //       QString strCamPos = ("LOD CamPos: " + QString::number(param->camPos.x, 'f', 2) + " " + QString::number(param->camPos.y, 'f', 2) + " " + QString::number(param->camPos.z, 'f', 2));

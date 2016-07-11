@@ -12,9 +12,9 @@ Mesh::~Mesh()
 {
 }
 
-vector<VertexBufferObjectAttribs *> Mesh::obj(const std::string &fileName, const glm::vec3 &rot, const glm::vec3 &scale, GLenum primitive)
+std::vector<VertexBufferObjectAttribs *> Mesh::obj(const std::string &fileName, const glm::vec3 &rot, const glm::vec3 &scale, GLenum primitive)
 {
-    vector<VertexBufferObjectAttribs *> vbos;
+	std::vector<VertexBufferObjectAttribs *> vbos;
 
     ModelOBJ *model = new ModelOBJ();
 	std::vector<glm::vec3> tempVertices;	
@@ -113,9 +113,9 @@ VertexBufferObjectAttribs *Mesh::quadLines(int startX, int startY, int width, in
 	glm::vec3 mi(startX, startY, 0.0f);
 	glm::vec3 ma(startX + width, startY + height, 0.0f);
 
-    vector<glm::vec3> vertices;
-    vector<glm::vec3> normals;
-	vector<glm::vec3> texCoords;
+    std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> texCoords;
 
 	float d = 0.1;
 
@@ -180,9 +180,9 @@ VertexBufferObjectAttribs *Mesh::quad(int startX, int startY, int width, int hei
 	glm::vec3 mi(startX, startY, 0.0f);
 	glm::vec3 ma(startX + width, startY + height, 0.0f);
 
-    vector<glm::vec3> vertices;
-    vector<glm::vec3> normals;
-	vector<glm::vec3> texCoords;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> texCoords;
 
 	float d = 0.1;
 
@@ -319,9 +319,9 @@ VertexBufferObjectAttribs *Mesh::quad(int width, int height, const glm::vec4 &co
 	glm::vec3 mi(-width/2.0f, -height/2.0f, 0.0f);
 	glm::vec3 ma(width/2.0f, height/2.0f, 0.0f);
 
-    vector<glm::vec3> vertices;
-    vector<glm::vec3> normals;
-	vector<glm::vec3> texCoords;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> texCoords;
 
     vertices.push_back(glm::vec3(mi.x, mi.y, 0.0f));
     vertices.push_back(glm::vec3(mi.x, ma.y, 0.0f));
@@ -502,8 +502,8 @@ VertexBufferObjectAttribs *Mesh::sphere(float radius, int iterations, const glm:
 	FACET3 *f = new FACET3[(int)pow(4.0, iterations)];
 	int n = CreateUnitSphere(f, iterations);
 
-    vector<glm::vec3> vertices;
-    vector<glm::vec3> normals;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
 
     for(int i=0; i<n; ++i)
     {

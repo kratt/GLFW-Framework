@@ -8,7 +8,7 @@
 #include "CameraManager.h"
 #include "Scene.h"
 #include "Light.h"
-
+#include "GUI.h"
 #include <iostream>
 
 
@@ -37,7 +37,7 @@ void GLWindow::init()
 {
 	m_cameraManager = new CameraManager();
 	m_scene = new Scene(m_cameraManager);
-	//m_gui = new GUI(m_cameraManager, m_scene);
+	m_gui = new GUI();
 	m_renderer = new Renderer(m_scene, m_cameraManager);
 
 	glEnable(GL_DEPTH_TEST);
@@ -140,6 +140,18 @@ void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods
 		case GLFW_KEY_F5:
 			if (m_ctrlPressed)
 				m_cameraManager->toggleFrameset();
+			break;
+		case GLFW_KEY_F6:
+			if (m_ctrlPressed)
+				m_cameraManager->addFrame();
+			break;
+		case GLFW_KEY_F7:
+			if (m_ctrlPressed)
+				m_cameraManager->clearFrameset();
+			break;
+		case GLFW_KEY_F8:
+			if (m_ctrlPressed)
+				m_cameraManager->saveFrameset();
 			break;
 		case GLFW_KEY_I:
 			m_cameraManager->toggleInterpolation();

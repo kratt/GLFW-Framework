@@ -11,13 +11,15 @@
 #include <glm/vec2.hpp>
 #include <string>
 
+class Shader;
+
 class CheckBox : public GUIElement
 {
 public:
    CheckBox(int px, int py, int w, int h, std::string text);
    ~CheckBox();
    
-   void render();
+   void render(Shader* shader);
    bool onMouseClick(int mx, int my);
    void onMouseMove(int mx, int my);
    void onMouseRelease();        

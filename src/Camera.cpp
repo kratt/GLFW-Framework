@@ -67,6 +67,8 @@ Camera::Camera(glm::vec3 pos, float heading, float pitch, float roll, float fov,
 
     m_hpTimer.reset();
     m_timer = m_hpTimer.time();
+
+	saveFrames();
 }
 
 Camera::~Camera()
@@ -352,25 +354,27 @@ void Camera::addFrame(glm::vec3 pos, float heading, float pitch, float desiredDi
 
 void Camera::autoAddFrame()
 {
-	//glm::vec3 m_tmpPos = m_pos;
- //   m_tmpPos.z *= -1.0f;
- //   m_spline->addPoint(m_tmpPos);
+	std::cout << "Camera::autoAddFrame()." << std::endl;
 
-	//glm::vec3 viewDir(m_heading, m_pitch, 0.0f);
- //   m_splineView->addPoint(viewDir);
+	glm::vec3 m_tmpPos = m_pos;
+    m_tmpPos.z *= -1.0f;
+    m_spline->addPoint(m_tmpPos);
 
-	//glm::vec3 speed(m_desiredDistance, 0.0f, 0.0f);
-	//m_splineSpeed->addPoint(speed);
+	glm::vec3 viewDir(m_heading, m_pitch, 0.0f);
+    m_splineView->addPoint(viewDir);
+
+	glm::vec3 speed(m_desiredDistance, 0.0f, 0.0f);
+	m_splineSpeed->addPoint(speed);
 
 
- //   CameraFrame frame;
- //   frame.pos = m_pos;
- //   //frame.pos.z *= -1;
- //   frame.headingDeg = m_heading;
- //   frame.pitchDeg = m_pitch;
-	//frame.desiredDistance = speed.x;
+    CameraFrame frame;
+    frame.pos = m_pos;
+    //frame.pos.z *= -1;
+    frame.headingDeg = m_heading;
+    frame.pitchDeg = m_pitch;
+	frame.desiredDistance = speed.x;
 
- //   m_camFrames.push_back(frame);
+    m_camFrames.push_back(frame);
 }
 
 void Camera::splineInterpolation()
@@ -457,6 +461,8 @@ void Camera::interpolate(float speed)
 
 void Camera::clearFrames()
 {
+	std::cout << "Camera::clearFrames()." << std::endl;
+
     m_camFrames.clear();
     m_spline->clear();
     m_splineView->clear();
@@ -465,58 +471,56 @@ void Camera::clearFrames()
 
 void Camera::saveFrames(const std::string &filePath)
 {
-     //QFile file(filePath);
-     //if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-     //    return;
+	std::cout << "Camera::saveFrames(): " << filePath  << std::endl;
 
-     //QTextStream out(&file);
-     //
-     //for(uint i=0; i<m_camFrames.size(); ++i)
-     //{
-     //    CameraFrame cf = m_camFrames.at(i);
-     //    
-     //    if(i > 0)
-     //       out << "\n"; 
-     //    
-     //    out << cf.pos.x << " " << cf.pos.y << " " << cf.pos.z << " " << cf.headingDeg << " " << cf.pitchDeg << " " << cf.desiredDistance;                      
-     //}
+	std::ofstream file;
+	file.open(filePath);
 
-     //file.close();
+     for(int i=0; i<m_camFrames.size(); ++i)
+     {
+         CameraFrame cf = m_camFrames.at(i);
+         
+         if(i > 0)
+			 file << "\n";
+         
+		 file << cf.pos.x << " " << cf.pos.y << " " << cf.pos.z << " " << cf.headingDeg << " " << cf.pitchDeg << " " << cf.desiredDistance;
+     }
+
+     file.close();
 }
 
 void Camera::saveFrames()
 {
-	//QString filePath = m_frameSetFolder + "/" + m_activeFrameSetName;
+	time_t t = time(0);   // get time now
+	struct tm * now = localtime(&t);
+	
+	int year = now->tm_year - 100;
+	int month = now->tm_mon + 1;
+	int day = now->tm_mday;
 
-  //  QDate date = QDate::currentDate(); 
-  //  QTime time = QTime::currentTime();
+	int hour = now->tm_hour;
+	int minute = now->tm_min;
+	int second = now->tm_sec;
 
-  //  int year = date.year();
-  //  int month = date.month();
-  //  int day = date.day();
+	std::string sYear   = std::to_string(year);
+	std::string sMonth  = std::to_string(month);
+	std::string sDay    = std::to_string(day);
+	std::string sHour   = std::to_string(hour);
+	std::string sMinute = std::to_string(minute);
+	std::string sSecond = std::to_string(second);
+	std::string sNull   = std::to_string(0);
 
-  //  int hour = time.hour();
-  //  int minute = time.minute();
-  //  int second = time.second();
+	std::string  fMonth  = month < 10 ? sNull + sMonth : sMonth;
+	std::string  fDay    = day < 10 ? sNull + sDay : sDay;
+	std::string  fHour   = hour < 10 ? sNull + sHour : sHour;
+	std::string  fMinute = minute < 10 ? sNull + sMinute : sMinute;
+	std::string  fSecond = second < 10 ? sNull + sSecond : sSecond;
 
-  //  QString sYear   = QString::number(year);
-  //  QString sMonth  = QString::number(month);
-  //  QString sDay    = QString::number(day);
-  //  QString sHour   = QString::number(hour);
-  //  QString sMinute = QString::number(minute);
-  //  QString sSecond = QString::number(second);
-  //  QString sNull   = QString::number(0);
 
-  //  QString fMonth  = month < 10 ? sNull + sMonth : sMonth;
-  //  QString fDay    = day < 10 ? sNull + sDay : sDay;
-  //  QString fHour   = hour < 10 ? sNull + sHour : sHour;
-  //  QString fMinute = minute < 10 ? sNull + sMinute : sMinute;
-  //  QString fSecond = second < 10 ? sNull + sSecond : sSecond;
+	std::string fileName = sYear + fMonth + fDay + "_" + fHour + fMinute + fSecond + ".cam";
+	std::string filePath = m_frameSetFolder + "/" + fileName;
 
-  //  QString fileName = sYear + fMonth + fDay + "_" + fHour + fMinute + fSecond + ".cam";
-
-  //  QString filePath = m_frameSetFolder + "/" + fileName;
- 	//saveFrames(filePath);
+	saveFrames(filePath);
 }
 
 void Camera::loadFrames(const std::string &filePath)
@@ -538,7 +542,6 @@ void Camera::loadFrames(const std::string &filePath)
 	 m_camFrames.clear();
 	 m_time = 0;
 
-
 	 std::string line;
 	 std::ifstream myfile(filePath);
 
@@ -552,7 +555,7 @@ void Camera::loadFrames(const std::string &filePath)
 			 float desiredDistance = 0.0f;
 
 			 std::vector<std::string> internal;
-			 std::stringstream ss(line); // Turn the string into a stream.
+			 std::stringstream ss(line); 
 			 std::string tok;
 
 			 ss >> v.x >> v.y >> v.z >> heading >> pitch >> desiredDistance;
@@ -566,9 +569,11 @@ void Camera::loadFrames(const std::string &filePath)
 
 void Camera::loadFrameDirectory(const std::string &folderPath)
 {
+	m_frameSetFolder = folderPath;
+
 	std::experimental::filesystem::path dir(folderPath);
 
-	if (is_directory(dir))
+	if (!is_directory(dir))
 	{
 		std::cout << "void Camera::loadFrameDirectory(): " << folderPath << " is no directory!" << std::endl;
 	}

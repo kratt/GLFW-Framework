@@ -35,7 +35,6 @@ utility functions.
 
 class VertexBufferObjectAttribs;
 
-using namespace std;
 
 struct TGAFILE
 {

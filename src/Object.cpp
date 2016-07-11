@@ -178,9 +178,9 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 
 	for(int i = 0; i < nrMeshes; ++i)	
 	{
-		vector<glm::vec3> tmpVertices;	
-		vector<glm::vec3> tmpNormals;
-		vector<glm::vec3> tmpTexCoords;
+		std::vector<glm::vec3> tmpVertices;
+		std::vector<glm::vec3> tmpNormals;
+		std::vector<glm::vec3> tmpTexCoords;
 
 		const ModelOBJ::Mesh &objMesh = model->getMesh(i);
 		int startIndex = objMesh.startIndex;

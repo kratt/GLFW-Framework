@@ -15,7 +15,6 @@ class GUIElement;
 class Scene;
 
 class GUI
-
 {
 public:
    GUI();
@@ -34,6 +33,7 @@ public:
 private:
 	void initShortcuts();
 	void initUIElements();
+	void initShaders();
 
 private:
 
@@ -56,7 +56,11 @@ private:
 	glm::vec4 m_fontColor;
 
 	VertexBufferObjectAttribs *m_vboQuad;
-	Shader *m_shader;
+
+	Shader *m_shaderSlider;
+	Shader *m_shaderCheckBox;
+	Shader *m_shaderButton;
+
 
 	std::vector<GUIElement*> m_guiElements;
 };

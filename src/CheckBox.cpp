@@ -1,7 +1,6 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #include "CheckBox.h"
+#include "Shader.h"
+#include "gui_type.h"
 
 CheckBox::CheckBox(int px, int py, int w, int h, std::string text)
 : m_width(w), 
@@ -12,7 +11,8 @@ CheckBox::CheckBox(int px, int py, int w, int h, std::string text)
   m_text(text),
   m_variable(NULL),
   m_state(false),
-  m_color(1.0f, 1.0f, 1.0f, 1.0f)
+  m_color(1.0f, 1.0f, 1.0f, 1.0f),
+  GUIElement(GUI_TYPE::GUI_CHECKBOX)
 {    
 }
 
@@ -20,7 +20,7 @@ CheckBox::~CheckBox()
 {
 }
 
-void CheckBox::render()
+void CheckBox::render(Shader* shader)
 {
     //glEnable2D();
 

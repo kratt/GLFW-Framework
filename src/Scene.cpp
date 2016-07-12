@@ -21,7 +21,7 @@ Scene::~Scene()
 
 void Scene::init()
 {
-	m_light = new Light(this, glm::vec3(0.0f, 20.0f, 0.1f));
+	m_light = new Light(this, glm::vec3(0.0f, 10.0f, 10.0f));
 	m_niceGrid = new NiceGrid(100.0f, 40.0f);  
 
     initShaders();

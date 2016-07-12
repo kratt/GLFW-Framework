@@ -1,5 +1,8 @@
 #include "CheckBox.h"
 #include "Shader.h"
+#include "VertexBufferObjectAttribs.h"
+#include "Mesh.h"
+#include "RenderContext.h"
 #include "gui_type.h"
 
 CheckBox::CheckBox(int px, int py, int w, int h, std::string text)
@@ -12,8 +15,11 @@ CheckBox::CheckBox(int px, int py, int w, int h, std::string text)
   m_variable(NULL),
   m_state(false),
   m_color(1.0f, 1.0f, 1.0f, 1.0f),
+  m_vboLines(nullptr),
+  m_vboQuad(nullptr),
   GUIElement(GUI_TYPE::GUI_CHECKBOX)
 {    
+	initVBOs();
 }
 
 CheckBox::~CheckBox()
@@ -22,40 +28,23 @@ CheckBox::~CheckBox()
 
 void CheckBox::render(Shader* shader)
 {
-    //glEnable2D();
+	auto param = RenderContext::globalObjectParam();
 
-    //float x1 = m_posX;
-    //float x2 = m_posX + m_width;
-    //float y1 = m_posY;
-    //float y2 = m_posY + m_height;
-    //
-    //glColor4f(m_color.x, m_color.y, m_color.z,  m_color.w);
-    //
-    //glBegin(GL_LINES);
-    //    glVertex2f(x1, y1);
-    //    glVertex2f(x2, y1);
+	shader->bind();
 
-    //    glVertex2f(x1-1, y2);
-    //    glVertex2f(x2, y2);
-    //    
-    //    glVertex2f(x1, y1);
-    //    glVertex2f(x1, y2);
+	shader->seti("windowWidth", param->windowWidth);
+	shader->seti("windowHeight", param->windowHeight);
 
-    //    glVertex2f(x2, y1);
-    //    glVertex2f(x2, y2);
-    //glEnd(); 
+	shader->seti("renderLines", true);
 
-    //if(m_state)
-    //{
-    //    glBegin(GL_QUADS);
-    //        glVertex2f(x1+1, y1+2);
-    //        glVertex2f(x1+1, y2-1);
-    //        glVertex2f(x2-2, y2-1);            
-    //        glVertex2f(x2-2, y1+2);
-    //    glEnd();
-    //}
+	m_vboLines->render();
 
-    //glDisable2D();
+	if (m_state)
+	{
+		m_vboQuad->render();
+	}
+
+	shader->release();
 
     //QString sliderText = m_text;
     //renderString(sliderText.toAscii(), m_posX+m_width+3, m_posY+12, m_color.x, m_color.y, m_color.z, m_color.w, GLUT_BITMAP_HELVETICA_12);
@@ -132,4 +121,69 @@ glm::vec2 CheckBox::position()
 glm::vec2 CheckBox::dimensions()
 {
 	return glm::vec2(float(m_width), float(m_height));
+}
+
+void CheckBox::initVBOs()
+{
+	float x1 = m_posX;
+	float x2 = m_posX + m_width;
+	float y1 = m_posY;
+	float y2 = m_posY + m_height;
+
+	// http://www.monkey-x.com/Community/posts.php?topic=3204
+	// OpenGL line renderer doesn't work with pixel boundary position
+	x1 += 0.5f;
+	x2 += 0.5f;
+	y1 += 0.5f;
+	y2 += 0.5f;
+
+	std::vector<glm::vec2> vertices;
+
+	vertices.push_back(glm::vec2(x1, y1));
+	vertices.push_back(glm::vec2(x2, y1));
+	vertices.push_back(glm::vec2(x2, y2));
+	vertices.push_back(glm::vec2(x1, y2));
+
+	int nrVertices = vertices.size();
+	VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[nrVertices];
+
+	for (int i = 0; i<nrVertices; ++i)
+	{
+		glm::vec2 v = vertices[i];
+
+		data[i].vx = v.x;
+		data[i].vy = v.y;
+		data[i].vz = 0.0f;
+		data[i].vw = 1.0f;
+
+		data[i].cx = 0.0f;
+		data[i].cy = 0.0f;
+		data[i].cz = 0.0f;
+		data[i].cw = 0.0f;
+
+		data[i].nx = 0.0f;
+		data[i].ny = 0.0f;
+		data[i].nz = 0.0f;
+		data[i].nw = 0.0f;
+
+		data[i].tx = 0.0f;
+		data[i].ty = 0.0f;
+		data[i].tz = 0.0f;
+		data[i].tw = 0.0f;
+	}
+
+	delete m_vboLines;
+	m_vboLines = new VertexBufferObjectAttribs();
+	m_vboLines->setData(data, GL_STATIC_DRAW, nrVertices, GL_LINE_LOOP);
+
+	m_vboLines->addAttrib(VERTEX_POSITION);
+	m_vboLines->addAttrib(VERTEX_NORMAL);
+	m_vboLines->addAttrib(VERTEX_COLOR);
+	m_vboLines->addAttrib(VERTEX_TEXTURE);
+	m_vboLines->bindAttribs();
+
+
+	// quad to render inside of the ckechbox
+	delete m_vboQuad;
+	m_vboQuad = Mesh::quad(x1 + 2, y1 + 2, m_width - 3, m_height - 3);
 }

@@ -16,6 +16,7 @@ GUI::GUI()
 : m_width(0),
   m_height(0),
   m_oldTime(0),
+  m_mode(1),
   m_fontColor(0.9f, 0.9f, 0.9f, 1.0),
   m_shaderSlider(nullptr),
   m_shaderCheckBox(nullptr),
@@ -75,7 +76,7 @@ void GUI::initUIElements()
     Slider<float> *s01 = new Slider<float>(10, y, 200, 15, "Shadow Intensity: ");
     s01->setRange(0.0f, 1.0f);
 	s01->setVariable(&param->shadowIntensity);
-	s01->setValue(param->shadowIntensity);
+	s01->setValue(0.5/* param->shadowIntensity*/);
     m_guiElements.push_back(s01);
 
  //   y+=45;
@@ -107,11 +108,11 @@ void GUI::initUIElements()
 	//s05->setValue(param->depthRangeMin);
  //   m_guiElements.push_back(s05);
 	//
- //   y+=45;
- //   CheckBox *c01 = new CheckBox(10, y, 15, 15, "Shadows");
-	//c01->setVariable(&param->applyShadow);
-	//c01->setState(param->applyShadow);
- //   m_guiElements.push_back(c01);
+    y+=45;
+    CheckBox *c01 = new CheckBox(10, y, 15, 15, "Shadows");
+	c01->setVariable(&param->applyShadow);
+	c01->setState(param->applyShadow);
+    m_guiElements.push_back(c01);
 }
 
 void GUI::render()
@@ -134,13 +135,13 @@ void GUI::render()
  //   glPushAttrib(GL_ALL_ATTRIB_BITS);
  //   glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
-	//glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
  //   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
  //   glEnable(GL_BLEND);  
-	//glDisable(GL_MULTISAMPLE);
+	 glDisable(GL_MULTISAMPLE);
  //   glDisable(GL_TEXTURE_2D);
 
-	//glLineWidth(0.1f);
+	//glLineWidth(1.0f);
 
 	//if(m_mode == 0)
 	//{
@@ -190,8 +191,10 @@ void GUI::render()
 			case GUI_TYPE::GUI_SLIDER:
 				ele->render(m_shaderSlider);
 				break;
+			case GUI_TYPE::GUI_CHECKBOX:
+				ele->render(m_shaderCheckBox);
+				break;
 			}
-
 	    }
 
  //       //top
@@ -228,6 +231,7 @@ void GUI::render()
 	//	renderString(fpsStr.toAscii(), m_width - 65, 15, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), GLUT_BITMAP_HELVETICA_12);
 	//}
 
+		glEnable(GL_DEPTH_TEST);
  //   glPopClientAttrib();
  //   glPopAttrib();
 

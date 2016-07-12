@@ -24,10 +24,10 @@ TextRenderer::~TextRenderer()
 
 void TextRenderer::init()
 {
-	m_shaderText = new Shader("../Shader/Text.vert.glsl", "../Shader/Text.frag.glsl");
+	m_shaderText = new Shader("../Shader/Text/Text.vert.glsl", "../Shader/Text/Text.frag.glsl");
 	m_shaderText->bindAttribLocations();
 
-	m_shaderTextSdf = new Shader("../Shader/TextSdf.vert.glsl", "../Shader/TextSdf.frag.glsl");
+	m_shaderTextSdf = new Shader("../Shader/Text/TextSdf.vert.glsl", "../Shader/Text/TextSdf.frag.glsl");
 	m_shaderTextSdf->bindAttribLocations();
 
 	// quad to render one glyph. Scale it according to needs

@@ -84,18 +84,15 @@ void TextString::initTexture()
 
 	maxHeight = maxTop + maxBottom;
 
-
 	m_dims = glm::vec2(totalWidth, maxHeight);
 	m_offsetBaseline = maxOffset;
-
-	std::cout << "dims: " << m_dims.x << " " << m_dims.y << std::endl;
 
 	/* Create an empty texture that will be used to hold the entire text */
 	glGenTextures(1, &m_texId);
 	glBindTexture(GL_TEXTURE_2D, m_texId);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, totalWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
@@ -104,7 +101,7 @@ void TextString::initTexture()
 	/* Loop through all characters */
 	for (p = m_text.c_str(); *p; p++)
 	{
-		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
+		if (FT_Load_Char(face, 'a', FT_LOAD_RENDER))
 			continue;
 
 		float w = g->bitmap.width;
@@ -112,7 +109,7 @@ void TextString::initTexture()
 		float top_left = g->bitmap_top;
 
 		float pos_x = pen_x + g->bitmap_left;
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (g->bitmap_top + m_offsetBaseline), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, pos_x, maxHeight - (g->bitmap_top + m_offsetBaseline), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 		pen_x += g->advance.x >> 6;
 	}
 

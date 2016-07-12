@@ -12,6 +12,7 @@
 #include <string>
 
 class Shader;
+class VertexBufferObjectAttribs;
 
 class CheckBox : public GUIElement
 {
@@ -34,6 +35,9 @@ public:
    glm::vec2 position();
    glm::vec2 dimensions();
 
+private:
+	void initVBOs();
+
 private:  
 	int m_width;
 	int m_height;
@@ -48,6 +52,9 @@ private:
 
     bool m_state;
     bool *m_variable;
+
+	VertexBufferObjectAttribs* m_vboLines;
+	VertexBufferObjectAttribs* m_vboQuad;
 };
 
 #endif

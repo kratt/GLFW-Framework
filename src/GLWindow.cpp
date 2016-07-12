@@ -103,6 +103,7 @@ void GLWindow::render()
 
 	m_renderer->render();
 
+	m_gui->render();
 	//DWORD time = GetTickCount();
 	//float delta = time - m_oldTime;
 	//if (delta > 25)
@@ -209,7 +210,7 @@ void GLWindow::mouseMoveEvent(GLdouble x, GLdouble y)
 	glm::vec2 newMouse(x, y);
 	glm::vec2 diff = newMouse - m_mouse;
 
-	//m_gui->onMouseMove(event->x(), event->x());
+	m_gui->onMouseMove(x, y);
 
 	if (!m_altPressed && !m_ctrlPressed)
 	{
@@ -243,25 +244,33 @@ void GLWindow::mouseMoveEvent(GLdouble x, GLdouble y)
 
 void GLWindow::mousePressEvent(GLint button, GLint action, GLint mods)
 {
-	//if (!m_gui->onMouseClick(event->x(), event->y()))
-	if (button == GLFW_MOUSE_BUTTON_LEFT)
+	// mouse press
+	if (action == GLFW_PRESS)
 	{
-		if (action == GLFW_PRESS)
-			m_leftButton = GL_TRUE;
-		else
-			m_leftButton = GL_FALSE;
-	}
+		if (!m_gui->onMouseClick(m_mouse.x, m_mouse.y))
+		{
+			if (!m_gui->onMouseClick(m_mouse.x, m_mouse.y))
+			{
+				if (button == GLFW_MOUSE_BUTTON_LEFT)
+					m_leftButton = GL_TRUE;
 
-	if (button == GLFW_MOUSE_BUTTON_RIGHT)
-	{
-		if (action == GLFW_PRESS)
-			m_rightButton = GL_TRUE;
-		else
-			m_rightButton = GL_FALSE;
+				if (button == GLFW_MOUSE_BUTTON_RIGHT)
+					m_rightButton = GL_TRUE;
+			}
+		}
 	}
 
 	if (action == GLFW_RELEASE)
-		//m_gui->onMouseRelease();
+	{
+		m_gui->onMouseRelease();
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT)
+			m_leftButton = GL_FALSE;
+
+		if (button == GLFW_MOUSE_BUTTON_RIGHT)
+			m_rightButton = GL_FALSE;
+	}
+
 
 	if (m_ctrlPressed)
 	{

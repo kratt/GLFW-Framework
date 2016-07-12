@@ -6,10 +6,13 @@
 #include "Shader.h"
 #include "VertexBufferObjectAttribs.h"
 #include "gui_type.h"
+#include "RenderContext.h"
+#include "TextRenderer.h"
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
+#include <iostream>
 #include <string>
 
 
@@ -85,6 +88,8 @@ template <class T> Slider<T>::Slider(int px, int py, int w, int h, std::string t
 	m_percent = 1.0f;
 
 	m_valueRange = m_maxValue - m_minValue;
+
+	initVBOs();
 }
 
 template <class T>
@@ -93,6 +98,36 @@ Slider<T>::~Slider() {}
 template <class T>
 void Slider<T>::render(Shader *shader)
 {
+	auto param = RenderContext::globalObjectParam();
+
+	glm::vec2 scale = glm::vec2((m_width - 3) * m_percent, m_height - 3);
+	glm::vec2 trans = glm::vec2(float(m_posX + 2), float(m_posY + 2));
+
+	shader->bind();
+
+	shader->seti("windowWidth", param->windowWidth);
+	shader->seti("windowHeight", param->windowHeight);
+	shader->set2f("scale", scale);
+	shader->set2f("trans", trans);
+
+	shader->seti("renderLines", true);
+
+		m_vboLines->render();
+
+	shader->seti("renderLines", false);
+		m_vboQuad->render();
+
+	shader->release();
+
+
+	std::string sliderText = m_text;
+	sliderText += std::to_string(m_value);
+
+	/*TextRenderer::instance()->render(sliderText, glm::vec2(m_posX - 2, m_posY - 5), 24, glm::vec4(1.0), "Arial");*/
+	//renderString(sliderText.toAscii(), m_posX - 2, m_posY - 5, m_color.x, m_color.y, m_color.z, m_color.w, GLUT_BITMAP_HELVETICA_12);
+
+
+
 	//glEnable2D();
 
 	//float x1 = m_posX;
@@ -320,6 +355,13 @@ inline void Slider<T>::initVBOs()
 	float y1 = m_posY;
 	float y2 = m_posY + m_height;
 
+	// http://www.monkey-x.com/Community/posts.php?topic=3204
+	// OpenGL line renderer doesn't work with pixel boundary position
+	x1 += 0.5f;
+	x2 += 0.5f;
+	y1 += 0.5f;
+	y2 += 0.5f;
+
 	std::vector<glm::vec2> vertices;
 
 	vertices.push_back(glm::vec2(x1, y1));
@@ -330,7 +372,7 @@ inline void Slider<T>::initVBOs()
 	int nrVertices = vertices.size();
 	VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[nrVertices];
 
-	for (int i = 0; i<tmpVertices.size(); ++i)
+	for (int i = 0; i<nrVertices; ++i)
 	{
 		glm::vec2 v = vertices[i];
 
@@ -357,7 +399,7 @@ inline void Slider<T>::initVBOs()
 
 	delete m_vboLines;
 	m_vboLines = new VertexBufferObjectAttribs();
-	m_vboLines->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINE_STRIP);
+	m_vboLines->setData(data, GL_STATIC_DRAW, nrVertices, GL_LINE_LOOP);
 
 	m_vboLines->addAttrib(VERTEX_POSITION);
 	m_vboLines->addAttrib(VERTEX_NORMAL);
@@ -370,8 +412,6 @@ inline void Slider<T>::initVBOs()
 	delete m_vboQuad;
 	m_vboQuad = Mesh::quad(0, 0, 1, 1);
 }
-
-
 
 
 #endif

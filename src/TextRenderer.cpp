@@ -217,7 +217,7 @@ void TextRenderer::renderSdf(const std::string &text, glm::vec2 pos, int fontSiz
 	glm::mat4 projection = glm::ortho(0.0f, float(param->windowWidth), 0.0f, float(param->windowHeight), -1.0f, 1.0f);
 
 	glm::vec2 dims = textStr->dims();
-	float scale = 0.1;
+	float scale = 10.0f;
 
 	m_shaderTextSdf->bind();
 

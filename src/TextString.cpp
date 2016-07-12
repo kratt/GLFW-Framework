@@ -1,4 +1,5 @@
 #include "TextString.h"
+#include "text_utils.h"
 
 #include <iostream>
 #include <algorithm>
@@ -11,8 +12,8 @@ TextString::TextString(std::string text, int fontSize, const std::string &font)
 	m_fontPath("C:/Windows/Fonts/"),
 	m_offsetBaseline(0.0f)
 {
-	initTexture();
-	//initTextureSdf();
+	//initTexture();
+	initTextureSdf();
 }
 
 TextString::~TextString()
@@ -101,7 +102,7 @@ void TextString::initTexture()
 	/* Loop through all characters */
 	for (p = m_text.c_str(); *p; p++)
 	{
-		if (FT_Load_Char(face, 'a', FT_LOAD_RENDER))
+		if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
 			continue;
 
 		float w = g->bitmap.width;
@@ -115,7 +116,6 @@ void TextString::initTexture()
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-
 
 void TextString::initTextureSdf()
 {
@@ -160,12 +160,18 @@ void TextString::initTextureSdf()
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
 			continue;
 
-		unsigned char* sdfData;
-		distanceField(&g->bitmap, &sdfData);
+		int border = 20;
 
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R8, g->bitmap.width, g->bitmap.rows);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, sdfData);
+		std::vector<float> sdfData;
+		utils::distanceField(&g->bitmap, border, sdfData);
+
+		int width  = g->bitmap.width + 2 * border;
+		int height = g->bitmap.rows  + 2 * border;
+
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32F, width, height);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RED, GL_FLOAT, sdfData.data());
 		glGenerateMipmap(GL_TEXTURE_2D);
+
 		//glTexImage2D(GL_TEXTURE_2D, 2, GL_RED, g->bitmap.width, g->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, sdfData);
 
 		float w = g->bitmap.width;
@@ -184,185 +190,8 @@ void TextString::initTextureSdf()
 
 	std::cout << "width: " << totalWidth << " , height: " << maxHeight << std::endl;
 
-	
 	m_dims = glm::vec2(totalWidth, maxHeight);
-	
 	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-
-void TextString::distanceField(FT_Bitmap* bitmap, unsigned char** outData)
-{
-	// first unpack monochromatic bitmap
-	unsigned char* bitMapData;
-	unpackMonoBitmap(bitmap, &bitMapData);
-
-	int width = bitmap->width;
-	int height = bitmap->rows;
-
-	float* sdf = new float[width * height];
-
-	float minDist = std::numeric_limits<float>::max();
-	float maxDist = std::numeric_limits<float>::lowest();
-
-	float spread = 4.0f;
-
-	//compute signed distance field
-	for (int x = 0; x < width; ++x)
-	{
-		for (int y = 0; y < height; ++y)
-		{
-			glm::vec2 pos = glm::vec2(x, y);
-			auto val = bitMapData[y*width + x];
-
-			// inside texels (white) have a negative sign
-			float sign = val > 0 ? -1.0f : 1.0f;
-
-			// found nearest opposite texel
-			float dist = std::numeric_limits<float>::max();
-
-			bool found = false;
-			for (int s = 0; s < width; ++s)
-			{
-				for (int t = 0; t < height; ++t)
-				{
-					glm::vec2 curPos = glm::vec2(s, t);
-					auto curVal = bitMapData[t*width + s];
-
-					if (curVal == val)
-						continue;
-
-					float curDist = glm::length(curPos - pos);
-
-					//if (curDist < spread) 
-					{
-
-						dist = std::min(dist, curDist);
-						found = true;
-					}
-				}
-			}
-
-			float newVal = sign * dist;
-			sdf[y*width + x] = newVal;
-
-			minDist = std::min(minDist, newVal);
-			maxDist = std::max(maxDist, newVal);
-	/*		if (found) {
-				float newVal = sign * dist;
-				sdf[y*width + x] = newVal;
-
-				minDist = std::min(minDist, newVal);
-				maxDist = std::max(maxDist, newVal);
-			}
-			else {
-				float newVal = sign < 0 ? 0.0f : 255.0f;
-				sdf[y*width + x] = newVal;
-			}	*/
-		}
-	}
-
-	std::cout << "min: " << minDist << " , max:" << maxDist << std::endl;
-
-	// normalize data
-	unsigned char* finalData = new unsigned char[width * height];
-	for (int x = 0; x < width; ++x)
-	{
-		for (int y = 0; y < height; ++y)
-		{
-			int idx = y*width + x;
-			float val = sdf[idx];
-
-			finalData[idx] = (sdf[idx] - minDist) / (maxDist - minDist) * 255;
-/*
-			if (val != 0.0 && val != 255.0) {
-				finalData[idx] = (sdf[idx] - minDist) / (maxDist - minDist) * 255;
-			}	*/	
-		}
-	}
-
-
-	//// normalize data
-	//float rangeStart = 0.0f;
-	//float rangeMid = 192.0f;
-	//float rangeEnd = 255.0f;
-
-	//unsigned char* finalData = new unsigned char[width * height];
-	//for (int x = 0; x < width; ++x)
-	//{
-	//	for (int y = 0; y < height; ++y)
-	//	{
-	//		int idx = y*width + x;
-	//		float val = sdf[idx];
-	//		
-	//		float newVal = 0.0f;
-
-	//		// val between -1 and 1
-	//		if (val < 0.0f) {
-	//			val /= minDist;
-	//			newVal = std::abs(val) * (rangeEnd - rangeMid) + rangeMid;
-	//		}
-	//		else {
-	//			val /= maxDist;
-	//			newVal = val * rangeMid;
-	//		}
-	//				
-	//		finalData[idx] = newVal; // (sdf[idx] - minDist) / (maxDist - minDist) * 255;
-	//	}
-	//}
-
-	delete[] sdf;
-	delete[] bitMapData;
-	*outData = finalData;
-}
-
-
-void TextString::unpackMonoBitmap(FT_Bitmap* bitmap, unsigned char** outData)
-{	
-	int width = bitmap->width;
-	int height = bitmap->rows;
-
-	GLubyte *data = new unsigned char[width * height];
-
-	for (int y = 0; y < bitmap->rows; ++y)
-	{
-		for (int byteIndex = 0; byteIndex < bitmap->pitch; ++byteIndex)
-		{
-			auto byte_value = bitmap->buffer[y * bitmap->pitch + byteIndex];
-			int num_bits_done = byteIndex * 8;
-			int row_start = y * bitmap->width + byteIndex * 8;
-
-			for (int bitIndex = 0; bitIndex < std::min(8, bitmap->width - num_bits_done); ++bitIndex)
-			{
-				auto bit = byte_value & (1 << (7 - bitIndex));
-
-				if(bit)
-					data[row_start + bitIndex] = 255;
-				else
-					data[row_start + bitIndex] = 0;
-			}
-		}
-	}
-
-	*outData = data;
-}
-
-void TextString::emptyTexture(FT_Bitmap* bitmap, unsigned char** outData)
-{
-	int width = bitmap->width;
-	int height = bitmap->rows;
-
-	GLubyte *data = new unsigned char[width * height];
-
-	for (int x = 0; x < width; ++x)
-	{
-		for (int y = 0; y < height; ++y)
-		{
-			data[y*width + x] = 255;
-		}
-	}
-
-	*outData = data;
 }
 
 int TextString::fontSize() const

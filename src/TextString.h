@@ -36,11 +36,6 @@ private:
 	void initTexture();
 	void initTextureSdf();
 
-	void distanceField(FT_Bitmap* bitmap, unsigned char** outData);
-	void unpackMonoBitmap(FT_Bitmap* bitmap, unsigned char** outData);
-	void emptyTexture(FT_Bitmap* bitmap, unsigned char** outData);
-
-
 private:
 	std::string m_text;
 	std::string m_font;

@@ -1,5 +1,6 @@
 #include "TextString.h"
 #include "text_utils.h"
+#include "image_utils.h"
 
 #include <iostream>
 #include <algorithm>
@@ -160,15 +161,23 @@ void TextString::initTextureSdf()
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER | FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO))
 			continue;
 
-		int border = 20;
+		int border = 0;
 
 		std::vector<float> sdfData;
-		utils::distance_field(&g->bitmap, border, sdfData);
+		utils::distance_field_linear(&g->bitmap, border, sdfData);
 
+		std::vector<unsigned char> bitmapData;
+		utils::unpack_mono_bitmap(&g->bitmap, bitmapData);
+
+	
 		int width  = g->bitmap.width + 2 * border;
 		int height = g->bitmap.rows  + 2 * border;
 
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32F, width, height);
+		//std::cout << utils::save_image("../test.png", bitmapData, width, height) << std::endl;
+
+		utils::writeImage("test.png", width, height, sdfData.data(), "test");
+
+		glTexStorage2D(GL_TEXTURE_2D, 4, GL_R32F, width, height);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RED, GL_FLOAT, sdfData.data());
 		glGenerateMipmap(GL_TEXTURE_2D);
 

@@ -9,8 +9,9 @@ out vec4 FragColor;
 
 uniform sampler2D tex;
 
-
-const float smoothing = 1.0 / 160.0;
+const float spread = 16.0f;
+const float scale = 0.1;
+const float smoothing = 0.25f / (spread * scale) ;
 /*
 void main()
 {
@@ -30,9 +31,12 @@ void main()
     float distance = 1-texture(tex, vec2(VertTexture.x, 1.0f - VertTexture.y)).x;
 
 	//distance = max(0.1, distance);
-	//if(abs(distance - 0.5) < 0.1)
-	   FragColor = vec4(vec3(1), smoothstep(0.5f-smoothing,0.5f+smoothing, distance) );
 	
+	float alpha = smoothstep(0.5f-smoothing,0.5f+smoothing, distance);
+	
+	FragColor = vec4(vec3(1), alpha );
+	
+	FragColor = vec4(vec3(distance), 1);
 }
 
 /*

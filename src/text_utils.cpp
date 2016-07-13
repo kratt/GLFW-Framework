@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -172,16 +173,18 @@ namespace utils {
 		}
 	}
 
+	glm::vec2 get_grid_val(std::vector<glm::vec2> &grid, int width, int height, int x, int y)
+	{
+		if (x >= 0 && y >= 0 && x < width && y < height)
+			return grid[y*width + x];
+		else
+			return glm::vec2(9999, 9999);
+	}
+
 	void compare(std::vector<glm::vec2> &grid, int width, int height, int x, int y, int offsetx, int offsety)
 	{
 		glm::vec2 p = grid[y*width + x];
-		glm::vec2 other = glm::vec2(0, 0);
-
-		if (0 <= x && x < width &&
-			0 <= y && y < height) {
-			int idx = (y + offsety) * width + (x + offsetx);
-			other = grid[idx];
-		}
+		glm::vec2 other = get_grid_val(grid, width, height, x + offsetx, y + offsety);
 
 		other.x += offsetx;
 		other.y += offsety;
@@ -190,7 +193,6 @@ namespace utils {
 		if (glm::dot(other, other) < glm::dot(p, p))
 			grid[y*width + x] = other;
 	}
-
 
 	void generate_sdf(std::vector<glm::vec2> &grid, int width, int height)
 	{
@@ -266,7 +268,6 @@ namespace utils {
 		const float INSIDE = 0.0f;
 		const float EMPTY  = 100000.0f;
 
-
 		// init grids
 		for (int x = 0; x < width; ++x)
 		{
@@ -294,6 +295,8 @@ namespace utils {
 		float maxDist = std::numeric_limits<float>::lowest();
 
 
+		float spread = 128.0f;
+
 		std::vector<float> sdf = std::vector<float>(width * height);
 		std::vector<bool> processed = std::vector<bool>(width *height);
 
@@ -308,77 +311,21 @@ namespace utils {
 
 				float dist1 = glm::length(val_1);
 				float dist2 = glm::length(val_2);
-				float dist = dist1 - dist2;
 
-			/*	if (curDist < spread)
-				{
+				//std::cout << dist1 << " " << dist2 << std::endl;
+				float dist = -1 * (dist1 - dist2);
+		
+				sdf[y*width + x] = dist;
 
-					dist = std::min(dist, curDist);
-					found = true;
-				}*/
-				minDist = std::min(minDist, newVal);
-				maxDist = std::max(maxDist, newVal);
-
-
-			}
-		}
-
-
-	
-
-
-		float spread = 16.0f;
-
-		//compute signed distance field
-		for (int x = 0; x < width; ++x)
-		{
-			for (int y = 0; y < height; ++y)
-			{
-				glm::vec2 pos = glm::vec2(x, y);
-				auto val = resizedBitMapData[y*width + x];
-
-				// inside texels (white) have a negative sign
-				float sign = val > 0 ? -1.0f : 1.0f;
-
-				// found nearest opposite texel
-				float dist = std::numeric_limits<float>::max();
-
-				bool found = false;
-				for (int s = 0; s < width; ++s)
-				{
-					for (int t = 0; t < height; ++t)
-					{
-						glm::vec2 curPos = glm::vec2(s, t);
-						auto curVal = resizedBitMapData[t*width + s];
-
-						if (curVal == val)
-							continue;
-
-						float curDist = glm::length(curPos - pos);
-
-						if (curDist < spread)
-						{
-
-							dist = std::min(dist, curDist);
-							found = true;
-						}
-					}
+				if (std::abs(dist) < spread)
+				{	
+					minDist = std::min(minDist, dist);
+					maxDist = std::max(maxDist, dist);
+					processed[y*width + x] = true;
 				}
-
-				processed[y*width + x] = found;
-
-				if (found)
-				{
-					float newVal = sign * dist;
-					sdf[y*width + x] = newVal;
-
-					minDist = std::min(minDist, newVal);
-					maxDist = std::max(maxDist, newVal);
-				}
-				else
-				{
-					sdf[y*width + x] = sign;
-				}
+				else {
+					processed[y*width + x] = false;
+				}		
 			}
 		}
 

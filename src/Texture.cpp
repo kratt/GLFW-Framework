@@ -1,6 +1,6 @@
 #include "Texture.h"
 #include "PngLoader.h"
-#include "image_loader.h"
+#include "image_utils.h"
 #include <iostream>
 
 Texture::Texture()

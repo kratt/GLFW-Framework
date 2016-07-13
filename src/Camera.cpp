@@ -67,8 +67,6 @@ Camera::Camera(glm::vec3 pos, float heading, float pitch, float roll, float fov,
 
     m_hpTimer.reset();
     m_timer = m_hpTimer.time();
-
-	saveFrames();
 }
 
 Camera::~Camera()

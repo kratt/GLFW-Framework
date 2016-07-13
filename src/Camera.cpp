@@ -87,7 +87,7 @@ void Camera::setPerspective(Transform &trans)
 	
 	glm::mat4 view = m_rotMat;
 	view = glm::translate(view, glm::vec3(-m_pos.x, -m_pos.y, m_pos.z));
-	glm::mat4 projection = glm::perspective(m_fov, m_aspect, m_ncp, m_fcp);
+	glm::mat4 projection = glm::perspective(glm::radians(m_fov) , m_aspect, m_ncp, m_fcp);
 
 	trans.projection = projection;
 	trans.view = view;

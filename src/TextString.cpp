@@ -163,7 +163,7 @@ void TextString::initTextureSdf()
 		int border = 20;
 
 		std::vector<float> sdfData;
-		utils::distanceField(&g->bitmap, border, sdfData);
+		utils::distance_field(&g->bitmap, border, sdfData);
 
 		int width  = g->bitmap.width + 2 * border;
 		int height = g->bitmap.rows  + 2 * border;

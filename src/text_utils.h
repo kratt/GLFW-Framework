@@ -12,9 +12,12 @@
 
 namespace utils {
 
-	void distanceField(FT_Bitmap* bitmap, int border, std::vector<float> &outData);
-	void unpackMonoBitmap(FT_Bitmap* bitmap, std::vector<unsigned char> &outData);
-	void emptyTexture(FT_Bitmap* bitmap, unsigned char** outData);
+	void distance_field(FT_Bitmap* bitmap, int border, std::vector<float> &outData);
+	void distance_field_linear(FT_Bitmap* bitmap, int border, std::vector<float> &outData);
+	void unpack_mono_bitmap(FT_Bitmap* bitmap, std::vector<unsigned char> &outData);
+	void empty_texture(FT_Bitmap* bitmap, unsigned char** outData);
+
+	/*void downSample(std::vector<float> inData, int width, int height, std::vector<float> outData, int targetWidth, int targetHeight);*/
 }
 
 

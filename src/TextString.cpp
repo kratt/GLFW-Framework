@@ -175,7 +175,21 @@ void TextString::initTextureSdf()
 
 		//std::cout << utils::save_image("../test.png", bitmapData, width, height) << std::endl;
 
-		utils::writeImage("test.png", width, height, sdfData.data(), "test");
+		std::vector<float> testData = std::vector<float>(width * height * 4);
+
+		for (int x = 0; x < width; ++x) {
+			for (int y = 0; y < height; ++y) {
+				int idx = y*width + x;
+				testData[4 * idx]     = bitmapData[idx];
+				testData[4 * idx +1]  = bitmapData[idx];
+				testData[4 * idx +2]  = bitmapData[idx];
+				testData[4 * idx + 3] = 255;// bitmapData[idx];
+			}
+		}
+
+		utils::save_framebuffer("testtest.png");
+
+		utils::save_image_rgba("test.png", testData, width, height);
 
 		glTexStorage2D(GL_TEXTURE_2D, 4, GL_R32F, width, height);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RED, GL_FLOAT, sdfData.data());

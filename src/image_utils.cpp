@@ -203,7 +203,7 @@ namespace utils {
 
 		// Write header (8 bit colour depth)
 		png_set_IHDR(png_ptr, info_ptr, width, height,
-			8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+			8, PNG_COLOR_TYPE_RGB8, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
 		png_write_info(png_ptr, info_ptr);
@@ -230,10 +230,12 @@ namespace utils {
 
 	//	fflush(fp);
 
-		if (fp) fclose(fp);
-		if (info_ptr) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-		if (png_ptr) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-		if (row) free(row);
+		
+		//if (info_ptr) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+		//if (png_ptr) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		//if (row) free(row);
+
+		//if (fp) fclose(fp);
 
 		return true;
 	}

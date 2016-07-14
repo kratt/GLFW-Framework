@@ -1,6 +1,7 @@
 #include "TextString.h"
 #include "text_utils.h"
 #include "image_utils.h"
+#include "opengl_utils.h"
 
 #include <iostream>
 #include <algorithm>
@@ -186,8 +187,6 @@ void TextString::initTextureSdf()
 				testData[4 * idx + 3] = 255;// bitmapData[idx];
 			}
 		}
-
-		utils::save_framebuffer("testtest.png");
 
 		utils::save_image_rgba("test.png", testData, width, height);
 

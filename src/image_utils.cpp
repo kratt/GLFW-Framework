@@ -174,21 +174,21 @@ namespace utils {
 
 		// Open file for writing (binary mode)
 		fp = fopen(path.c_str(), "wb");
-		if (fp == NULL) {
+		if (fp == nullptr) {
 			fprintf(stderr, "Could not open file %s for writing\n", path);
 			return false;
 		}
 
 		// Initialize write structure
 		png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-		if (png_ptr == NULL) {
+		if (png_ptr == nullptr) {
 			fprintf(stderr, "Could not allocate write struct\n");
 			return false;
 		}
 
 		// Initialize info structure
 		info_ptr = png_create_info_struct(png_ptr);
-		if (info_ptr == NULL) {
+		if (info_ptr == nullptr) {
 			fprintf(stderr, "Could not allocate info struct\n");
 			return false;
 		}
@@ -208,25 +208,27 @@ namespace utils {
 
 		png_write_info(png_ptr, info_ptr);
 
-		// Allocate memory for one row (4 bytes per pixel - RGBA)
-		row = (png_bytep)malloc(4 * width * sizeof(png_byte));
-		// Write image data
-		for (int y = 0; y<height; y++) 
-		{
-			for (int x = 0; x<width; x++) 
-			{
-				int idx = y*width + x;
-				auto prt = &(row[x * 4]);
-				prt[0] = data[4 * idx];
-				prt[1] = data[4 * idx + 1];
-				prt[2] = data[4 * idx + 2];
-				prt[3] = data[4 * idx + 3];
-			}
-			png_write_row(png_ptr, row);
-		}
+		//// Allocate memory for one row (4 bytes per pixel - RGBA)
+		//row = (png_bytep)malloc(4 * width * sizeof(png_byte));
+		//// Write image data
+		//for (int y = 0; y<height; y++) 
+		//{
+		//	for (int x = 0; x<width; x++) 
+		//	{
+		//		int idx = y*width + x;
+		//		auto prt = &(row[x * 4]);
+		//		prt[0] = data[4 * idx];
+		//		prt[1] = data[4 * idx + 1];
+		//		prt[2] = data[4 * idx + 2];
+		//		prt[3] = data[4 * idx + 3];
+		//	}
+		//	png_write_row(png_ptr, row);
+		//}
 
 		// End write
 		png_write_end(png_ptr, NULL);
+
+	//	fflush(fp);
 
 		if (fp) fclose(fp);
 		if (info_ptr) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
@@ -394,19 +396,5 @@ namespace utils {
 
 		return save_image(path, imgData, width, height);
 	}
-
-	bool save_framebuffer(const std::string & path)
-	{
-		int components = 4;
-		int width = 1280;
-		int height = 720;
-
-
-		std::vector<unsigned char> data = std::vector<unsigned char>(components * width * height);
-		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-		
-		return save_image(path, data, width, height);
-	}
-
 }
 

@@ -19,9 +19,6 @@ namespace utils
 	bool save_image_rgb(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height);
 	bool save_image_rgba(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height);
 	bool save_image_alpha(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height);
-
-
-	bool save_framebuffer(const std::string &path);
 }
 
 

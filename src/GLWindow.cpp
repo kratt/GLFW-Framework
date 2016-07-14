@@ -9,6 +9,8 @@
 #include "Scene.h"
 #include "Light.h"
 #include "GUI.h"
+#include "opengl_utils.h"
+
 #include <iostream>
 
 
@@ -134,6 +136,9 @@ void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods
 			break;
 		case GLFW_KEY_F2:
 			m_cameraManager->toggleCam();
+			break;
+		case GLFW_KEY_F3:
+			utils::save_framebuffer("/");
 			break;
 		case GLFW_KEY_F4:
 			m_renderer->toggleBGColor();

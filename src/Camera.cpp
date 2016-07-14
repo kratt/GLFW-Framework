@@ -3,6 +3,7 @@
 #include "Spline.h"
 #include "RenderContext.h"
 #include "Common.h"
+#include "system_utils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -489,33 +490,9 @@ void Camera::saveFrames(const std::string &filePath)
 
 void Camera::saveFrames()
 {
-	time_t t = time(0);   // get time now
-	struct tm * now = localtime(&t);
-	
-	int year = now->tm_year - 100;
-	int month = now->tm_mon + 1;
-	int day = now->tm_mday;
+	std::string time_str = utils::time_string();
 
-	int hour = now->tm_hour;
-	int minute = now->tm_min;
-	int second = now->tm_sec;
-
-	std::string sYear   = std::to_string(year);
-	std::string sMonth  = std::to_string(month);
-	std::string sDay    = std::to_string(day);
-	std::string sHour   = std::to_string(hour);
-	std::string sMinute = std::to_string(minute);
-	std::string sSecond = std::to_string(second);
-	std::string sNull   = std::to_string(0);
-
-	std::string  fMonth  = month < 10 ? sNull + sMonth : sMonth;
-	std::string  fDay    = day < 10 ? sNull + sDay : sDay;
-	std::string  fHour   = hour < 10 ? sNull + sHour : sHour;
-	std::string  fMinute = minute < 10 ? sNull + sMinute : sMinute;
-	std::string  fSecond = second < 10 ? sNull + sSecond : sSecond;
-
-
-	std::string fileName = sYear + fMonth + fDay + "_" + fHour + fMinute + fSecond + ".cam";
+	std::string fileName = time_str + ".cam";
 	std::string filePath = m_frameSetFolder + "/" + fileName;
 
 	saveFrames(filePath);

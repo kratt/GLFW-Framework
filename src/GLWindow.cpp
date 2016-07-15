@@ -11,6 +11,8 @@
 #include "GUI.h"
 #include "opengl_utils.h"
 
+#include "PngLoader.h"
+
 #include <iostream>
 
 
@@ -138,7 +140,10 @@ void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods
 			m_cameraManager->toggleCam();
 			break;
 		case GLFW_KEY_F3:
-			utils::save_framebuffer("/");
+			if (m_ctrlPressed)
+				utils::save_depthbuffer("./../");
+			else
+				utils::save_framebuffer("./../");
 			break;
 		case GLFW_KEY_F4:
 			m_renderer->toggleBGColor();
@@ -310,5 +315,5 @@ void GLWindow::resize(int w, int h)
 
 	m_renderer->resize(w, h);
 	m_cameraManager->resize(w, h);
-	//m_gui->resize(w, h);
+	m_gui->resize(w, h);
 }

@@ -203,39 +203,36 @@ namespace utils {
 
 		// Write header (8 bit colour depth)
 		png_set_IHDR(png_ptr, info_ptr, width, height,
-			8, PNG_COLOR_TYPE_RGB8, PNG_INTERLACE_NONE,
+			8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
 		png_write_info(png_ptr, info_ptr);
 
-		//// Allocate memory for one row (4 bytes per pixel - RGBA)
-		//row = (png_bytep)malloc(4 * width * sizeof(png_byte));
-		//// Write image data
-		//for (int y = 0; y<height; y++) 
-		//{
-		//	for (int x = 0; x<width; x++) 
-		//	{
-		//		int idx = y*width + x;
-		//		auto prt = &(row[x * 4]);
-		//		prt[0] = data[4 * idx];
-		//		prt[1] = data[4 * idx + 1];
-		//		prt[2] = data[4 * idx + 2];
-		//		prt[3] = data[4 * idx + 3];
-		//	}
-		//	png_write_row(png_ptr, row);
-		//}
+		// Allocate memory for one row (4 bytes per pixel - RGBA)
+		row = (png_bytep)malloc(4 * width * sizeof(png_byte));
+		// Write image data
+		for (int y = 0; y<height; y++) 
+		{
+			for (int x = 0; x<width; x++) 
+			{
+				int idx = y*width + x;
+				auto prt = &(row[x * 4]);
+				prt[0] = data[4 * idx];
+				prt[1] = data[4 * idx + 1];
+				prt[2] = data[4 * idx + 2];
+				prt[3] = data[4 * idx + 3];
+			}
+			png_write_row(png_ptr, row);
+		}
 
 		// End write
 		png_write_end(png_ptr, NULL);
 
-	//	fflush(fp);
-
 		
-		//if (info_ptr) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-		//if (png_ptr) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-		//if (row) free(row);
-
-		//if (fp) fclose(fp);
+		if (fp) fclose(fp);
+		if (info_ptr) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+		if (png_ptr) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		if (row) free(row);
 
 		return true;
 	}

@@ -174,8 +174,6 @@ void TextString::initTextureSdf()
 		int width  = g->bitmap.width + 2 * border;
 		int height = g->bitmap.rows  + 2 * border;
 
-		//std::cout << utils::save_image("../test.png", bitmapData, width, height) << std::endl;
-
 		std::vector<float> testData = std::vector<float>(width * height * 4);
 
 		for (int x = 0; x < width; ++x) {

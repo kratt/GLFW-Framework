@@ -1,5 +1,5 @@
-#ifndef IMAGE_UTILS_H
-#define IMAGE_UTILS_H
+#ifndef SYSTEM_UTILS_H
+#define SYSTEM_UTILS_H
 
 #include "Global.h"
 #include <string>

@@ -173,7 +173,6 @@ void TextRenderer::render3d(const std::string & text, glm::vec3 pos, glm::vec2 d
 	m_shaderText->release();
 }
 
-
 TextString * TextRenderer::getTextString(const std::string &text, const std::string &font, int fontSize)
 {		
 	// first check if we already have a StringText object for the text

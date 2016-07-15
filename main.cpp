@@ -1,7 +1,3 @@
-// Computer Graphics and Media Informatics
-// University of Konstanz
-// 2015
-
 #include "src/Common.h"
 #include "src/GLWindow.h"
 #include "src/debug.h"
@@ -208,7 +204,6 @@ void shutdown()
 {
 	exit(EXIT_SUCCESS);
 }
-
 
 int main(int argc, const char* argv[])
 {

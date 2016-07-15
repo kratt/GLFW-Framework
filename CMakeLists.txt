@@ -4,7 +4,10 @@
 
 cmake_minimum_required (VERSION 2.8)
 
-set (project_name CG_framework)
+get_filename_component(ProjectId ${CMAKE_CURRENT_LIST_DIR} NAME)
+string(REPLACE " " "_" ProjectId ${ProjectId})
+
+set (project_name ${ProjectId})
 
 # create project
 project (${project_name})

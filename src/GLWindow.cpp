@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "GUI.h"
 #include "opengl_utils.h"
+#include "system_utils.h"
 
 #include "PngLoader.h"
 
@@ -141,9 +142,9 @@ void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods
 			break;
 		case GLFW_KEY_F3:
 			if (m_ctrlPressed)
-				utils::save_depthbuffer("./../");
+				utils::save_depthbuffer("./../" + utils::time_string() + ".png");
 			else
-				utils::save_framebuffer("./../");
+				utils::save_framebuffer("./../" + utils::time_string() + ".png");
 			break;
 		case GLFW_KEY_F4:
 			m_renderer->toggleBGColor();

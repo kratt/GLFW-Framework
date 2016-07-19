@@ -5,6 +5,8 @@
 #include "RenderContext.h"
 
 #include <algorithm>
+#include <iostream>
+#include <regex> 
 
 
 namespace utils {
@@ -29,7 +31,7 @@ namespace utils {
 		std::swap(data, res);
 	}
 
-	bool save_framebuffer(const std::string & path)
+	bool save_framebuffer(const std::string & fileName)
 	{
 		auto param = RenderContext::globalObjectParam();
 		int width = param->windowWidth;
@@ -37,12 +39,10 @@ namespace utils {
 
 		auto data = get_framebuffer_data(0, 0, width, height);
 
-		std::string fileName = path + utils::time_string() + ".png";
 		return utils::save_image_rgba(fileName, data, width, height);
 	}
 
-
-	bool save_depthbuffer(const std::string & path)
+	bool save_depthbuffer(const std::string & fileName)
 	{
 		auto param = RenderContext::globalObjectParam();
 		int width = param->windowWidth;
@@ -50,10 +50,47 @@ namespace utils {
 
 		auto data = get_depthbuffer_data(0, 0, width, height);
 
-		std::string fileName = path + utils::time_string() + ".png";
 		return utils::save_image_alpha(fileName, data, width, height);
 	}
 
+	bool save_texture(const std::string & fileName, GLuint texId, bool saveMipMaps)
+	{
+		// valid texture id?
+		GLint resident;
+		glGetTextureParameteriv(texId, GL_TEXTURE_RESIDENT, &resident);
+
+		if (!resident) {
+			std::cout << "save_texture(). Texture with id:" << texId << " does not exist!" << std::endl;
+			return false;
+		}
+			
+
+		GLint max_mipmap = 0;
+		std::string fileNameNoExt = std::regex_replace(fileName, std::regex(".png"), "");
+
+		if (saveMipMaps) {
+			max_mipmap = get_num_mipmaps(texId);
+		}
+		
+		bool sucess = true;
+		for (GLint iLevel = 0; iLevel < max_mipmap + 1; ++iLevel)
+		{
+			GLint width, height;
+			glGetTextureLevelParameteriv(texId, iLevel, GL_TEXTURE_WIDTH, &width);
+			glGetTextureLevelParameteriv(texId, iLevel, GL_TEXTURE_HEIGHT, &height);
+
+			std::vector<float> data = std::vector<float>(4 * width * height);
+			glGetTextureImage(texId, iLevel, GL_RGBA, GL_FLOAT, width*height * 4 * sizeof(float), data.data());
+
+			std::string finalName = fileName;
+			if (iLevel > 0)
+				finalName = fileNameNoExt + "_" + std::to_string(iLevel) + ".png";
+
+			sucess &= utils::save_image_rgba(finalName, data, width, height);
+		}
+
+		return sucess;
+	}
 
 	std::vector<unsigned char> get_framebuffer_data(const GLint x, const GLint y, const GLsizei width, const GLsizei height)
 	{
@@ -72,6 +109,32 @@ namespace utils {
 
 		flip_data(data, width, height, true, false);
 		return data;
+	}
+
+	GLint get_num_mipmaps(GLint texId)
+	{
+		GLint resident;
+		glGetTextureParameteriv(texId, GL_TEXTURE_RESIDENT, &resident);
+
+		if (!resident)
+			return 0;
+
+		GLint max_level;
+		glGetTextureParameteriv(texId, GL_TEXTURE_MAX_LEVEL, &max_level);
+
+		GLint max_mipmap = 0;
+		for (int i = 0; i < max_level; ++i)
+		{
+			int tmpWidth;
+			glGetTextureLevelParameteriv(texId, i, GL_TEXTURE_WIDTH, &tmpWidth);
+			if (0 == tmpWidth)
+			{
+				max_mipmap = i - 1;
+				break;
+			}
+		}
+
+		return max_mipmap;
 	}
 
 }

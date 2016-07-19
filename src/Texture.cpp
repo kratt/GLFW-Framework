@@ -1,7 +1,9 @@
 #include "Texture.h"
 #include "PngLoader.h"
 #include "image_utils.h"
+
 #include <iostream>
+#include <algorithm>
 
 Texture::Texture()
 	: m_id(0)
@@ -49,22 +51,39 @@ void Texture::createTexture(const std::string fileName)
 	utils::load_image(fileName, imageData, type, width, height, alignment);
 
 	GLenum format;
-	if (type == GL_RGB)
+	
+	if (type == GL_RGB) {
 		format = GL_RGB8;
-	else
+		//std::cout << std::endl << "format: GL_RGB8" << std::endl << std::endl;
+	}	
+	else {
 		format = GL_RGBA8;
+		//std::cout <<  std::endl << "format: GL_RGBA8" << std::endl << std::endl;
+	}
+		
+
+	//int numLevels = 1 + floor(log2(std::max(width, height)));
+
+	//glGenTextures(1, &m_id);
+	//glBindTexture(GL_TEXTURE_2D, m_id);
+	//glTexStorage2D(GL_TEXTURE_2D, numLevels, format, width, height);
+	//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, type, GL_UNSIGNED_BYTE, imageData.data());
+
+	//glGenerateMipmap(GL_TEXTURE_2D);  //Generate num_mipmaps number of mipmaps here.
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 
 	glGenTextures(1, &m_id);
 	glBindTexture(GL_TEXTURE_2D, m_id);
-	glTexStorage2D(GL_TEXTURE_2D, 4, format, width, height);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, type, GL_UNSIGNED_BYTE, imageData.data());
-
-	glGenerateMipmap(GL_TEXTURE_2D);  //Generate num_mipmaps number of mipmaps here.
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, type, GL_UNSIGNED_BYTE, imageData.data());
+	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 
 	//if (m_id)

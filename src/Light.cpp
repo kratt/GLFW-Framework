@@ -1,6 +1,3 @@
-//Author: Sören Pirk
-//Date: 22.01.2013
-
 #include "Light.h"
 #include "CameraManager.h"
 #include "VertexBufferObjectAttribs.h"
@@ -9,6 +6,8 @@
 #include "FrameBufferObject.h"
 #include "Scene.h"
 #include "RenderContext.h"
+
+#include "opengl_utils.h"
 
 Light::Light(Scene *scene, const glm::vec3 &pos)
 : m_position(pos),
@@ -119,7 +118,7 @@ void Light::blurShadowMap()
     m_fboBlurV->release();
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);            
+    glBindTexture(GL_TEXTURE_2D, 0);         
 }
 
 void Light::setLightView()

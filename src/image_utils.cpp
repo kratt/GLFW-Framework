@@ -237,19 +237,13 @@ namespace utils {
 		return true;
 	}
 
-	bool save_image_rgb(const std::string & path, const std::vector<float>& data, unsigned int width, unsigned int height)
+	bool save_image_rgb(const std::string & path, const std::vector<float>& data, unsigned int width, unsigned int height, float minVal, float maxVal)
 	{
 		// check if we have enough data
 		if (width * height * 3 != data.size()) {
 			std::cout << "save_image_rgb(). Data size does not match color type!" << std::endl;
 			return false;
 		}
-
-		auto iterMin = std::min_element(data.begin(), data.end());
-		auto iterMax = std::max_element(data.begin(), data.end());
-
-		float minVal = *iterMin;
-		float maxVal = *iterMax;
 
 		// remap data
 		std::vector<unsigned char> imgData = std::vector<unsigned char>(width * height * 4);
@@ -268,19 +262,13 @@ namespace utils {
 		return save_image(path, imgData, width, height);
 	}
 
-	bool save_image_rgba(const std::string & path, const std::vector<float>& data, unsigned int width, unsigned int height)
+	bool save_image_rgba(const std::string & path, const std::vector<float>& data, unsigned int width, unsigned int height, float minVal, float maxVal)
 	{
 		// check if we have enough data
 		if (width * height * 4 != data.size()) {
 			std::cout << "save_image_rgba(). Data size does not match color type!" << std::endl;
 			return false;
 		}
-
-		auto iterMin = std::min_element(data.begin(), data.end());
-		auto iterMax = std::max_element(data.begin(), data.end());
-
-		float minVal = *iterMin;
-		float maxVal = *iterMax;
 
 		// remap data to rgba
 		std::vector<unsigned char> imgData = std::vector<unsigned char>(width * height * 4);
@@ -299,19 +287,13 @@ namespace utils {
 		return save_image(path, imgData, width, height);
 	}
 
-	bool save_image_alpha(const std::string & path, const std::vector<float>& data, unsigned int width, unsigned int height)
+	bool save_image_alpha(const std::string & path, const std::vector<float>& data, unsigned int width, unsigned int height, float minVal, float maxVal)
 	{
 		// check if we have enough data
 		if (width * height != data.size()) {
 			std::cout << "save_image_alpha(). Data size does not match color type!" << std::endl;
 			return false;
 		}
-
-		auto iterMin = std::min_element(data.begin(), data.end());
-		auto iterMax = std::max_element(data.begin(), data.end());
-
-		float minVal = *iterMin;
-		float maxVal = *iterMax;
 
 		// remap data to rgba
 		std::vector<unsigned char> imgData = std::vector<unsigned char>(width * height * 4);
@@ -333,7 +315,7 @@ namespace utils {
 	}
 
 
-	bool save_image_rgb(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height)
+	bool save_image_rgb(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height, unsigned char minVal, unsigned char maxVal)
 	{
 		// check if we have enough data
 		if (width * height * 3 != data.size()) {
@@ -348,9 +330,9 @@ namespace utils {
 			for (int x = 0; x < width; ++x) {
 				int idx = y*width + x;
 
-				imgData[4 * idx]     = data[3 * idx];
-				imgData[4 * idx + 1] = data[3 * idx + 1];
-				imgData[4 * idx + 2] = data[3 * idx + 2];
+				imgData[4 * idx]     = (data[3 * idx]     - minVal) / (maxVal - minVal) * 255;
+				imgData[4 * idx + 1] = (data[3 * idx + 1] - minVal) / (maxVal - minVal) * 255;
+				imgData[4 * idx + 2] = (data[3 * idx + 2] - minVal) / (maxVal - minVal) * 255;
 				imgData[4 * idx + 3] = 255;
 			}
 		}
@@ -359,7 +341,7 @@ namespace utils {
 	}
 
 
-	bool save_image_rgba(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height)
+	bool save_image_rgba(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height, unsigned char minVal, unsigned char maxVal)
 	{
 		// check if we have enough data
 		if (width * height * 4 != data.size()) {
@@ -367,11 +349,25 @@ namespace utils {
 			return false;
 		}
 
+		// remap data 
+		std::vector<unsigned char> imgData = std::vector<unsigned char>(width * height * 4);
+
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				int idx = y*width + x;
+
+				imgData[4 * idx]     = (data[4 * idx]     - minVal) / (maxVal - minVal) * 255;
+				imgData[4 * idx + 1] = (data[4 * idx + 1] - minVal) / (maxVal - minVal) * 255;
+				imgData[4 * idx + 2] = (data[4 * idx + 2] - minVal) / (maxVal - minVal) * 255;
+				imgData[4 * idx + 3] = (data[4 * idx + 3] - minVal) / (maxVal - minVal) * 255;
+			}
+		}
+
 		return save_image(path, data, width, height);
 	}
 
 
-	bool save_image_alpha(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height)
+	bool save_image_alpha(const std::string &path, const std::vector<unsigned char> &data, unsigned int width, unsigned int height, unsigned char minVal, unsigned char maxVal)
 	{
 		// check if we have enough data
 		if (width * height != data.size()) {
@@ -386,9 +382,11 @@ namespace utils {
 			for (int x = 0; x < width; ++x) {
 				int idx = y*width + x;
 
-				imgData[4 * idx]     = data[idx];
-				imgData[4 * idx + 1] = data[idx];
-				imgData[4 * idx + 2] = data[idx];
+				auto val = (data[idx] - minVal) / (maxVal - minVal) * 255;
+
+				imgData[4 * idx]     = val;
+				imgData[4 * idx + 1] = val;
+				imgData[4 * idx + 2] = val;
 				imgData[4 * idx + 3] = 255;
 			}
 		}

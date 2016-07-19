@@ -14,8 +14,8 @@ TextString::TextString(std::string text, int fontSize, const std::string &font)
 	m_fontPath("C:/Windows/Fonts/"),
 	m_offsetBaseline(0.0f)
 {
-	//initTexture();
-	initTextureSdf();
+	initTexture();
+	//initTextureSdf();
 }
 
 TextString::~TextString()

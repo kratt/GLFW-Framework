@@ -38,8 +38,8 @@ void main()
 	   color = borderColor.xyz;	   
    }
    
-  // alpha = max(0.2, alpha);
+   alpha = max(0.2, alpha);
 
    
-   FragColor = vec4(color, alpha );
+   FragColor = vec4(color, alpha);
 }

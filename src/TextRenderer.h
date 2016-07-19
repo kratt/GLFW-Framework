@@ -24,7 +24,7 @@ public:
 	~TextRenderer();
 
 	// 2d render functions
-	void render(const std::string &text, glm::vec2 pos, int fontSize = 24, glm::vec4 &textColor = glm::vec4(1.0f), const std::string &font = "Calibri");
+	void render(const std::string &text, glm::vec2 pos, int fontSize = 24, glm::vec4 &textColor = glm::vec4(1.0f), const std::string &font = "calibril");
 	void render(const std::string &text, glm::vec2 pos, int border, int gapToBorder, int fontSize = 24, glm::vec4 &textColor = glm::vec4(1.0f), glm::vec4 &borderColor = glm::vec4(1.0f), const std::string &font = "Calibri");
 
 	// 3d render functions

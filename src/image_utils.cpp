@@ -156,7 +156,7 @@ namespace utils {
 		//std::string ext = utils::fs::extension(path);
 
 		if (ext == ".png") {
-			std::cout << "load png" << std::endl;
+			//std::cout << "load png" << std::endl;
 			return load_png(path, data, type, width, height, alignment);
 		}
 		else {

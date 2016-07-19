@@ -17,8 +17,6 @@ namespace utils {
 
 		outData.resize(width * height);
 
-		GLubyte *data = new unsigned char[width * height];
-
 		for (int y = 0; y < bitmap->rows; ++y)
 		{
 			for (int byteIndex = 0; byteIndex < bitmap->pitch; ++byteIndex)
@@ -27,7 +25,7 @@ namespace utils {
 				int num_bits_done = byteIndex * 8;
 				int row_start = y * bitmap->width + byteIndex * 8;
 
-				for (int bitIndex = 0; bitIndex < std::min(8, bitmap->width - num_bits_done); ++bitIndex)
+				for (int bitIndex = 0; bitIndex < std::min(8, int(bitmap->width - num_bits_done)); ++bitIndex)
 				{
 					auto bit = byte_value & (1 << (7 - bitIndex));
 
@@ -38,6 +36,9 @@ namespace utils {
 				}
 			}
 		}
+
+
+
 	}
 
 	void empty_texture(FT_Bitmap* bitmap, unsigned char** outData)
@@ -56,6 +57,26 @@ namespace utils {
 		}
 
 		*outData = data;
+	}
+
+	std::vector<float> get_bitmap_data(FT_Bitmap * bitmap)
+	{
+		int width = bitmap->width;
+		int height = bitmap->rows;
+
+		std::vector<float> buffer(width * height, 0);
+
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				
+				int idx = y * width + x;
+				buffer[idx] = float(bitmap->buffer[idx]) / 255;
+				//std::cout << float(bitmap->buffer[idx]) << std::endl;
+			}
+		}
+		return buffer;
 	}
 
 	//http://www.codersnotes.com/notes/signed-distance-fields/

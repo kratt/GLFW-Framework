@@ -14,6 +14,10 @@ uniform sampler2D tex;
 uniform vec4 textColor   = vec4(1.0f);
 uniform vec4 borderColor = vec4(1.0f);
 
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main()
 {
 	float alpha = 0.0f;
@@ -38,8 +42,10 @@ void main()
 	   color = borderColor.xyz;	   
    }
    
-   alpha = max(0.2, alpha);
+   alpha = max(0.0, alpha);
 
+   float r = rand(VertPosition.xy);
    
-   FragColor = vec4(color, alpha);
+  // color = vec3(r);
+   FragColor = vec4(vec3(1), alpha);
 }

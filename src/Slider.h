@@ -123,7 +123,7 @@ void Slider<T>::render(Shader *shader)
 	std::string sliderText = m_text;
 	sliderText += std::to_string(m_value);
 
-	/*TextRenderer::instance()->render(sliderText, glm::vec2(m_posX - 2, m_posY - 5), 24, glm::vec4(1.0), "Arial");*/
+	TextRenderer::instance()->render(sliderText, glm::vec2(m_posX + 2, param->windowHeight - m_posY + 5), 16, glm::vec4(1.0), "calibril");
 	//renderString(sliderText.toAscii(), m_posX - 2, m_posY - 5, m_color.x, m_color.y, m_color.z, m_color.w, GLUT_BITMAP_HELVETICA_12);
 
 

@@ -73,7 +73,7 @@ void GUI::initUIElements()
 
     int y = 120;
     
-    Slider<float> *s01 = new Slider<float>(10, y, 200, 15, "Shadow Intensity: ");
+    Slider<float> *s01 = new Slider<float>(10, y, 200, 15, "Shadow Intensity : ");
     s01->setRange(0.0f, 1.0f);
 	s01->setVariable(&param->shadowIntensity);
 	s01->setValue(0.5/* param->shadowIntensity*/);

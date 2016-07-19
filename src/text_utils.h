@@ -17,6 +17,8 @@ namespace utils {
 	void unpack_mono_bitmap(FT_Bitmap* bitmap, std::vector<unsigned char> &outData);
 	void empty_texture(FT_Bitmap* bitmap, unsigned char** outData);
 
+	std::vector<float> get_bitmap_data(FT_Bitmap* bitmap);
+
 	/*void downSample(std::vector<float> inData, int width, int height, std::vector<float> outData, int targetWidth, int targetHeight);*/
 }
 

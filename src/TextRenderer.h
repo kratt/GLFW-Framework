@@ -35,6 +35,7 @@ public:
 	void renderSdf(const std::string &text, glm::vec2 pos, int fontSize = 24, const std::string &font = "Calibri");
 
 	static TextRenderer* instance();
+	std::vector<TextString*> m_textStrings;
 
 protected:
 	static TextRenderer* s_texRendererInstance;
@@ -51,7 +52,7 @@ private:
 	Shader* m_shaderTextSdf;
 	VertexBufferObjectAttribs* m_vboQuad;
 
-	std::vector<TextString*> m_textStrings;
+	
 
 	int m_fontSize3D;
 };

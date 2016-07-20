@@ -31,7 +31,7 @@ void RenderUtils::init()
 }
 
 
-void RenderUtils::renderTexture(int x, int y, int width, int height, GLuint id)
+void RenderUtils::renderTexture(GLuint texId, int x, int y, int width, int height)
 {
 	auto param = RenderContext::globalObjectParam();
 
@@ -52,7 +52,7 @@ void RenderUtils::renderTexture(int x, int y, int width, int height, GLuint id)
 	m_shaderTex2D->set2f("texStartPos", x, y);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, texId);
 	m_shaderTex2D->seti("tex", 0);
 	
 	m_vboQuad->render();

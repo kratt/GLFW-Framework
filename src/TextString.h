@@ -21,7 +21,7 @@ class Texture;
 class TextString
 {
 public: 
-	TextString(std::string text, int fontSize = 24, const std::string &font = "Helvetica");
+	TextString(std::string text, int fontSize = 24, const std::string &font = "calibril");
 	~TextString();
 
 	GLuint texId() const;

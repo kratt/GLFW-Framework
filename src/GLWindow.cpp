@@ -11,13 +11,15 @@
 #include "GUI.h"
 #include "opengl_utils.h"
 #include "system_utils.h"
+#include "TextureAtlas.h"
+#include "TextRenderer.h"
+#include "RenderUtils.h"
 
-#include "PngLoader.h"
 
 #include <iostream>
 
 
-GLWindow::GLWindow(int width, int height)	:
+GLWindow::GLWindow(int width, int height) :
 	m_width(width),
 	m_height(height),
 	m_ctrlPressed(false),
@@ -31,6 +33,12 @@ GLWindow::GLWindow(int width, int height)	:
 	initParams();
 
 	this->resize(m_width, m_height);
+
+
+	TextureAtlas atlas = TextureAtlas(24);
+	//auto ids = utils::create_debug_textures();
+
+	utils::save_texture_bind("./../atlas2.png", atlas.tex);
 }
 
 GLWindow::~GLWindow()
@@ -107,17 +115,7 @@ void GLWindow::render()
 	param->lightPos = m_scene->m_light->position();
 
 	m_renderer->render();
-
 	m_gui->render();
-	//DWORD time = GetTickCount();
-	//float delta = time - m_oldTime;
-	//if (delta > 25)
-	//{
-	//	m_scene->update(1.0f / delta);
-	//	m_oldTime = time;
-	//}
-
-	//this->update();
 }
 
 void GLWindow::keyPressEvent(GLint key, GLint scancode, GLint action, GLint mods)

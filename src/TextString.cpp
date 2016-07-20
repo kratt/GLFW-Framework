@@ -86,14 +86,13 @@ void TextString::initTexture()
 		maxBottom = std::max(maxBottom, h - g->bitmap_top);
 		maxOffset = std::max(maxOffset, belowBaseLine);
 
-		if (g->bitmap.pixel_mode == ft_pixel_mode_mono)
-			std::cout << "ft_pixel_mode_mono" << std::endl;
-		if (g->bitmap.pixel_mode == ft_pixel_mode_grays)
-			std::cout << "ft_pixel_mode_grays (8Bit)" << std::endl;
+		//if (g->bitmap.pixel_mode == ft_pixel_mode_mono)
+		//	std::cout << "ft_pixel_mode_mono" << std::endl;
+		//if (g->bitmap.pixel_mode == ft_pixel_mode_grays)
+		//	std::cout << "ft_pixel_mode_grays (8Bit)" << std::endl;
 	}
 
 	maxHeight = maxTop + maxBottom;
-
 
 	m_dims = glm::vec2(totalWidth, maxHeight);
 	m_offsetBaseline = maxOffset;
@@ -109,6 +108,12 @@ void TextString::initTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, totalWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
+
+	//std::vector<unsigned char> data = std::vector<unsigned char>(totalWidth * maxHeight, 28);
+	//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, totalWidth, maxHeight, GL_RED, GL_UNSIGNED_BYTE, data.data());
+
+	std::cout << "text texture: width:" << totalWidth << " height:" << maxHeight << std::endl;
+
 	pen_x = 0;
 	/* Loop through all characters */
 	for (auto it = m_text.begin(); it < m_text.end(); it++)
@@ -121,15 +126,16 @@ void TextString::initTexture()
 		float h = g->bitmap.rows;
 		float top_left = g->bitmap_top;	
 
-		std::cout << w << " " << h << std::endl;
 		float pos_x = pen_x + g->bitmap_left;
 
-		std::vector<unsigned char> data;
-		utils::unpack_mono_bitmap(&g->bitmap, data);
+		int x = pen_x;
+		int y = maxHeight - (g->bitmap_top + m_offsetBaseline);
+		int tex_w = g->bitmap.width;
+		int tex_h = g->bitmap.rows;
 
-		utils::save_image_alpha("./../testbitmap.png", data, w, h);
+		//std::cout << "x:" << x << " y:" << y << " w:" << tex_w << " h:" << tex_h << std::endl;
 
-		glTexSubImage2D(GL_TEXTURE_2D, 0, pen_x, maxHeight - (g->bitmap_top + m_offsetBaseline), g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, tex_w, tex_h, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, data.data());
 		//glGenerateMipmap(GL_TEXTURE_2D);
 		pen_x += g->advance.x >> 6;
@@ -193,10 +199,6 @@ void TextString::initTextureSdf()
 		int width  = g->bitmap.width + 2 * border;
 		int height = g->bitmap.rows  + 2 * border;
 
-
-	
-		//utils::save_image_alpha("./../bitmap.png", bitmapData, width, height);
-
 		glTexStorage2D(GL_TEXTURE_2D, 4, GL_R32F, width, height);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RED, GL_FLOAT, sdfData.data());
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -216,8 +218,6 @@ void TextString::initTextureSdf()
 		totalWidth = w;
 		break;
 	}
-
-	std::cout << "width: " << totalWidth << " , height: " << maxHeight << std::endl;
 
 	m_dims = glm::vec2(totalWidth, maxHeight);
 	glBindTexture(GL_TEXTURE_2D, 0);

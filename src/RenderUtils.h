@@ -18,7 +18,7 @@ private:
 
 public:
 	static RenderUtils* instance();
-	void renderTexture(int x, int y, int width, int height, GLuint texId);
+	void renderTexture(GLuint texId, int x, int y, int width, int height);
 
 protected:
 	// static instance / singelton

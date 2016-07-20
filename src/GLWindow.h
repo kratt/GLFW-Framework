@@ -59,11 +59,6 @@ private:
 	CameraManager *m_cameraManager;
 
 	GUI *m_gui;
-
-	GLuint m_texDebug0;
-	GLuint m_texDebug1;
-	GLuint m_texDebug2;
-
 };
 
 #endif

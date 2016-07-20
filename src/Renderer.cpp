@@ -50,13 +50,6 @@ void Renderer::render()
     }    
 
     renderScene();
-
-	//RenderUtils::instance()->renderTexture(10, 10, 2, 2, m_texTest->id());
-
-	//renderQuad();
-	//m_gui->render();
-
-   // Common::renderTexture(m_scene->m_light->m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0), 10, 10, 400, 300);
 }
 
 void Renderer::renderScene()
@@ -76,8 +69,8 @@ void Renderer::renderScene()
 		
       m_scene->renderObjects();
 	  m_scene->renderWorld();
-	//
-	//  glDisable(GL_CULL_FACE);
+	
+	  glDisable(GL_CULL_FACE);
 
 	////TextRenderer::instance()->render("void Renderer::renderfghQuad()", glm::vec2(10, 10), 20, 50, 24, glm::vec4(1,1,1,0.5), glm::vec4(0, 1, 0, 0.5));
 	////TextRenderer::instance()->render("TextRenderer::instance()->render", glm::vec2(100, 200), 32); 

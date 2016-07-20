@@ -108,12 +108,6 @@ void TextString::initTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, totalWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
-
-	//std::vector<unsigned char> data = std::vector<unsigned char>(totalWidth * maxHeight, 28);
-	//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, totalWidth, maxHeight, GL_RED, GL_UNSIGNED_BYTE, data.data());
-
-	std::cout << "text texture: width:" << totalWidth << " height:" << maxHeight << std::endl;
-
 	pen_x = 0;
 	/* Loop through all characters */
 	for (auto it = m_text.begin(); it < m_text.end(); it++)
@@ -133,11 +127,7 @@ void TextString::initTexture()
 		int tex_w = g->bitmap.width;
 		int tex_h = g->bitmap.rows;
 
-		//std::cout << "x:" << x << " y:" << y << " w:" << tex_w << " h:" << tex_h << std::endl;
-
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, tex_w, tex_h, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, data.data());
-		//glGenerateMipmap(GL_TEXTURE_2D);
 		pen_x += g->advance.x >> 6;
 	}
 

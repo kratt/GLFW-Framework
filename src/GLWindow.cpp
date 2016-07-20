@@ -34,11 +34,8 @@ GLWindow::GLWindow(int width, int height) :
 
 	this->resize(m_width, m_height);
 
-
-	TextureAtlas atlas = TextureAtlas(24);
-	//auto ids = utils::create_debug_textures();
-
-	utils::save_texture_bind("./../atlas2.png", atlas.tex);
+	TextureAtlas *atlas = new TextureAtlas("calibril", 12);
+	//utils::save_texture("./../atlas_test.png", atlas->tex);
 }
 
 GLWindow::~GLWindow()

@@ -4,9 +4,8 @@
 
 #include <string> 
 #include <iostream>
+#include "VertexBufferObjectAttribs.h"
 
-
-class VertexBufferObjectAttribs;
 
 struct TextString {
 	std::string text;

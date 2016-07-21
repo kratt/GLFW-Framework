@@ -75,7 +75,7 @@ void Renderer::renderScene()
 
 	  TextRenderer::instance()->render("void Renderer::renderfghQuad()", glm::vec2(100, 100), 24);
 	  
-	  TextRenderer::instance()->render("void Renderer::renderfghQuad()", glm::vec3(10.0f), glm::vec2(5, 0));
+	  //TextRenderer::instance()->render("void Renderer::renderfghQuad()", glm::vec3(10.0f), glm::vec2(5, 0));
 	//   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "VertexBufferObjectAttribs.h"
+#include <iostream>
 
 VertexBufferObjectAttribs::VertexBufferObjectAttribs()
 : m_useIndexBuffer(GL_FALSE),

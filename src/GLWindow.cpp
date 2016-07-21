@@ -11,7 +11,6 @@
 #include "GUI.h"
 #include "opengl_utils.h"
 #include "system_utils.h"
-#include "TextureAtlas.h"
 #include "TextRenderer.h"
 #include "RenderUtils.h"
 
@@ -33,9 +32,6 @@ GLWindow::GLWindow(int width, int height) :
 	initParams();
 
 	this->resize(m_width, m_height);
-
-	TextureAtlas *atlas = new TextureAtlas("calibril", 12);
-	//utils::save_texture("./../atlas_test.png", atlas->tex);
 }
 
 GLWindow::~GLWindow()

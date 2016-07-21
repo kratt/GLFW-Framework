@@ -1,5 +1,6 @@
 #include "TextureAtlas.h"
 
+
 TextureAtlas::TextureAtlas(const std::string &font, unsigned int fontSize)
 : m_font(font),
   m_fontSize(fontSize)
@@ -8,9 +9,38 @@ TextureAtlas::TextureAtlas(const std::string &font, unsigned int fontSize)
 }
 
 TextureAtlas::~TextureAtlas() {
-	//glDeleteTextures(1, &tex);
+	glDeleteTextures(1, &m_texId);
 }
 
+GlyphMetric TextureAtlas::metrics(unsigned int i)
+{
+	return c[i];
+}
+
+unsigned int TextureAtlas::width() const
+{
+	return m_width;
+}
+
+unsigned int TextureAtlas::height() const
+{
+	return m_height;
+}
+
+unsigned int TextureAtlas::fontSize() const
+{
+	return m_fontSize;
+}
+
+std::string TextureAtlas::font() const
+{
+	return m_font;
+}
+
+GLuint TextureAtlas::texId() const
+{
+	return m_texId;
+}
 
 void TextureAtlas::init()
 {
@@ -49,7 +79,7 @@ void TextureAtlas::init()
 			rowh = 0;
 		}
 		roww += g->bitmap.width + 1;
-		rowh = std::max(rowh, g->bitmap.rows);
+		rowh = std::max(rowh, unsigned int(g->bitmap.rows));
 	}
 
 	m_width = std::max(m_width, roww);
@@ -66,6 +96,8 @@ void TextureAtlas::init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+	
 
 	/* Paste all glyph bitmaps into the texture, remembering the offset */
 	int ox = 0;
@@ -98,10 +130,11 @@ void TextureAtlas::init()
 		c[i].tx = ox / (float)m_width;
 		c[i].ty = oy / (float)m_height;
 
-		rowh = std::max(rowh, g->bitmap.rows);
+		rowh = std::max(rowh, unsigned int(g->bitmap.rows));
 		ox += g->bitmap.width + 1;
 	}
 
-	fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", m_width, m_height, m_width * m_height / 1024);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

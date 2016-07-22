@@ -1,5 +1,6 @@
 #include "Object.h"
 #include "Shader.h"
+#include "Common.h"
 #include "VertexBufferObjectAttribs.h"
 #include "ModelLoaderObj.h"
 #include "Texture.h"
@@ -227,236 +228,243 @@ void Object::renderDepth()
 }
 
 
-void Object::buildVBOsAnimation(const std::string &fileName, const glm::vec3 &rot, const glm::vec3 &scale)
+void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, const glm::vec3 &scale)
 {
-	//QDir myDir(fileName);
-	//myDir.setNameFilters(QStringList() << "*.obj");
-	//QStringList filesList = myDir.entryList(QDir::Files);
+	std::vector<std::string> fileList;
+	for (auto file : std::experimental::filesystem::directory_iterator(path))
+	{
+		std::experimental::filesystem::path p(file);
 
-	//// first determe scaling factor based on first obj and materials
-	//float objScale = 1.0f;
-	//vec3 refCenter = vec3(0.0f, 0.0f, 0.0f);
+		if (p.extension().string().compare(".obj") == 0)
+		{
+			debugLog() << p.string() << std::endl;
+			fileList.push_back(p.string());
+		}
+	
+	}
 
-	//if (!filesList.empty())
-	//{
-	//	ModelOBJ *model = new ModelOBJ();
-	//	model->import((QString(fileName) + filesList[0]).toAscii());
+	// first determine scaling factor based on first obj and materials
+	float objScale = 1.0f;
+	glm::vec3 refCenter = glm::vec3(0.0f);
 
-	//	uint nrMaterials = model->getNumberOfMaterials();
+	if (!fileList.empty())
+	{
+		ModelOBJ *model = new ModelOBJ();
+		model->import(fileList[0].data());
 
-	//	for (int i = 0; i<nrMaterials; ++i)
-	//	{
-	//		ModelOBJ::Material mat = model->getMaterial(i);
+		int nrMaterials = model->getNumberOfMaterials();
 
-	//		QString path = m_fileName;
-	//		QString colorMapName = QString(mat.colorMapFilename.c_str());
-	//		QString tmp = colorMapName.replace(QRegExp("\\\\"), "/");
-	//		path.append(tmp);
+		for (int i = 0; i<nrMaterials; ++i)
+		{
+			std::string dir = std::regex_replace(path, std::regex("\\\\"), "/");
 
-	//		ObjectMaterial info;
-	//		info.texKd = new Texture(path);
+			ModelOBJ::Material mat = model->getMaterial(i);
+			std::string colorMapName = mat.colorMapFilename;
+			colorMapName = std::regex_replace(colorMapName, std::regex("\\\\"), "/");
 
-	//		m_materialCache.insert(make_pair(mat.name, info));
+			ObjectMaterial info;
+			info.texKd = new Texture(dir + "/" + colorMapName);
 
-	//		qDebug() << QString(mat.name.c_str()) << path;
-	//	}
+			debugLog() << dir + "/" + colorMapName << std::endl;
+			m_materialCache.insert(std::make_pair(mat.name, info));
+		}
 
-	//	if (!m_materialCache.empty())
-	//		m_hasMaterial = true;
+		if (!m_materialCache.empty())
+			m_hasMaterial = true;
 
-	//	uint nrMeshes = model->getNumberOfMeshes();
-	//	const ModelOBJ::Vertex *vb = model->getVertexBuffer();
-	//	const int *tempIdx = model->getIndexBuffer();
+		int nrMeshes = model->getNumberOfMeshes();
+		const ModelOBJ::Vertex *vb = model->getVertexBuffer();
+		const int *tempIdx = model->getIndexBuffer();
 
-	//	vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
-	//	vec3 ma(math_minfloat, math_minfloat, math_minfloat);
+		glm::vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
+		glm::vec3 ma(math_minfloat, math_minfloat, math_minfloat);
 
-	//	for (uint i = 0; i < nrMeshes; ++i)
-	//	{
-	//		vector<vec3> tmpVertices;
+		for (int i = 0; i < nrMeshes; ++i)
+		{
+			std::vector<glm::vec3> tmpVertices;
 
-	//		const ModelOBJ::Mesh &objMesh = model->getMesh(i);
+			const ModelOBJ::Mesh &objMesh = model->getMesh(i);
 
-	//		int startIndex = objMesh.startIndex;
-	//		int nrVertices = objMesh.triangleCount * 3;
+			int startIndex = objMesh.startIndex;
+			int nrVertices = objMesh.triangleCount * 3;
 
-	//		for (int j = startIndex; j<startIndex + nrVertices; ++j)
-	//		{
-	//			uint idx = tempIdx[j];
+			for (int j = startIndex; j<startIndex + nrVertices; ++j)
+			{
+				int idx = tempIdx[j];
 
-	//			vec3 v = vec3(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
+				glm::vec3 v = glm::vec3(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
 
-	//			if (v.x > ma.x)
-	//				ma.x = v.x;
+				if (v.x > ma.x)
+					ma.x = v.x;
 
-	//			if (v.y > ma.y)
-	//				ma.y = v.y;
+				if (v.y > ma.y)
+					ma.y = v.y;
 
-	//			if (v.z > ma.z)
-	//				ma.z = v.z;
+				if (v.z > ma.z)
+					ma.z = v.z;
 
-	//			if (v.x < mi.x)
-	//				mi.x = v.x;
+				if (v.x < mi.x)
+					mi.x = v.x;
 
-	//			if (v.y < mi.y)
-	//				mi.y = v.y;
+				if (v.y < mi.y)
+					mi.y = v.y;
 
-	//			if (v.z < mi.z)
-	//				mi.z = v.z;
-	//		}
-	//	}
+				if (v.z < mi.z)
+					mi.z = v.z;
+			}
+		}
 
-	//	vec3 dist = ma - mi;
+		glm::vec3 dist = ma - mi;
 
-	//	if (dist.x > dist.y && dist.x > dist.z) objScale = 1.0f / dist.x;
-	//	if (dist.y > dist.x && dist.y > dist.z) objScale = 1.0f / dist.y;
-	//	if (dist.z > dist.x && dist.z > dist.y) objScale = 1.0f / dist.z;
+		if (dist.x > dist.y && dist.x > dist.z) objScale = 1.0f / dist.x;
+		if (dist.y > dist.x && dist.y > dist.z) objScale = 1.0f / dist.y;
+		if (dist.z > dist.x && dist.z > dist.y) objScale = 1.0f / dist.z;
 
-	//	objScale *= 1.0f; // optional
-	//	refCenter = (mi + ma) * 0.5f;
+		objScale *= 1.0f; // optional
+		refCenter = (mi + ma) * 0.5f;
 
-	//	delete model;
-	//}
+		delete model;
+	}
 
-	//for (int i = 0; i<filesList.size(); ++i)
-	//{
-	//	std::vector<VertexBufferObjectAttribs*> vbosMesh;
-	//	std::vector<VertexBufferObjectAttribs*> vbosLines;
-	//	std::vector<std::string> matNames;
+	for (int i = 0; i < fileList.size(); ++i)
+	{
+		std::vector<VertexBufferObjectAttribs*> vbosMesh;
+		std::vector<VertexBufferObjectAttribs*> vbosLines;
+		std::vector<std::string> matNames;
 
-	//	ModelOBJ *model = new ModelOBJ();
+		ModelOBJ *model = new ModelOBJ();
 
-	//	qDebug() << "OBSTACLEOBJ::load():" << (QString(fileName) + filesList[i]).toAscii();
-	//	model->import((QString(fileName) + filesList[i]).toAscii());
-
-
-	//	uint nrMeshes = model->getNumberOfMeshes();
-
-	//	const ModelOBJ::Vertex *vb = model->getVertexBuffer();
-	//	const int *tempIdx = model->getIndexBuffer();
-
-	//	mat4 rotMatX = mat4::rotate(rot.x, 1.0f, 0.0f, 0.0f);
-	//	mat4 rotMatY = mat4::rotate(rot.y, 0.0f, 1.0f, 0.0f);
-	//	mat4 rotMatZ = mat4::rotate(rot.z, 0.0f, 0.0f, 1.0f);
-	//	mat4 scaleMat = mat4::scale(scale.x, scale.y, scale.z);
-
-	//	for (uint i = 0; i < nrMeshes; ++i)
-	//	{
-	//		vector<vec3> tmpVertices;
-	//		vector<vec3> tmpNormals;
-	//		vector<vec3> tmpTexCoords;
-
-	//		const ModelOBJ::Mesh &objMesh = model->getMesh(i);
-	//		int startIndex = objMesh.startIndex;
-	//		m_nrTriangles = objMesh.triangleCount;
-	//		m_nrVertices = objMesh.triangleCount * 3;
-
-	//		for (int j = startIndex; j<startIndex + m_nrVertices; ++j)
-	//		{
-	//			uint idx = tempIdx[j];
-
-	//			Vector3 v(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
-	//			Vector3 n(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]);
-	//			Vector3 t(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f);
-
-	//			tmpVertices.push_back(v);
-	//			tmpNormals.push_back(n);
-	//			tmpTexCoords.push_back(t);
-	//		}
-
-	//		vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
-	//		vec3 ma(math_minfloat, math_minfloat, math_minfloat);
-
-	//		for (uint i = 0; i<tmpVertices.size(); ++i)
-	//		{
-	//			vec3 v = tmpVertices[i];
-
-	//			if (v.x > ma.x)
-	//				ma.x = v.x;
-
-	//			if (v.y > ma.y)
-	//				ma.y = v.y;
-
-	//			if (v.z > ma.z)
-	//				ma.z = v.z;
-
-	//			if (v.x < mi.x)
-	//				mi.x = v.x;
-
-	//			if (v.y < mi.y)
-	//				mi.y = v.y;
-
-	//			if (v.z < mi.z)
-	//				mi.z = v.z;
-	//		}
-
-	//		vec3 center = (mi + ma) * 0.5;
-	//		VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[tmpVertices.size()];
-
-	//		for (uint i = 0; i<tmpVertices.size(); ++i)
-	//		{
-	//			vec3 v = tmpVertices[i];
-	//			vec3 n = tmpNormals[i];
-	//			vec3 t = tmpTexCoords[i];
-
-	//			float tmpScale = 0.1f;
-	//			vec3 tmpPos = (v - refCenter - center) * objScale + (center*objScale);
-
-	//			v = tmpPos;
-
-	//			data[i].vx = v.x;
-	//			data[i].vy = v.y;
-	//			data[i].vz = v.z;
-	//			data[i].vw = 1.0f;
-
-	//			data[i].cx = m_color.x;
-	//			data[i].cy = m_color.y;
-	//			data[i].cz = m_color.z;
-	//			data[i].cw = m_color.w;
-
-	//			data[i].nx = n.x;
-	//			data[i].ny = n.y;
-	//			data[i].nz = n.z;
-	//			data[i].nw = 1.0f;
-
-	//			data[i].tx = t.x;
-	//			data[i].ty = t.y;
-	//			data[i].tz = 0.0f;
-	//			data[i].tw = 0.0f;
-	//		}
-
-	//		VertexBufferObjectAttribs* vboMesh = new VertexBufferObjectAttribs();
-	//		vboMesh->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
-
-	//		vboMesh->addAttrib(VERTEX_POSITION);
-	//		vboMesh->addAttrib(VERTEX_NORMAL);
-	//		vboMesh->addAttrib(VERTEX_COLOR);
-	//		vboMesh->addAttrib(VERTEX_TEXTURE);
-	//		vboMesh->bindAttribs();
+		debugLog() << "load():" << fileList[i] << std::endl;
+		model->import(fileList[i].data());
 
 
-	//		VertexBufferObjectAttribs* vboLines = new VertexBufferObjectAttribs();
-	//		vboLines->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
+		int nrMeshes = model->getNumberOfMeshes();
 
-	//		vboLines->addAttrib(VERTEX_POSITION);
-	//		vboLines->addAttrib(VERTEX_NORMAL);
-	//		vboLines->addAttrib(VERTEX_COLOR);
-	//		vboLines->addAttrib(VERTEX_TEXTURE);
-	//		vboLines->bindAttribs();
+		const ModelOBJ::Vertex *vb = model->getVertexBuffer();
+		const int *tempIdx = model->getIndexBuffer();
 
-	//		delete[] data;
+		//mat4 rotMatX = mat4::rotate(rot.x, 1.0f, 0.0f, 0.0f);
+		//mat4 rotMatY = mat4::rotate(rot.y, 0.0f, 1.0f, 0.0f);
+		//mat4 rotMatZ = mat4::rotate(rot.z, 0.0f, 0.0f, 1.0f);
+		//mat4 scaleMat = mat4::scale(scale.x, scale.y, scale.z);
 
-	//		vbosMesh.push_back(vboMesh);
-	//		vbosLines.push_back(vboLines);
-	//		matNames.push_back(objMesh.pMaterial->name);
-	//	}
+		for (int i = 0; i < nrMeshes; ++i)
+		{
+			std::vector<glm::vec3> tmpVertices;
+			std::vector<glm::vec3> tmpNormals;
+			std::vector<glm::vec3> tmpTexCoords;
 
-	//	delete model;
+			const ModelOBJ::Mesh &objMesh = model->getMesh(i);
+			int startIndex = objMesh.startIndex;
+			m_nrTriangles = objMesh.triangleCount;
+			m_nrVertices = objMesh.triangleCount * 3;
 
-	//	m_vbosTrianglesAnimation.push_back(vbosMesh);
-	//	m_vbosLinesAnimation.push_back(vbosLines);
-	//	m_materialNamesAnimation.push_back(matNames);
-	//}
+			for (int j = startIndex; j<startIndex + m_nrVertices; ++j)
+			{
+				int idx = tempIdx[j];
+
+				glm::vec3 v(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
+				glm::vec3 n(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]);
+				glm::vec3 t(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f);
+
+				tmpVertices.push_back(v);
+				tmpNormals.push_back(n);
+				tmpTexCoords.push_back(t);
+			}
+
+			glm::vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
+			glm::vec3 ma(math_minfloat, math_minfloat, math_minfloat);
+
+			for (int i = 0; i<tmpVertices.size(); ++i)
+			{
+				glm::vec3 v = tmpVertices[i];
+
+				if (v.x > ma.x)
+					ma.x = v.x;
+
+				if (v.y > ma.y)
+					ma.y = v.y;
+
+				if (v.z > ma.z)
+					ma.z = v.z;
+
+				if (v.x < mi.x)
+					mi.x = v.x;
+
+				if (v.y < mi.y)
+					mi.y = v.y;
+
+				if (v.z < mi.z)
+					mi.z = v.z;
+			}
+
+			glm::vec3 center = (mi + ma) * 0.5f;
+			VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[tmpVertices.size()];
+
+			for (int i = 0; i<tmpVertices.size(); ++i)
+			{
+				glm::vec3 v = tmpVertices[i];
+				glm::vec3 n = tmpNormals[i];
+				glm::vec3 t = tmpTexCoords[i];
+
+				float tmpScale = 0.1f;
+				glm::vec3 tmpPos = (v - refCenter - center) * objScale + (center*objScale);
+
+				v = tmpPos;
+
+				data[i].vx = v.x;
+				data[i].vy = v.y;
+				data[i].vz = v.z;
+				data[i].vw = 1.0f;
+
+				data[i].cx = m_color.x;
+				data[i].cy = m_color.y;
+				data[i].cz = m_color.z;
+				data[i].cw = m_color.w;
+
+				data[i].nx = n.x;
+				data[i].ny = n.y;
+				data[i].nz = n.z;
+				data[i].nw = 1.0f;
+
+				data[i].tx = t.x;
+				data[i].ty = t.y;
+				data[i].tz = 0.0f;
+				data[i].tw = 0.0f;
+			}
+
+			VertexBufferObjectAttribs* vboMesh = new VertexBufferObjectAttribs();
+			vboMesh->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
+
+			vboMesh->addAttrib(VERTEX_POSITION);
+			vboMesh->addAttrib(VERTEX_NORMAL);
+			vboMesh->addAttrib(VERTEX_COLOR);
+			vboMesh->addAttrib(VERTEX_TEXTURE);
+			vboMesh->bindAttribs();
+
+
+			VertexBufferObjectAttribs* vboLines = new VertexBufferObjectAttribs();
+			vboLines->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
+
+			vboLines->addAttrib(VERTEX_POSITION);
+			vboLines->addAttrib(VERTEX_NORMAL);
+			vboLines->addAttrib(VERTEX_COLOR);
+			vboLines->addAttrib(VERTEX_TEXTURE);
+			vboLines->bindAttribs();
+
+			delete[] data;
+
+			vbosMesh.push_back(vboMesh);
+			vbosLines.push_back(vboLines);
+			matNames.push_back(objMesh.pMaterial->name);
+		}
+
+		delete model;
+
+		m_vbosTrianglesAnimation.push_back(vbosMesh);
+		m_vbosLinesAnimation.push_back(vbosLines);
+		m_materialNamesAnimation.push_back(matNames);
+	}
 }
 
 void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const glm::vec3 &scale)
@@ -617,7 +625,7 @@ void Object::updateAnimation(unsigned int fps)
 	if (m_curAnimationTime > 1.0f)
 	{
 		int totalNum = m_vbosTrianglesAnimation.size();
-		//loop(m_curAnimationIdx, 0, totalNum - 1, 1);
+		Common::loop(m_curAnimationIdx, 0, totalNum - 1, 1);
 		m_curAnimationTime = 0.0f;
 	}
 }

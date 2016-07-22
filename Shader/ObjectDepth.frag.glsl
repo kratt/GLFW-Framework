@@ -20,5 +20,5 @@ void main()
     float moment1 = gl_FragCoord.z;
     float moment2 = moment1 * moment1;
 
-    FragColor[0] = vec4(moment1, moment2, 0.0, 1.0);
+    FragColor = vec4(moment1, moment2, 0.0, 1.0);
 }

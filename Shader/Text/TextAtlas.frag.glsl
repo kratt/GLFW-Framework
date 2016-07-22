@@ -8,10 +8,13 @@ in vec4 VertTexture;
 out vec4 FragColor;
 
 uniform sampler2D texAtlas;
+uniform vec4 textColor = vec4(1.0f);
 
 void main()
 {
    float alpha = texture(texAtlas, vec2(VertTexture.x,  VertTexture.y)).x;
 	
-   FragColor = vec4(vec3(1), alpha);
+   alpha = min(alpha, textColor.a);
+	
+   FragColor = vec4(textColor.xyz, alpha);
 }

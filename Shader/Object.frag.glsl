@@ -6,7 +6,7 @@ in vec4 VertColor;
 in vec4 VertTexture;
 in vec4 VertShadowCoord;
 
-out vec4 FragData;
+out vec4 FragColor;
 
 uniform vec3 lightPos;
 uniform vec3 camPos;
@@ -15,8 +15,10 @@ uniform float shadowIntensity;
 
 uniform sampler2D shadowMapBlurred;
 uniform sampler2D shadowMap;
+uniform sampler2D texKd;
 
 uniform int isSelected = 0;
+
 
 float VSM(vec4 smcoord)
 {
@@ -55,8 +57,7 @@ void main()
     {
        shadow = VSM(VertShadowCoord);
     }
-
-
+	
     vec3 P = VertPosition.xyz;
     vec3 N = normalize(VertNormal.xyz);
     vec3 L = normalize(lightPos.xyz - P);
@@ -81,9 +82,11 @@ void main()
     vec3 diffuse  = matDiffuse  * lColor * d * 1.0;
     vec3 specular = matSpecular * lColor * s * 0.0;
 
-    vec4 finalColor = vec4(diffuse + ambient + specular, 1);
-    //finalColor.xyz *= shadow;
-
+	vec3 kdColor = texture(texKd, vec2(VertTexture.x, VertTexture.y)).xyz;
 	
-    FragData = vec4(finalColor.xyz, 1.0);	
+	
+    vec4 finalColor = vec4(kdColor, 1) * vec4(diffuse + ambient + specular, 1);
+    finalColor.xyz *= shadow;
+
+    FragColor = vec4(finalColor.xyz, 1.0);	
 }

@@ -5,7 +5,7 @@ in vec4 VertNormal;
 in vec4 VertColor;
 in vec4 VertTexture;
 
-out vec4 FragData;
+out vec4 FragColor;
 
 uniform vec3 lightPos;
 
@@ -20,5 +20,5 @@ void main()
     float moment1 = gl_FragCoord.z;
     float moment2 = moment1 * moment1;
 
-    FragData = vec4(moment1, moment2, 0.0, 1.0);
+    FragColor[0] = vec4(moment1, moment2, 0.0, 1.0);
 }

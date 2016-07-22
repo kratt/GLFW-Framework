@@ -1,5 +1,6 @@
 // 20.07.2016
 // author: Julian Kratt
+// based on: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_02
 
 #ifndef TEXTUR_ATLAS_H
 #define TEXTUR_ATLAS_H

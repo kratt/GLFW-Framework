@@ -21,30 +21,8 @@
 #include <glm/mat3x3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-/*
------------------------------------------------------------------------------
-Common.h
------------------------------------------------------------------------------
-
-Contains some commonly used definitions, like VertexBufferObjects, TGAFILE,
-as well as methods for checking the OpenGL versions. Also a few useful
-utility functions.
-
------------------------------------------------------------------------------
-*/
 
 class VertexBufferObjectAttribs;
-
-
-struct TGAFILE
-{
-    unsigned char imageTypeCode;
-    short int imageWidth;
-    short int imageHeight;
-    unsigned char bitCount;
-    unsigned char *imageData;
-};
-
 
 
 class OpenGLVersion {
@@ -67,9 +45,6 @@ struct Common {
 	static void setupOpenGLExtensions();
 
 	static void getCameraFrame(const Transform &trans, glm::vec3 &dir, glm::vec3 &up, glm::vec3 &right, glm::vec3 &pos);
-	static void renderTexture(GLuint texture, int posX, int posY, float width, float height);
-	static void glEnable2D();
-	static void glDisable2D();
 
 	template <class T> static void loop(T &a, const T &low, const T &high, const T &inc = 1.0) { if (a >= high) a = low; else a += inc; }
 

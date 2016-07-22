@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <iomanip> 
 
 
 template <class T> class Slider : public GUIElement
@@ -120,56 +122,15 @@ void Slider<T>::render(Shader *shader)
 	shader->release();
 
 
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(3) << m_value;
+	std::string mystring = ss.str();
+
+
 	std::string sliderText = m_text;
-	sliderText += std::to_string(m_value);
+	sliderText += ss.str();
 
-	TextRenderer::instance()->render(sliderText, glm::vec2(m_posX + 2, param->windowHeight - m_posY + 5), 16, "calibril");
-	//renderString(sliderText.toAscii(), m_posX - 2, m_posY - 5, m_color.x, m_color.y, m_color.z, m_color.w, GLUT_BITMAP_HELVETICA_12);
-
-
-
-	//glEnable2D();
-
-	//float x1 = m_posX;
-	//float x2 = m_posX + m_width;
-	//float y1 = m_posY;
-	//float y2 = m_posY + m_height;
-
-	//glColor4f(m_color.x, m_color.y, m_color.z, m_color.w);
-
-	//glBegin(GL_LINES);
-	//glVertex2f(x1, y1);
-	//glVertex2f(x2, y1);
-
-	//glVertex2f(x1 - 1, y2);
-	//glVertex2f(x2, y2);
-
-	//glVertex2f(x1, y1);
-	//glVertex2f(x1, y2);
-
-	//glVertex2f(x2, y1);
-	//glVertex2f(x2, y2);
-	//glEnd();
-
-	//float qx1 = m_posX + 1;
-	//float qx2 = m_posX + 1 + (m_width - 3) * m_percent;
-	//float qy1 = m_posY + 2;
-	//float qy2 = m_posY + m_height - 1;
-
-	//glBegin(GL_QUADS);
-	//glVertex2f(qx1, qy1);
-	//glVertex2f(qx1, qy2);
-	//glVertex2f(qx2, qy2);
-	//glVertex2f(qx2, qy1);
-	//glEnd();
-
-	//glDisable2D();
-
-	//QString sliderText = m_text;
-
-	////sliderText += QString::number(m_value, 'f', 7);
-	//sliderText += QString::number(m_value);
-	//renderString(sliderText.toAscii(), m_posX - 2, m_posY - 5, m_color.x, m_color.y, m_color.z, m_color.w, GLUT_BITMAP_HELVETICA_12);
+	TextRenderer::instance()->render(sliderText, glm::vec2(m_posX + 2, param->windowHeight - m_posY + 5), 16, m_color, "calibril");
 }
 
 template <class T>

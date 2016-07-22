@@ -35,7 +35,7 @@ file(GLOB MY_HEADERS "src/*.h")
 list(APPEND HEADERS ${MY_HEADERS})
 
 # add sources to the project
-file(GLOB MY_SOURCES "src/*.cpp")
+file(GLOB MY_SOURCES "src/*.cpp" "src/log/*.cpp")
 list(APPEND SOURCES ${MY_SOURCES})                 
 				  
 				  

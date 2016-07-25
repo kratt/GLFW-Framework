@@ -26,10 +26,13 @@ GLWindow::GLWindow(int width, int height) :
 	m_shiftPressed(false),
 	m_noOtherKey(true),
 	m_leftButton(false),
-	m_rightButton(false)
+	m_rightButton(false),
+	m_numFrames(0)
 {
 	init();
 	initParams();
+
+	m_lastTime = glfwGetTime();
 
 	this->resize(m_width, m_height);
 }
@@ -92,9 +95,6 @@ void GLWindow::initParams()
 	param->depthRangeMin = 0.0f;
 }
 
-/**
-	The render loop. This is called for each frame.
-*/
 void GLWindow::render()
 {
 	auto param = RenderContext::globalObjectParam();
@@ -106,6 +106,15 @@ void GLWindow::render()
 	param->windowWidth = this->m_width;
 	param->windowHeight = this->m_height;
 	param->lightPos = m_scene->m_light->position();
+
+	double currentTime = glfwGetTime();
+	m_numFrames++;
+	if (currentTime - m_lastTime >= 1.0) { 
+		param->mspf = 1000.0 / double (m_numFrames);
+		param->fps = m_numFrames;
+		m_numFrames = 0;
+		m_lastTime += 1.0;
+	}
 
 	m_renderer->render();
 	m_gui->render();

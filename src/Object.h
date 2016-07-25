@@ -10,7 +10,7 @@
 
 class Shader;
 class Texture;
-class VertexBufferObjectAttribs;
+class VertexBufferObject;
 
 struct ObjectMaterial
 {
@@ -39,9 +39,6 @@ public:
 	glm::vec4 m_right;
 	glm::vec4 m_front;
 
-
-	std::vector<VertexBufferObjectAttribs*> &activeVBOs();
-
 private:
 	void init();
 	void initShaders();
@@ -57,12 +54,12 @@ private:
 	Shader *m_shaderTrianglesDepth;
 	Shader *m_shaderLines;
 
-	std::vector<VertexBufferObjectAttribs *> m_vbosTriangles;
-	std::vector<VertexBufferObjectAttribs *> m_vbosLines;
+	std::vector<VertexBufferObject *> m_vbosTriangles;
+	std::vector<VertexBufferObject *> m_vbosLines;
 	std::vector<std::string> m_materialNames;
 
-	std::vector< std::vector<VertexBufferObjectAttribs *> > m_vbosTrianglesAnimation;
-	std::vector< std::vector<VertexBufferObjectAttribs *> > m_vbosLinesAnimation;
+	std::vector< std::vector<VertexBufferObject *> > m_vbosTrianglesAnimation;
+	std::vector< std::vector<VertexBufferObject *> > m_vbosLinesAnimation;
 	std::vector< std::vector<std::string> > m_materialNamesAnimation;
 
 	std::map<std::string, ObjectMaterial> m_materialCache;

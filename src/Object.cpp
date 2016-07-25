@@ -1,7 +1,7 @@
 #include "Object.h"
 #include "Shader.h"
 #include "Common.h"
-#include "VertexBufferObjectAttribs.h"
+#include "VertexBufferObject.h"
 #include "ModelLoaderObj.h"
 #include "Texture.h"
 #include "RenderContext.h"
@@ -41,14 +41,12 @@ Object::~Object()
 
 	for (int i = m_vbosTriangles.size() - 1; i >= 0; --i)
 	{
-		VertexBufferObjectAttribs *vbo = m_vbosTriangles[i];
-		delete vbo;
+		delete m_vbosTriangles[i];
 	}
 
 	for (int i = m_vbosLines.size() - 1; i >= 0; --i)
 	{
-		VertexBufferObjectAttribs *vbo = m_vbosLines[i];
-		delete vbo;
+		delete m_vbosLines[i];
 	}
 }
 
@@ -123,7 +121,7 @@ void Object::render()
 
 	if (m_isAnimated)
 	{
-		std::vector<VertexBufferObjectAttribs*> &curVBO = m_vbosTrianglesAnimation[m_curAnimationIdx];
+		std::vector<VertexBufferObject*> &curVBO = m_vbosTrianglesAnimation[m_curAnimationIdx];
 		std::vector<std::string> &matNames = m_materialNamesAnimation[m_curAnimationIdx];
 
 		for (int i = 0; i<curVBO.size(); ++i)
@@ -171,7 +169,7 @@ void Object::render()
 
 		if (m_isAnimated)
 		{
-			std::vector<VertexBufferObjectAttribs*> &curVBO = m_vbosLinesAnimation[m_curAnimationIdx];
+			std::vector<VertexBufferObject*> &curVBO = m_vbosLinesAnimation[m_curAnimationIdx];
 
 			for (int i = 0; i<curVBO.size(); ++i)
 			{
@@ -328,8 +326,8 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 
 	for (int i = 0; i < fileList.size(); ++i)
 	{
-		std::vector<VertexBufferObjectAttribs*> vbosMesh;
-		std::vector<VertexBufferObjectAttribs*> vbosLines;
+		std::vector<VertexBufferObject*> vbosMesh;
+		std::vector<VertexBufferObject*> vbosLines;
 		std::vector<std::string> matNames;
 
 		ModelOBJ *model = new ModelOBJ();
@@ -399,7 +397,7 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 			}
 
 			glm::vec3 center = (mi + ma) * 0.5f;
-			VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[tmpVertices.size()];
+			std::vector<VertexData> v_data = std::vector<VertexData>(tmpVertices.size());
 
 			for (int i = 0; i<tmpVertices.size(); ++i)
 			{
@@ -412,29 +410,29 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 
 				v = tmpPos;
 
-				data[i].vx = v.x;
-				data[i].vy = v.y;
-				data[i].vz = v.z;
-				data[i].vw = 1.0f;
-
-				data[i].cx = m_color.x;
-				data[i].cy = m_color.y;
-				data[i].cz = m_color.z;
-				data[i].cw = m_color.w;
-
-				data[i].nx = n.x;
-				data[i].ny = n.y;
-				data[i].nz = n.z;
-				data[i].nw = 1.0f;
-
-				data[i].tx = t.x;
-				data[i].ty = t.y;
-				data[i].tz = 0.0f;
-				data[i].tw = 0.0f;
+				v_data[i].vx = v.x;
+				v_data[i].vy = v.y;
+				v_data[i].vz = v.z;
+				v_data[i].vw = 1.0f;
+			
+				v_data[i].cx = m_color.x;
+				v_data[i].cy = m_color.y;
+				v_data[i].cz = m_color.z;
+				v_data[i].cw = m_color.w;
+			
+				v_data[i].nx = n.x;
+				v_data[i].ny = n.y;
+				v_data[i].nz = n.z;
+				v_data[i].nw = 1.0f;
+			
+				v_data[i].tx = t.x;
+				v_data[i].ty = t.y;
+				v_data[i].tz = 0.0f;
+				v_data[i].tw = 0.0f;
 			}
 
-			VertexBufferObjectAttribs* vboMesh = new VertexBufferObjectAttribs();
-			vboMesh->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
+			VertexBufferObject* vboMesh = new VertexBufferObject();
+			vboMesh->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
 
 			vboMesh->addAttrib(VERTEX_POSITION);
 			vboMesh->addAttrib(VERTEX_NORMAL);
@@ -443,16 +441,14 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 			vboMesh->bindAttribs();
 
 
-			VertexBufferObjectAttribs* vboLines = new VertexBufferObjectAttribs();
-			vboLines->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
+			VertexBufferObject* vboLines = new VertexBufferObject();
+			vboLines->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
 
 			vboLines->addAttrib(VERTEX_POSITION);
 			vboLines->addAttrib(VERTEX_NORMAL);
 			vboLines->addAttrib(VERTEX_COLOR);
 			vboLines->addAttrib(VERTEX_TEXTURE);
 			vboLines->bindAttribs();
-
-			delete[] data;
 
 			vbosMesh.push_back(vboMesh);
 			vbosLines.push_back(vboLines);
@@ -561,7 +557,7 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 
 		m_center = (glm::vec4(m_min, 0.0f) + glm::vec4(m_max, 0.0f)) * 0.5f;
 
-		VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[tmpVertices.size()];
+		std::vector<VertexData> v_data = std::vector<VertexData>(tmpVertices.size());
 
 		for (int i = 0; i<tmpVertices.size(); ++i)
 		{
@@ -569,29 +565,29 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 			glm::vec3 n = tmpNormals[i];
 			glm::vec3 t = tmpTexCoords[i];
 
-			data[i].vx = v.x;
-			data[i].vy = v.y;
-			data[i].vz = v.z;
-			data[i].vw = 1.0f;
-
-			data[i].cx = m_color.x;
-			data[i].cy = m_color.y;
-			data[i].cz = m_color.z;
-			data[i].cw = m_color.w;
-
-			data[i].nx = n.x;
-			data[i].ny = n.y;
-			data[i].nz = n.z;
-			data[i].nw = 1.0f;
-
-			data[i].tx = t.x;
-			data[i].ty = t.y;
-			data[i].tz = 0.0f;
-			data[i].tw = 0.0f;
+			v_data[i].vx = v.x;
+			v_data[i].vy = v.y;
+			v_data[i].vz = v.z;
+			v_data[i].vw = 1.0f;
+		
+			v_data[i].cx = m_color.x;
+			v_data[i].cy = m_color.y;
+			v_data[i].cz = m_color.z;
+			v_data[i].cw = m_color.w;
+			
+			v_data[i].nx = n.x;
+			v_data[i].ny = n.y;
+			v_data[i].nz = n.z;
+			v_data[i].nw = 1.0f;
+		
+			v_data[i].tx = t.x;
+			v_data[i].ty = t.y;
+			v_data[i].tz = 0.0f;
+			v_data[i].tw = 0.0f;
 		}
 
-		VertexBufferObjectAttribs* vboMesh = new VertexBufferObjectAttribs();
-		vboMesh->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
+		VertexBufferObject* vboMesh = new VertexBufferObject();
+		vboMesh->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
 
 		vboMesh->addAttrib(VERTEX_POSITION);
 		vboMesh->addAttrib(VERTEX_NORMAL);
@@ -600,16 +596,14 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 		vboMesh->bindAttribs();
 
 
-		VertexBufferObjectAttribs* vboLines = new VertexBufferObjectAttribs();
-		vboLines->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
+		VertexBufferObject* vboLines = new VertexBufferObject();
+		vboLines->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
 
 		vboLines->addAttrib(VERTEX_POSITION);
 		vboLines->addAttrib(VERTEX_NORMAL);
 		vboLines->addAttrib(VERTEX_COLOR);
 		vboLines->addAttrib(VERTEX_TEXTURE);
 		vboLines->bindAttribs();
-
-		delete[] data;
 
 		m_vbosTriangles.push_back(vboMesh);
 		m_vbosLines.push_back(vboLines);

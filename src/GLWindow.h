@@ -1,7 +1,3 @@
-// Computer Graphics and Media Informatics
-// University of Konstanz
-// 2015
-
 #ifndef APPLICATION
 #define APPLICATION
 
@@ -43,6 +39,9 @@ public:
 private:
 	int m_width;
 	int m_height;
+	int m_numFrames;
+
+	double m_lastTime;
 
 	glm::vec2 m_mouse;
 

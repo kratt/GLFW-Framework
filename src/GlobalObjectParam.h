@@ -26,6 +26,9 @@ struct GlobalObjectParam
 	float polygonOffsetFactor;
 	float polygonOffsetUnits;
 
+	float fps;
+	float mspf; // ms per frame
+
 	glm::vec4 clipPlaneGround;
 
 	GLuint shadowMapID;

@@ -36,5 +36,20 @@ namespace utils {
 		return sYear + fMonth + fDay + "_" + fHour + fMinute + fSecond;
 	}
 
+
+	std::vector<std::string> get_file_list(const std::string &path, const std::string &extension)
+	{
+		std::vector<std::string> fileList;
+		for (auto file : std::experimental::filesystem::directory_iterator(path))
+		{
+			std::experimental::filesystem::path p(file);
+			if (p.extension().string().compare(extension) == 0)
+			{
+				fileList.push_back(p.string());
+			}
+		}	
+		return fileList;
+	}
+
 }
 

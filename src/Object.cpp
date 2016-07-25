@@ -6,8 +6,11 @@
 #include "Texture.h"
 #include "RenderContext.h"
 #include "log\Log.h"
+#include "log\vec.h"
+#include "system_utils.h"
 
 #include <regex> 
+#include <algorithm> 
 
 Object::Object(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &scale, const glm::vec4 &rot, const glm::vec4 &color)
 	: m_fileName(fileName),
@@ -158,34 +161,6 @@ void Object::render()
 		}
 	}
 	m_shaderTriangles->release();
-
-	if (param->renderMesh)
-	{
-		m_shaderLines->bind();
-
-		m_shaderLines->setMatrix("matModel", model, GL_TRUE);
-		m_shaderLines->setMatrix("matView", view, GL_TRUE);
-		m_shaderLines->setMatrix("matProjection", projection, GL_TRUE);
-
-		if (m_isAnimated)
-		{
-			std::vector<VertexBufferObject*> &curVBO = m_vbosLinesAnimation[m_curAnimationIdx];
-
-			for (int i = 0; i<curVBO.size(); ++i)
-			{
-				curVBO[i]->render();
-			}
-		}
-		else
-		{
-			for (int i = 0; i<m_vbosTriangles.size(); ++i)
-			{
-				m_vbosLines[i]->render();
-			}
-		}
-
-		m_shaderLines->release();
-	}
 }
 
 void Object::renderDepth()
@@ -228,18 +203,7 @@ void Object::renderDepth()
 
 void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, const glm::vec3 &scale)
 {
-	std::vector<std::string> fileList;
-	for (auto file : std::experimental::filesystem::directory_iterator(path))
-	{
-		std::experimental::filesystem::path p(file);
-
-		if (p.extension().string().compare(".obj") == 0)
-		{
-			debugLog() << p.string() << std::endl;
-			fileList.push_back(p.string());
-		}
-	
-	}
+	std::vector<std::string> fileList = utils::get_file_list(path, ".obj");
 
 	// first determine scaling factor based on first obj and materials
 	float objScale = 1.0f;
@@ -289,26 +253,15 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 			for (int j = startIndex; j<startIndex + nrVertices; ++j)
 			{
 				int idx = tempIdx[j];
-
 				glm::vec3 v = glm::vec3(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
 
-				if (v.x > ma.x)
-					ma.x = v.x;
+				ma.x = std::max(v.x, ma.x);
+				ma.y = std::max(v.y, ma.y);
+				ma.z = std::max(v.z, ma.z);
 
-				if (v.y > ma.y)
-					ma.y = v.y;
-
-				if (v.z > ma.z)
-					ma.z = v.z;
-
-				if (v.x < mi.x)
-					mi.x = v.x;
-
-				if (v.y < mi.y)
-					mi.y = v.y;
-
-				if (v.z < mi.z)
-					mi.z = v.z;
+				mi.x = std::min(v.x, mi.x);
+				mi.y = std::min(v.y, mi.y);
+				mi.z = std::min(v.z, mi.z);
 			}
 		}
 
@@ -327,7 +280,6 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 	for (int i = 0; i < fileList.size(); ++i)
 	{
 		std::vector<VertexBufferObject*> vbosMesh;
-		std::vector<VertexBufferObject*> vbosLines;
 		std::vector<std::string> matNames;
 
 		ModelOBJ *model = new ModelOBJ();
@@ -336,103 +288,68 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 		model->import(fileList[i].data());
 
 
-		int nrMeshes = model->getNumberOfMeshes();
+		// collect data for each material. Put vertices into the same vbo if they share the same material
+		std::map<std::string, std::vector<VertexData>> v_data;
 
+		int nrMeshes = model->getNumberOfMeshes();
 		const ModelOBJ::Vertex *vb = model->getVertexBuffer();
 		const int *tempIdx = model->getIndexBuffer();
 
-		//mat4 rotMatX = mat4::rotate(rot.x, 1.0f, 0.0f, 0.0f);
-		//mat4 rotMatY = mat4::rotate(rot.y, 0.0f, 1.0f, 0.0f);
-		//mat4 rotMatZ = mat4::rotate(rot.z, 0.0f, 0.0f, 1.0f);
-		//mat4 scaleMat = mat4::scale(scale.x, scale.y, scale.z);
-
 		for (int i = 0; i < nrMeshes; ++i)
 		{
-			std::vector<glm::vec3> tmpVertices;
-			std::vector<glm::vec3> tmpNormals;
-			std::vector<glm::vec3> tmpTexCoords;
-
 			const ModelOBJ::Mesh &objMesh = model->getMesh(i);
+			auto &data = v_data[objMesh.pMaterial->name];
+
 			int startIndex = objMesh.startIndex;
 			m_nrTriangles = objMesh.triangleCount;
 			m_nrVertices = objMesh.triangleCount * 3;
 
-			for (int j = startIndex; j<startIndex + m_nrVertices; ++j)
-			{
-				int idx = tempIdx[j];
-
-				glm::vec3 v(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
-				glm::vec3 n(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]);
-				glm::vec3 t(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f);
-
-				tmpVertices.push_back(v);
-				tmpNormals.push_back(n);
-				tmpTexCoords.push_back(t);
-			}
-
 			glm::vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
 			glm::vec3 ma(math_minfloat, math_minfloat, math_minfloat);
 
-			for (int i = 0; i<tmpVertices.size(); ++i)
+			int numVerts = 0;
+			for (int j = startIndex; j < startIndex + m_nrVertices; ++j)
 			{
-				glm::vec3 v = tmpVertices[i];
+				int idx = tempIdx[j];
 
-				if (v.x > ma.x)
-					ma.x = v.x;
+				glm::vec3 pos = glm::vec3(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
+				glm::vec3 normal = glm::vec3(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]);
+				glm::vec3 texCoords = glm::vec3(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f);
 
-				if (v.y > ma.y)
-					ma.y = v.y;
+				ma.x = std::max(pos.x, ma.x);
+				ma.y = std::max(pos.y, ma.y);
+				ma.z = std::max(pos.z, ma.z);
 
-				if (v.z > ma.z)
-					ma.z = v.z;
+				mi.x = std::min(pos.x, mi.x);
+				mi.y = std::min(pos.y, mi.y);
+				mi.z = std::min(pos.z, mi.z);
 
-				if (v.x < mi.x)
-					mi.x = v.x;
+				data.push_back(VertexData(pos, normal, glm::vec3(0.0f), texCoords));
 
-				if (v.y < mi.y)
-					mi.y = v.y;
-
-				if (v.z < mi.z)
-					mi.z = v.z;
+				++numVerts;
 			}
 
 			glm::vec3 center = (mi + ma) * 0.5f;
-			std::vector<VertexData> v_data = std::vector<VertexData>(tmpVertices.size());
 
-			for (int i = 0; i<tmpVertices.size(); ++i)
+			auto start = data.end() - numVerts;
+			auto end = data.end();
+			std::transform(start, end, start, [&](VertexData &d)
 			{
-				glm::vec3 v = tmpVertices[i];
-				glm::vec3 n = tmpNormals[i];
-				glm::vec3 t = tmpTexCoords[i];
+				glm::vec3 pos = glm::vec3(d.vx, d.vy, d.vz);
+				pos = (pos - refCenter - center) * objScale + (center*objScale);
+				d.vx = pos.x;
+				d.vy = pos.y;
+				d.vz = pos.z;
 
-				float tmpScale = 0.1f;
-				glm::vec3 tmpPos = (v - refCenter - center) * objScale + (center*objScale);
+				return d;
+			});
+		}
 
-				v = tmpPos;
-
-				v_data[i].vx = v.x;
-				v_data[i].vy = v.y;
-				v_data[i].vz = v.z;
-				v_data[i].vw = 1.0f;
-			
-				v_data[i].cx = m_color.x;
-				v_data[i].cy = m_color.y;
-				v_data[i].cz = m_color.z;
-				v_data[i].cw = m_color.w;
-			
-				v_data[i].nx = n.x;
-				v_data[i].ny = n.y;
-				v_data[i].nz = n.z;
-				v_data[i].nw = 1.0f;
-			
-				v_data[i].tx = t.x;
-				v_data[i].ty = t.y;
-				v_data[i].tz = 0.0f;
-				v_data[i].tw = 0.0f;
-			}
-
+		for (auto &data_pair : v_data)
+		{
 			VertexBufferObject* vboMesh = new VertexBufferObject();
-			vboMesh->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
+
+			vboMesh->setData(data_pair.second, GL_STATIC_DRAW, data_pair.second.size(), GL_TRIANGLES);
 
 			vboMesh->addAttrib(VERTEX_POSITION);
 			vboMesh->addAttrib(VERTEX_NORMAL);
@@ -440,25 +357,13 @@ void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, c
 			vboMesh->addAttrib(VERTEX_TEXTURE);
 			vboMesh->bindAttribs();
 
-
-			VertexBufferObject* vboLines = new VertexBufferObject();
-			vboLines->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
-
-			vboLines->addAttrib(VERTEX_POSITION);
-			vboLines->addAttrib(VERTEX_NORMAL);
-			vboLines->addAttrib(VERTEX_COLOR);
-			vboLines->addAttrib(VERTEX_TEXTURE);
-			vboLines->bindAttribs();
-
 			vbosMesh.push_back(vboMesh);
-			vbosLines.push_back(vboLines);
-			matNames.push_back(objMesh.pMaterial->name);
+			matNames.push_back(data_pair.first);
 		}
 
 		delete model;
 
 		m_vbosTrianglesAnimation.push_back(vbosMesh);
-		m_vbosLinesAnimation.push_back(vbosLines);
 		m_materialNamesAnimation.push_back(matNames);
 	}
 }
@@ -494,16 +399,13 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 		m_hasMaterial = true;
 
 
+	// collect data for each material. Put vertices into the same vbo if they share the same material
+	std::map<std::string, std::vector<VertexData>> v_data;
 
 	int nrMeshes = model->getNumberOfMeshes();
 
 	const ModelOBJ::Vertex *vb = model->getVertexBuffer();
 	const int *tempIdx = model->getIndexBuffer();
-
-	//mat4 rotMatX = mat4::rotate(rot.x, 1.0f, 0.0f, 0.0f);
-	//mat4 rotMatY = mat4::rotate(rot.y, 0.0f, 1.0f, 0.0f);
-	//mat4 rotMatZ = mat4::rotate(rot.z, 0.0f, 0.0f, 1.0f);
-	//mat4 scaleMat = mat4::scale(scale.x, scale.y, scale.z);
 
 	for (int i = 0; i < nrMeshes; ++i)
 	{
@@ -512,82 +414,28 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 		std::vector<glm::vec3> tmpTexCoords;
 
 		const ModelOBJ::Mesh &objMesh = model->getMesh(i);
+
+		auto &data = v_data[objMesh.pMaterial->name];
+
 		int startIndex = objMesh.startIndex;
 		m_nrTriangles = objMesh.triangleCount;
 		m_nrVertices = objMesh.triangleCount * 3;
 
-		for (int j = startIndex; j<startIndex + m_nrVertices; ++j)
+		for (int j = startIndex; j < startIndex + m_nrVertices; ++j)
 		{
 			int idx = tempIdx[j];
 
-			glm::vec3 v(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
-			glm::vec3 n(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]);
-			glm::vec3 t(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f);
-
-			tmpVertices.push_back(v);
-			tmpNormals.push_back(n);
-			tmpTexCoords.push_back(t);
+			data.push_back(VertexData(glm::vec3(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]),
+				glm::vec3(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]), glm::vec3(0.0f),
+				glm::vec3(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f)));
 		}
+	}
 
-		glm::vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
-		glm::vec3 ma(math_minfloat, math_minfloat, math_minfloat);
-
-		for (int i = 0; i<tmpVertices.size(); ++i)
-		{
-			glm::vec3 v = tmpVertices[i];
-
-			if (v.x > m_max.x)
-				m_max.x = v.x;
-
-			if (v.y > m_max.y)
-				m_max.y = v.y;
-
-			if (v.z > m_max.z)
-				m_max.z = v.z;
-
-			if (v.x < m_min.x)
-				m_min.x = v.x;
-
-			if (v.y < m_min.y)
-				m_min.y = v.y;
-
-			if (v.z < m_min.z)
-				m_min.z = v.z;
-		}
-
-		m_center = (glm::vec4(m_min, 0.0f) + glm::vec4(m_max, 0.0f)) * 0.5f;
-
-		std::vector<VertexData> v_data = std::vector<VertexData>(tmpVertices.size());
-
-		for (int i = 0; i<tmpVertices.size(); ++i)
-		{
-			glm::vec3 v = tmpVertices[i];
-			glm::vec3 n = tmpNormals[i];
-			glm::vec3 t = tmpTexCoords[i];
-
-			v_data[i].vx = v.x;
-			v_data[i].vy = v.y;
-			v_data[i].vz = v.z;
-			v_data[i].vw = 1.0f;
-		
-			v_data[i].cx = m_color.x;
-			v_data[i].cy = m_color.y;
-			v_data[i].cz = m_color.z;
-			v_data[i].cw = m_color.w;
-			
-			v_data[i].nx = n.x;
-			v_data[i].ny = n.y;
-			v_data[i].nz = n.z;
-			v_data[i].nw = 1.0f;
-		
-			v_data[i].tx = t.x;
-			v_data[i].ty = t.y;
-			v_data[i].tz = 0.0f;
-			v_data[i].tw = 0.0f;
-		}
-
+	for (auto &data_pair : v_data)
+	{
 		VertexBufferObject* vboMesh = new VertexBufferObject();
-		vboMesh->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES);
+
+		vboMesh->setData(data_pair.second, GL_STATIC_DRAW, data_pair.second.size(), GL_TRIANGLES);
 
 		vboMesh->addAttrib(VERTEX_POSITION);
 		vboMesh->addAttrib(VERTEX_NORMAL);
@@ -595,19 +443,8 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 		vboMesh->addAttrib(VERTEX_TEXTURE);
 		vboMesh->bindAttribs();
 
-
-		VertexBufferObject* vboLines = new VertexBufferObject();
-		vboLines->setData(v_data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES);
-
-		vboLines->addAttrib(VERTEX_POSITION);
-		vboLines->addAttrib(VERTEX_NORMAL);
-		vboLines->addAttrib(VERTEX_COLOR);
-		vboLines->addAttrib(VERTEX_TEXTURE);
-		vboLines->bindAttribs();
-
 		m_vbosTriangles.push_back(vboMesh);
-		m_vbosLines.push_back(vboLines);
-		m_materialNames.push_back(objMesh.pMaterial->name);
+		m_materialNames.push_back(data_pair.first);
 	}
 
 	delete model;
@@ -623,290 +460,3 @@ void Object::updateAnimation(unsigned int fps)
 		m_curAnimationTime = 0.0f;
 	}
 }
-
-
-
-//#include "Object.h"
-//#include "Shader.h"
-//#include "VertexBufferObjectAttribs.h"
-//#include "ModelLoaderObj.h"
-//#include "RenderContext.h"
-//#include <iostream>
-//
-//Object::Object(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &scale, const glm::vec4 &rot, const glm::vec4 &color)
-//: m_fileName(fileName),
-//  m_position(pos),
-//  m_scale(scale),
-//  m_rotation(rot),
-//  m_color(color),
-//  m_shaderTriangles(NULL),
-//  m_shaderLines(NULL),
-//  m_shaderTrianglesDepth(NULL),
-//  m_isSelected(false),
-//  m_max(math_minfloat, math_minfloat, math_minfloat),
-//  m_min(math_maxfloat, math_maxfloat, math_maxfloat),
-//  m_nrTriangles(0),
-//  m_nrVertices(0),
-//  m_up(0, 1, 0, 1)
-//{
-//    init();
-//}
-//
-//Object::~Object()
-//{
-//    delete m_shaderTriangles;
-//    delete m_shaderLines;
-//    delete m_shaderTrianglesDepth;
-//
-//    for(int i=m_vbosTriangles.size()-1; i>=0; --i)
-//    {
-//        VertexBufferObjectAttribs *vbo = m_vbosTriangles[i];
-//        delete vbo;
-//    }
-//
-//    for(int i=m_vbosLines.size()-1; i>=0; --i)
-//    {
-//        VertexBufferObjectAttribs *vbo = m_vbosLines[i];
-//        delete vbo;
-//    }
-//}
-//
-//void Object::init()
-//{
-//    buildVBOs(m_fileName, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-//
-//    m_shaderTriangles = new Shader("../Shader/Object.vert.glsl", "../Shader/Object.frag.glsl");
-//    m_shaderTriangles ->bindAttribLocations();
-//
-//    m_shaderTrianglesDepth = new Shader("../Shader/ObjectDepth.vert.glsl", "../Shader/ObjectDepth.frag.glsl");
-//    m_shaderTrianglesDepth ->bindAttribLocations();
-//
-//    m_shaderLines = new Shader("../Shader/ObjectLines.vert.glsl", "../Shader/ObjectLines.frag.glsl");
-//    m_shaderLines->bindAttribLocations();
-//}
-//
-//void Object::render()
-//{
-//	auto param = RenderContext::globalObjectParam();
-//	auto trans = RenderContext::transform();
-//
-//
-//	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position);
-//	model = glm::rotate(model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-//	model = glm::scale(model, m_scale);
-//	
-//	glm::mat4 view = trans->view;
-//	glm::mat4 projection = trans->projection;
-//	glm::mat4 lightView = trans->lightView;
-//
-//
-//    glEnable(GL_CLIP_DISTANCE0);    
-//
-//	m_shaderTriangles->bind();  
-//
-//        glActiveTexture(GL_TEXTURE1);
-//        glBindTexture(GL_TEXTURE_2D, param->shadowMapID);    
-//        m_shaderTriangles->seti("shadowMap", 1);   
-//
-//        glActiveTexture(GL_TEXTURE2);
-//        glBindTexture(GL_TEXTURE_2D, param->shadowMapBlurredID);    
-//        m_shaderTriangles->seti("shadowMapBlurred", 2);  
-//
-//	    m_shaderTriangles->setMatrix("matModel", model, GL_TRUE); 
-//	    m_shaderTriangles->setMatrix("matView", view, GL_TRUE);
-//	    m_shaderTriangles->setMatrix("matProjection", projection, GL_TRUE);
-//        m_shaderTriangles->setMatrix("matLightView", lightView, GL_TRUE);
-//
-//        m_shaderTriangles->set3f("lightPos", param->lightPos);        
-//        m_shaderTriangles->set3f("camPos", param->camPos);      
-//        m_shaderTriangles->seti("applyShadow", param->applyShadow);
-//        m_shaderTriangles->setf("shadowIntensity", param->shadowIntensity);
-//        m_shaderTriangles->seti("isSelected", m_isSelected);
-//
-//        //m_shaderTrianglesDepth->set4f("clipPlane", param->clipPlaneGround);
-//
-//        for(int i=0; i<m_vbosTriangles.size(); ++i)
-//        {
-//            m_vbosTriangles[i]->render();
-//        }
-//
-//	m_shaderTriangles->release();
-//
-//
-//    if(param->renderMesh)
-//    {
-//	    m_shaderLines->bind();  
-//
-//	        m_shaderLines->setMatrix("matModel", model, GL_TRUE); 
-//	        m_shaderLines->setMatrix("matView", view, GL_TRUE);
-//	        m_shaderLines->setMatrix("matProjection", projection, GL_TRUE);
-//
-//            for(int i=0; i<m_vbosTriangles.size(); ++i)
-//            {
-//                m_vbosLines[i]->render();
-//            }
-//
-//	    m_shaderLines->release();
-//    }  
-//}
-//
-//void Object::renderDepth()
-//{
-//	auto param = RenderContext::globalObjectParam();
-//	auto trans = RenderContext::transform();
-//
-//    glEnable(GL_CLIP_DISTANCE0);
-//
-//	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position); // *mat4::rotateY(m_rotation.y) * mat4::scale(m_scale);
-//	glm::mat4 view = trans->lightView;
-//	glm::mat4 projection = trans->lightProjection;
-//
-//    //glCullFace(GL_FRONT);
-//    //glFrontFace(GL_CCW);
-//
-//    //glClearDepth(1.0);
-//    //glEnable(GL_POLYGON_OFFSET_FILL);
-//    //glDepthFunc(GL_LEQUAL);
-//    //glDepthRange(param.depthRangeMin, param.depthRangeMax);
-//    //glPolygonOffset(param.polygonOffsetFactor, param.polygonOffsetUnits);
-//    
-//	m_shaderTrianglesDepth->bind();  
-//
-//	    m_shaderTrianglesDepth->setMatrix("matModel", model, GL_TRUE); 
-//	    m_shaderTrianglesDepth->setMatrix("matView", view, GL_TRUE);
-//	    m_shaderTrianglesDepth->setMatrix("matProjection", projection, GL_TRUE);     
-//
-//        //m_shaderTrianglesDepth->set4f("clipPlane", param->clipPlaneGround);
-//
-//        for(int i=0; i<m_vbosTriangles.size(); ++i)
-//        {
-//            m_vbosTriangles[i]->render();
-//        }
-//
-//	m_shaderTrianglesDepth->release();
-//}
-//
-//
-//void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const glm::vec3 &scale)
-//{
-//    ModelOBJ *model = new ModelOBJ();
-//
-//	std::cout << "OBSTACLEOBJ::load():" << fileName << std::endl;
-//    model->import(fileName.data());
-//    
-//	int nrMeshes = model->getNumberOfMeshes();
-//
-//    const ModelOBJ::Vertex *vb = model->getVertexBuffer();
-//    const int *tempIdx = model->getIndexBuffer();
-//
-// //   mat4 rotMatX = mat4::rotate(rot.x, 1.0f, 0.0f, 0.0f);
-//	//mat4 rotMatY = mat4::rotate(rot.y, 0.0f, 1.0f, 0.0f);
-// //   mat4 rotMatZ = mat4::rotate(rot.z, 0.0f, 0.0f, 1.0f);
-// //   mat4 scaleMat = mat4::scale(scale.x, scale.y, scale.z);
-//
-//	for(int i = 0; i < nrMeshes; ++i)	
-//	{
-//		std::vector<glm::vec3> tmpVertices;
-//		std::vector<glm::vec3> tmpNormals;
-//		std::vector<glm::vec3> tmpTexCoords;
-//
-//		const ModelOBJ::Mesh &objMesh = model->getMesh(i);
-//		int startIndex = objMesh.startIndex;
-//		m_nrTriangles = objMesh.triangleCount;
-//		m_nrVertices = objMesh.triangleCount * 3;
-//
-//		for(int j=startIndex; j<startIndex + m_nrVertices; ++j)
-//		{
-//			int idx = tempIdx[j];
-//
-//			glm::vec3 v(vb[idx].position[0], vb[idx].position[1], vb[idx].position[2]);
-//			glm::vec3 n(vb[idx].normal[0], vb[idx].normal[1], vb[idx].normal[2]);
-//			glm::vec3 t(vb[idx].texCoord[0], vb[idx].texCoord[1], 0.0f);
-//
-//			tmpVertices.push_back(v);
-//			tmpNormals.push_back(n);
-//			tmpTexCoords.push_back(t);
-//		} 
-//
-//        glm::vec3 mi(math_maxfloat, math_maxfloat, math_maxfloat);
-//        glm::vec3 ma(math_minfloat, math_minfloat, math_minfloat);
-//
-//        for(int i=0; i<tmpVertices.size(); ++i)
-//        {
-//            glm::vec3 v = tmpVertices[i];
-//            
-//            if(v.x > m_max.x)
-//                m_max.x = v.x;
-//
-//            if(v.y > m_max.y)
-//                m_max.y = v.y;
-//
-//            if(v.z > m_max.z)
-//                m_max.z = v.z;
-//
-//            if(v.x < m_min.x)
-//                m_min.x = v.x;
-//
-//            if(v.y < m_min.y)
-//                m_min.y = v.y;
-//
-//            if(v.z < m_min.z)
-//                m_min.z = v.z;
-//        }        
-//
-//        m_center =  (glm::vec4(m_min, 0.0f) + glm::vec4(m_max, 0.0f)) * 0.5f;
-//
-//        VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[tmpVertices.size()];
-//
-//		for(int i=0; i<tmpVertices.size(); ++i)
-//		{
-//            glm::vec3 v = tmpVertices[i];
-//            glm::vec3 n = tmpNormals[i];
-//            glm::vec3 t = tmpTexCoords[i];
-//
-//			data[i].vx = v.x;
-//			data[i].vy = v.y;
-//			data[i].vz = v.z;
-//			data[i].vw = 1.0f;
-//
-//			data[i].cx = m_color.x;
-//			data[i].cy = m_color.y;
-//			data[i].cz = m_color.z;
-//			data[i].cw = m_color.w;
-//			
-//            data[i].nx = n.x;
-//			data[i].ny = n.y;
-//			data[i].nz = n.z;
-//			data[i].nw = 1.0f;
-//            
-//			data[i].tx = t.x;
-//			data[i].ty = t.y;
-//            data[i].tz = 0.0f;
-//            data[i].tw = 0.0f;
-//		}
-//
-//		VertexBufferObjectAttribs* vboMesh = new VertexBufferObjectAttribs();
-//		vboMesh->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_TRIANGLES); 
-//
-//		vboMesh->addAttrib(VERTEX_POSITION);
-//		vboMesh->addAttrib(VERTEX_NORMAL);
-//		vboMesh->addAttrib(VERTEX_COLOR);
-//		vboMesh->addAttrib(VERTEX_TEXTURE);
-//		vboMesh->bindAttribs();
-//
-//
-//		VertexBufferObjectAttribs* vboLines = new VertexBufferObjectAttribs();
-//		vboLines->setData(data, GL_STATIC_DRAW, tmpVertices.size(), GL_LINES); 
-//
-//		vboLines->addAttrib(VERTEX_POSITION);
-//		vboLines->addAttrib(VERTEX_NORMAL);
-//		vboLines->addAttrib(VERTEX_COLOR);
-//		vboLines->addAttrib(VERTEX_TEXTURE);
-//		vboLines->bindAttribs();
-//
-//		delete[] data;
-//
-//        m_vbosTriangles.push_back(vboMesh);
-//        m_vbosLines.push_back(vboLines);
-//    }
-//}

@@ -10,6 +10,7 @@ namespace utils
 {
 	std::string time_string();
 
+	std::vector<std::string> get_file_list(const std::string &path, const std::string &extension);
 }
 
 

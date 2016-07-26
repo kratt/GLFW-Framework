@@ -165,41 +165,44 @@ void Object::render()
 
 void Object::renderDepth()
 {
-	//glEnable(GL_CLIP_DISTANCE0);
+	auto param = RenderContext::globalObjectParam();
+	auto trans = RenderContext::transform();
 
-	//mat4 model = mat4::translate(m_position) * mat4::rotateY(m_rotation.y) * mat4::scale(m_scale);
-	//mat4 view = trans.view;
-	//mat4 projection = trans.projection;
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), m_position);
+	model = glm::rotate(model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, m_scale);
 
-	//glDisable(GL_CULL_FACE);
-	////glCullFace(GL_FRONT);
-	////glFrontFace(GL_CCW);
+	glm::mat4 view = trans->view;
+	glm::mat4 projection = trans->projection;
 
-	////glClearDepth(1.0);
-	////glEnable(GL_POLYGON_OFFSET_FILL);
-	////glDepthFunc(GL_LEQUAL);
-	////glDepthRange(param.depthRangeMin, param.depthRangeMax);
-	////glPolygonOffset(param.polygonOffsetFactor, param.polygonOffsetUnits);
+	m_shaderTrianglesDepth->bind();
 
-	//m_shaderTrianglesDepth->bind();
+	m_shaderTrianglesDepth->setMatrix("matModel", model, GL_TRUE);
+	m_shaderTrianglesDepth->setMatrix("matView", view, GL_TRUE);
+	m_shaderTrianglesDepth->setMatrix("matProjection", projection, GL_TRUE);
 
-	//m_shaderTrianglesDepth->setMatrix("matModel", model, GL_TRUE);
-	//m_shaderTrianglesDepth->setMatrix("matView", view, GL_TRUE);
-	//m_shaderTrianglesDepth->setMatrix("matProjection", projection, GL_TRUE);
 
-	//m_shaderTrianglesDepth->set4f("clipPlane", param.clipPlaneGround);
+	if (m_isAnimated)
+	{
+		std::vector<VertexBufferObject*> &curVBO = m_vbosTrianglesAnimation[m_curAnimationIdx];
+		std::vector<std::string> &matNames = m_materialNamesAnimation[m_curAnimationIdx];
 
-	//for (uint i = 0; i<m_vbosTriangles.size(); ++i)
-	//{
-	//	m_vbosTriangles[i]->render();
-	//}
+		for (int i = 0; i < curVBO.size(); ++i)
+		{
+			curVBO[i]->render();
+		}
+	}
+	else
+	{
+		for (int i = 0; i < m_vbosTriangles.size(); ++i)
+		{
+			m_vbosTriangles[i]->render();
+		}
+	}
 
-	//m_shaderTrianglesDepth->release();
 
-	//glPopClientAttrib();
-	//glPopAttrib();
+	m_shaderTrianglesDepth->release();
 }
-
 
 void Object::buildVBOsAnimation(const std::string &path, const glm::vec3 &rot, const glm::vec3 &scale)
 {
@@ -452,11 +455,16 @@ void Object::buildVBOs(const std::string &fileName, const glm::vec3 &rot, const 
 
 void Object::updateAnimation(unsigned int fps)
 {
+	if (!fps)
+		return;
+
 	m_curAnimationTime += m_animationSpeed / fps;
 	if (m_curAnimationTime > 1.0f)
 	{
 		int totalNum = m_vbosTrianglesAnimation.size();
 		Common::loop(m_curAnimationIdx, 0, totalNum - 1, 1);
 		m_curAnimationTime = 0.0f;
+
+		RenderContext::globalObjectParam()->updateShadow = true;
 	}
 }

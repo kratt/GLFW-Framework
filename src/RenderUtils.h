@@ -7,7 +7,7 @@
 #include "Global.h"
 
 class Shader;
-class VertexBufferObjectAttribs;
+class VertexBufferObject;
 
 class RenderUtils
 {
@@ -25,7 +25,7 @@ protected:
 	static RenderUtils* s_renderUtilInstance;
 
 	Shader* m_shaderTex2D;
-	VertexBufferObjectAttribs* m_vboQuad;
+	VertexBufferObject* m_vboQuad;
 
 private:
 	void init();

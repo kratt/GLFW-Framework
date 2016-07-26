@@ -1,6 +1,6 @@
 #include "Light.h"
 #include "CameraManager.h"
-#include "VertexBufferObjectAttribs.h"
+#include "VertexBufferObject.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "FrameBufferObject.h"
@@ -22,7 +22,6 @@ Light::Light(Scene *scene, const glm::vec3 &pos)
   m_time(0),
   m_distance(1.0f),
   m_movement(0.0f),
-  m_moved(true),
   m_ncpLight(1.0f),
   m_fcpLight(200.0f),
   m_fovLight(90.0f),
@@ -123,9 +122,10 @@ void Light::blurShadowMap()
 
 void Light::setLightView()
 {
-	if (m_moved)
+	auto param = RenderContext::globalObjectParam();
+
+	if (param->updateShadow)
 	{
-		auto param = RenderContext::globalObjectParam();
 		auto trans = RenderContext::transform();
 
 		glm::mat4 projection = glm::perspective(m_fovLight, (float)m_bufferWidth / (float)m_bufferHeight, m_ncpLight, m_fcpLight);
@@ -145,10 +145,10 @@ void Light::setLightView()
 
 void Light::renderLightView()
 {
-    if(m_moved)
-    {
-		auto param = RenderContext::globalObjectParam();
+	auto param = RenderContext::globalObjectParam();
 
+    if(param->updateShadow)
+	{
         m_fboLight->bind();
             
             glViewport(0, 0, m_bufferWidth, m_bufferHeight);
@@ -164,7 +164,7 @@ void Light::renderLightView()
        param->shadowMapID = m_fboLight->texAttachment(GL_COLOR_ATTACHMENT0);
 	   param->shadowMapBlurredID = m_fboBlurV->texAttachment(GL_COLOR_ATTACHMENT0);
 
-        m_moved = false;
+	   param->updateShadow = false;
     }
 }
 
@@ -196,7 +196,7 @@ glm::vec3 Light::position()
 void Light::setPosition(const glm::vec3 &pos)
 {
 	m_position = pos;
-    m_moved = true;
+	RenderContext::globalObjectParam()->updateShadow = true;
 }
 
 void Light::autoMove()
@@ -263,7 +263,7 @@ void Light::move(CameraManager *camManager, float diffX, float diffY)
             }
         }
 
-        m_moved = true;
+		RenderContext::globalObjectParam()->updateShadow = true;
     }
 }
 
@@ -413,10 +413,6 @@ void Light::update(float delta)
 {
     m_movement = m_distance * delta;
     autoMove();
-    m_moved = true;
+	RenderContext::globalObjectParam()->updateShadow = true;
 }
 
-bool  Light::hasMoved()
-{
-    return m_moved;
-}

@@ -13,6 +13,7 @@ struct GlobalObjectParam
 	glm::vec3 camPos;
 	float shadowIntensity;
 	bool applyShadow;
+	bool updateShadow;
 	int gridRenderMode;
 	int polygonMode;
 	bool renderMesh;

@@ -18,7 +18,6 @@ public:
     Renderer(Scene *scene, CameraManager *camManager);
     ~Renderer();
 
-    void init();
     void render();
     
     void resize(int width, int height);
@@ -36,7 +35,6 @@ private:
 
     glm::vec4 m_bgColor; 
 
-    const GLuint m_samples;
     GLuint m_bgMode;
 };
 

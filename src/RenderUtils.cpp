@@ -1,6 +1,6 @@
 #include "RenderUtils.h"
 #include "Shader.h"
-#include "VertexBufferObjectAttribs.h"
+#include "VertexBufferObject.h"
 #include "Mesh.h"
 #include "RenderContext.h"
 

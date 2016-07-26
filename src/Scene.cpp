@@ -2,7 +2,7 @@
 #include "NiceGrid.h"
 #include "Light.h"
 #include "Shader.h"
-#include "VertexBufferObjectAttribs.h"
+#include "VertexBufferObject.h"
 #include "Mesh.h"
 #include "CameraManager.h"
 #include "Object.h"
@@ -28,7 +28,7 @@ void Scene::init()
 
 	m_vbo = Mesh::sphere(2.0f, 6, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	Object *sphere = new Object("../Data/Objs/hand/", glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(10.0f));
+	Object *sphere = new Object("../Data/Objs/hand/", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f));
 	m_objects.push_back(sphere);
 }
 
@@ -59,7 +59,6 @@ void Scene::renderObjects()
  //       m_vbo->render();    
 
  //   m_shaderNormal->release();
-
 
 
 	for (int i = 0; i < m_objects.size(); ++i)

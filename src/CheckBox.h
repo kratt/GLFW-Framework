@@ -12,7 +12,7 @@
 #include <string>
 
 class Shader;
-class VertexBufferObjectAttribs;
+class VertexBufferObject;
 
 class CheckBox : public GUIElement
 {
@@ -53,8 +53,8 @@ private:
     bool m_state;
     bool *m_variable;
 
-	VertexBufferObjectAttribs* m_vboLines;
-	VertexBufferObjectAttribs* m_vboQuad;
+	VertexBufferObject* m_vboLines;
+	VertexBufferObject* m_vboQuad;
 };
 
 #endif

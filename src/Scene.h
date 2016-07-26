@@ -4,7 +4,7 @@
 
 class NiceGrid;
 class Light;
-class VertexBufferObjectAttribs;
+class VertexBufferObject;
 class Shader;
 class CameraManager;
 class Object;
@@ -36,8 +36,7 @@ private:
 	
     NiceGrid *m_niceGrid;
     CameraManager *m_cameraManager;
-    VertexBufferObjectAttribs *m_vbo;
-	VertexBufferObjectAttribs *m_vboQuad;
+    VertexBufferObject *m_vbo;
 
 	std::vector<Object*> m_objects;
 

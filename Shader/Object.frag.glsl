@@ -1,5 +1,87 @@
 #version 400 core
 
+in vec3 VertPosition;
+in vec3 VertNormal;
+in vec4 VertColor;
+in vec4 VertTexture;
+in vec4 VertShadowCoord;
+
+out vec4 FragColor;
+
+uniform vec3 lightPos;
+uniform vec3 camPos;
+uniform sampler2D texKd;
+
+const float PI = 3.14f;
+
+float attenuation(float r, float f, float d) 
+{
+  float denom = d / r + 1.0;
+  float attenuation = 1.0 / (denom*denom);
+  float t = (attenuation - f) / (1.0 - f);
+  return max(t, 0.0);
+}
+
+float phongSpecular(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNormal, float shininess) 
+{
+  vec3 R = -reflect(lightDirection, surfaceNormal);
+  return pow(max(0.0, dot(viewDirection, R)), shininess);
+}
+
+float orenNayarDiffuse(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNormal, float roughness, float albedo) {
+  
+  float LdotV = dot(lightDirection, viewDirection);
+  float NdotL = dot(lightDirection, surfaceNormal);
+  float NdotV = dot(surfaceNormal, viewDirection);
+
+  float s = LdotV - NdotL * NdotV;
+  float t = mix(1.0, max(NdotL, NdotV), step(0.0, s));
+
+  float sigma2 = roughness * roughness;
+  float A = 1.0 + sigma2 * (albedo / (sigma2 + 0.13) + 0.5 / (sigma2 + 0.33));
+  float B = 0.45 * sigma2 / (sigma2 + 0.09);
+
+  return albedo * max(0.0, NdotL) * (A + B * s / t) / PI;
+}
+
+
+void main(void) 
+{
+  vec3 resColor = vec3(0.0);
+
+  // calculate attenuation
+  float lightDistance = length(lightPos - VertPosition);
+  float falloff = attenuation(1020, 0.05, lightDistance);
+
+  // difuse and specular color
+  vec3 diffuseColor = texture(texKd, VertTexture.st).rgb;
+  float specularStrength = 0.5;
+  float specularScale = 0.65;
+  float shininess = 20.0;
+  float roughness = 1.0;
+  float albedo = 0.95;
+
+  // light direction
+  vec3 L = normalize(lightPos - VertPosition);  // light direction
+  vec3 V = normalize(camPos - VertPosition); // eye direction
+  vec3 N = normalize(VertNormal);
+
+  float specular = specularStrength * phongSpecular(L, V, N, shininess) * specularScale * falloff;
+
+  vec3 diffuse = diffuseColor * orenNayarDiffuse(L, V, N, roughness, albedo) * falloff;
+  vec3 ambient = vec3(0.1);
+
+  resColor = diffuse + ambient + specular;
+  resColor = resColor;
+
+  FragColor = vec4(resColor, 1);
+}
+
+
+
+/*
+#version 400 core
+
 in vec4 VertPosition;
 in vec4 VertNormal;
 in vec4 VertColor;
@@ -90,3 +172,5 @@ void main()
 
     FragColor = vec4(finalColor.xyz, 1.0);	
 }
+
+*/

@@ -4,7 +4,8 @@
 #include "GUIElement.h"
 #include "Mesh.h"
 #include "Shader.h"
-#include "VertexBufferObjectAttribs.h"
+#include "VertexBufferObject.h"
+#include "VertexData.h"
 #include "gui_type.h"
 #include "RenderContext.h"
 #include "TextRenderer.h"
@@ -64,8 +65,8 @@ private:
 
     T *m_variable;   
 
-	VertexBufferObjectAttribs* m_vboLines;
-	VertexBufferObjectAttribs* m_vboQuad;
+	VertexBufferObject* m_vboLines;
+	VertexBufferObject* m_vboQuad;
 };
 
 
@@ -80,7 +81,7 @@ template <class T> Slider<T>::Slider(int px, int py, int w, int h, std::string t
 	m_maxValue(static_cast<T>(1.0f)),
 	m_value(static_cast<T>(0.0f)),
 	m_valueRange(static_cast<T>(0.0f)),
-	m_variable(NULL),
+	m_variable(nullptr),
 	m_color(1.0f, 1.0f, 1.0f, 1.0f),
 	m_vboLines(nullptr),
 	m_vboQuad(nullptr),
@@ -331,36 +332,36 @@ inline void Slider<T>::initVBOs()
 	vertices.push_back(glm::vec2(x1, y2));
 
 	int nrVertices = vertices.size();
-	VertexBufferObjectAttribs::DATA *data = new VertexBufferObjectAttribs::DATA[nrVertices];
+	std::vector<VertexData> v_data = std::vector<VertexData>(nrVertices);
 
 	for (int i = 0; i<nrVertices; ++i)
 	{
 		glm::vec2 v = vertices[i];
 
-		data[i].vx = v.x;
-		data[i].vy = v.y;
-		data[i].vz = 0.0f;
-		data[i].vw = 1.0f;
-
-		data[i].cx = 0.0f;
-		data[i].cy = 0.0f;
-		data[i].cz = 0.0f;
-		data[i].cw = 0.0f;
-
-		data[i].nx = 0.0f;
-		data[i].ny = 0.0f;
-		data[i].nz = 0.0f;
-		data[i].nw = 0.0f;
-
-		data[i].tx = 0.0f;
-		data[i].ty = 0.0f;
-		data[i].tz = 0.0f;
-		data[i].tw = 0.0f;
+		v_data[i].vx = v.x;
+		v_data[i].vy = v.y;
+		v_data[i].vz = 0.0f;
+		v_data[i].vw = 1.0f;
+		
+		v_data[i].cx = 0.0f;
+		v_data[i].cy = 0.0f;
+		v_data[i].cz = 0.0f;
+		v_data[i].cw = 0.0f;
+		
+		v_data[i].nx = 0.0f;
+		v_data[i].ny = 0.0f;
+		v_data[i].nz = 0.0f;
+		v_data[i].nw = 0.0f;
+		
+		v_data[i].tx = 0.0f;
+		v_data[i].ty = 0.0f;
+		v_data[i].tz = 0.0f;
+		v_data[i].tw = 0.0f;
 	}
 
 	delete m_vboLines;
-	m_vboLines = new VertexBufferObjectAttribs();
-	m_vboLines->setData(data, GL_STATIC_DRAW, nrVertices, GL_LINE_LOOP);
+	m_vboLines = new VertexBufferObject();
+	m_vboLines->setData(v_data, GL_STATIC_DRAW, nrVertices, GL_LINE_LOOP);
 
 	m_vboLines->addAttrib(VERTEX_POSITION);
 	m_vboLines->addAttrib(VERTEX_NORMAL);

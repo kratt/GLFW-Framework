@@ -4,7 +4,6 @@
 #include "Scene.h"
 #include "Light.h"
 #include "RenderContext.h"
-#include "Common.h"
 
 
 Renderer::Renderer(Scene *scene, CameraManager *camManager)
@@ -13,26 +12,19 @@ Renderer::Renderer(Scene *scene, CameraManager *camManager)
   m_bgColor(0.1f, 0.1f, 0.1f, 1.0f),
   m_width(0),
   m_height(0),
-  m_samples(16),
   m_bgMode(0)
 {
-    init();
 }
 
 Renderer::~Renderer()
 {
 }
 
-void Renderer::init()
-{
-
-}
-
 void Renderer::render()
 {
 	auto param = RenderContext::globalObjectParam();
 
-    if(param->applyShadow)
+    if(param->updateShadow)
     {
 		m_scene->m_light->setLightView();
         m_scene->m_light->renderLightView(); 

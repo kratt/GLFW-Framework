@@ -11,7 +11,7 @@
 #include <glm/mat4x4.hpp>
 
 class CameraManager;
-class VertexBufferObjectAttribs;
+class VertexBufferObject;
 class Shader;
 class FrameBufferObject;
 class Scene;
@@ -43,15 +43,8 @@ public:
    void recordPath(bool record);
    void autoMove();
    void toggleMode();
-   bool hasMoved();
 
    void update(float delta);
-
-   bool m_moved;
-
-   FrameBufferObject *m_fboLight;
-   FrameBufferObject *m_fboBlurV;
-   FrameBufferObject *m_fboBlurH;
 
 private:
 
@@ -81,16 +74,17 @@ private:
     float m_distance;
     float m_movement;
 
-    VertexBufferObjectAttribs *m_vbo;
-    VertexBufferObjectAttribs *m_vboBlur;
+	Shader *m_shader;
+	Shader *m_shaderBlur;
 
-    Shader *m_shader;    
-    Shader *m_shaderBlur;    
+    VertexBufferObject *m_vbo;
+    VertexBufferObject *m_vboBlur;
 
+	FrameBufferObject *m_fboLight;
+	FrameBufferObject *m_fboBlurV;
+	FrameBufferObject *m_fboBlurH;
 
 public:
- 
-
     int m_bufferWidth;
     int m_bufferHeight;
     float m_fcpLight;

@@ -1,3 +1,4 @@
+/*
 #version 400 core
 
 in vec3 VertPosition;
@@ -11,6 +12,7 @@ out vec4 FragColor;
 uniform vec3 lightPos;
 uniform vec3 camPos;
 uniform sampler2D texKd;
+
 
 const float PI = 3.14f;
 
@@ -76,10 +78,10 @@ void main(void)
 
   FragColor = vec4(resColor, 1);
 }
+*/
 
 
 
-/*
 #version 400 core
 
 in vec4 VertPosition;
@@ -173,4 +175,4 @@ void main()
     FragColor = vec4(finalColor.xyz, 1.0);	
 }
 
-*/
+
